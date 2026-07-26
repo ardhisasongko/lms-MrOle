@@ -35,7 +35,7 @@ export async function onRequest(context) {
       { role: 'user', content: message },
     ];
 
-    const response = await env.AI.run('@cf/meta/llama-3-8b-instruct', {
+    const response = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
       messages,
       max_tokens: 500,
       temperature: 0.7,
@@ -54,7 +54,8 @@ export async function onRequest(context) {
     });
   } catch (err) {
     console.error('Chat error:', err);
-    return new Response(JSON.stringify({ error: 'Internal error' }), {
+    const message = err.message || 'Internal error';
+    return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
