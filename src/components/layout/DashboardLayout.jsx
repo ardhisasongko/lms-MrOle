@@ -1,21 +1,23 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, History, MessageSquare, User, Settings, GraduationCap, Trophy, Menu, X, LogOut } from 'lucide-react';
+import { GraduationCap, Menu, X } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
 const sidebarLinks = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/practice', label: 'Latihan', icon: BookOpen },
-  { to: '/history', label: 'Riwayat', icon: History },
-  { to: '/leaderboard', label: 'Peringkat', icon: Trophy },
-  { to: '/chat', label: 'AI Chat', icon: MessageSquare },
-  { to: '/profile', label: 'Profil', icon: User },
-  { to: '/settings', label: 'Pengaturan', icon: Settings },
+  { to: '/dashboard', label: 'Dashboard' },
+  { to: '/practice', label: 'Latihan' },
+  { to: '/history', label: 'Riwayat' },
+  { to: '/leaderboard', label: 'Peringkat' },
+  { to: '/chat', label: 'AI Chat' },
+  { to: '/profile', label: 'Profil' },
+  { to: '/settings', label: 'Pengaturan' },
 ];
 
 export default function DashboardLayout({ user, onLogout }) {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => { setSidebarOpen(false); }, [location.pathname]);
 
   const linkClass = (to) => cn(
     'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150',
@@ -39,7 +41,7 @@ export default function DashboardLayout({ user, onLogout }) {
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       )}>
         <div className="flex items-center justify-between p-6">
-          <Link to="/dashboard" className="flex items-center gap-2 text-xl font-bold text-primary-600" onClick={() => setSidebarOpen(false)}>
+          <Link to="/dashboard" className="flex items-center gap-2 text-xl font-bold text-primary-600">
             <GraduationCap className="w-8 h-8" />
             <span>Mr Ole</span>
           </Link>
@@ -48,22 +50,17 @@ export default function DashboardLayout({ user, onLogout }) {
           </button>
         </div>
         <nav className="flex-1 px-4 space-y-1">
-          {sidebarLinks.map((link) => {
-            const Icon = link.icon;
-            return (
-              <Link key={link.to} to={link.to} onClick={() => setSidebarOpen(false)} className={linkClass(link.to)}>
-                <Icon className="w-5 h-5 shrink-0" />
-                {link.label}
-              </Link>
-            );
-          })}
+          {sidebarLinks.map((link) => (
+            <Link key={link.to} to={link.to} className={linkClass(link.to)}>
+              {link.label}
+            </Link>
+          ))}
         </nav>
         <div className="p-4 border-t border-gray-200 dark:border-gray-800">
           <button
             onClick={onLogout}
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 w-full transition-colors duration-150"
           >
-            <LogOut className="w-5 h-5 shrink-0" />
             Keluar
           </button>
         </div>

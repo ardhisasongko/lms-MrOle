@@ -1,17 +1,19 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, ListTree, GraduationCap, ArrowLeft, Menu, X } from 'lucide-react';
+import { GraduationCap, ArrowLeft, Menu, X } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
 const sidebarLinks = [
-  { to: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/admin/questions', label: 'Soal', icon: BookOpen },
-  { to: '/admin/categories', label: 'Kategori', icon: ListTree },
+  { to: '/admin', label: 'Dashboard' },
+  { to: '/admin/questions', label: 'Soal' },
+  { to: '/admin/categories', label: 'Kategori' },
 ];
 
 export default function AdminLayout() {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => { setSidebarOpen(false); }, [location.pathname]);
 
   const linkClass = (to) => cn(
     'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150',
@@ -47,20 +49,15 @@ export default function AdminLayout() {
           </button>
         </div>
         <nav className="flex-1 px-4 space-y-1">
-          {sidebarLinks.map((link) => {
-            const Icon = link.icon;
-            return (
-              <Link key={link.to} to={link.to} onClick={() => setSidebarOpen(false)} className={linkClass(link.to)}>
-                <Icon className="w-5 h-5 shrink-0" />
-                {link.label}
-              </Link>
-            );
-          })}
+          {sidebarLinks.map((link) => (
+            <Link key={link.to} to={link.to} className={linkClass(link.to)}>
+              {link.label}
+            </Link>
+          ))}
         </nav>
         <div className="p-4 border-t border-gray-200 dark:border-gray-800">
           <Link
             to="/dashboard"
-            onClick={() => setSidebarOpen(false)}
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150"
           >
             <ArrowLeft className="w-4 h-4 shrink-0" /> Kembali ke Aplikasi
