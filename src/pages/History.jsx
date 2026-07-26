@@ -27,7 +27,7 @@ export default function History() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Riwayat Latihan</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">Semua hasil latihan yang pernah kamu kerjakan.</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <button
             onClick={() => applyFilter('')}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-150 ${

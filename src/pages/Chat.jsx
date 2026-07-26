@@ -112,7 +112,7 @@ export default function Chat() {
 
       <Card>
         <CardContent className="p-0">
-          <div className="h-[400px] overflow-y-auto p-4 space-y-4">
+          <div className="max-h-[400px] h-[50vh] overflow-y-auto p-4 space-y-4">
             {messages.map((msg, i) => (
               <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
                 {msg.role === 'assistant' && (
