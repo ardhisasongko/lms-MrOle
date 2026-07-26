@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { GraduationCap, Shield, X } from '@phosphor-icons/react';
+import { GraduationCap, Shield, X, List } from '@phosphor-icons/react';
 import { cn } from '../../utils/cn';
-import { useAdmin } from '../../features/admin/useAdmin';
+import { useAdmin } from '../../hooks/useAdmin';
 
 const sidebarLinks = [
   { to: '/dashboard', key: 'nav.dashboard' },
@@ -76,6 +76,15 @@ export default function DashboardLayout({ user, onLogout }) {
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
+        <div className="md:hidden bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-black/[0.04] dark:border-white/[0.06] px-4 py-3 flex items-center justify-between">
+          <Link to="/dashboard" className="flex items-center gap-2 text-lg font-bold text-primary-500">
+            <GraduationCap className="w-6 h-6" weight="fill" />
+            <span>Mr Ole</span>
+          </Link>
+          <button onClick={() => setSidebarOpen(true)} aria-label="Buka menu navigasi" className="p-2 rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring">
+            <List className="w-6 h-6 text-gray-600 dark:text-gray-400" weight="regular" />
+          </button>
+        </div>
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
           <Outlet />
         </main>

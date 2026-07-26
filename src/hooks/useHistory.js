@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../services/supabase';
-import { useAuth } from '../features/auth/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const PAGE_SIZE = 10;
 

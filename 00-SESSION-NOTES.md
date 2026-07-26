@@ -26,7 +26,7 @@
 | Auth | Supabase Auth |
 | AI | Cloudflare Workers AI (free) |
 | Grafik | Recharts |
-| Ikon | Lucide React |
+| Ikon | Phosphor Icons |
 | Hosting | Cloudflare Pages |
 | UI/UX Skill | UI/UX Pro Max (`.opencode/skills/`) |
 

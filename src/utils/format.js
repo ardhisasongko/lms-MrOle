@@ -1,14 +1,16 @@
+export function getLocale() {
+  return localStorage.getItem('mr-ole-lang') === 'en' ? 'en-US' : 'id-ID';
+}
+
 export function formatDate(date) {
-  const lang = localStorage.getItem('mr-ole-lang') || 'id';
-  const locale = lang === 'en' ? 'en-US' : 'id-ID';
-  return new Intl.DateTimeFormat(locale, {
+  return new Intl.DateTimeFormat(getLocale(), {
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(new Date(date));
 }
 
 export function formatDateShort(date) {
-  return new Intl.DateTimeFormat('id-ID', {
+  return new Intl.DateTimeFormat(getLocale(), {
     dateStyle: 'medium',
   }).format(new Date(date));
 }

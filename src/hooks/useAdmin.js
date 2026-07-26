@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../../services/supabase';
-import { useAuth } from '../auth/AuthContext';
+import { getProfileRole } from '../services/users';
+import { useAuth } from '../contexts/AuthContext';
 
 export function useAdmin() {
   const { user } = useAuth();
@@ -16,12 +16,8 @@ export function useAdmin() {
     let cancelled = false;
     (async () => {
       try {
-        const { data } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single();
-        if (!cancelled) setIsAdmin(data?.role === 'admin');
+        const role = await getProfileRole(user.id);
+        if (!cancelled) setIsAdmin(role === 'admin');
       } catch {
         if (!cancelled) setIsAdmin(false);
       } finally {

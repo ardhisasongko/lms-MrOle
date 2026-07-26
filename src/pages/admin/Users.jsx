@@ -6,12 +6,10 @@ import Badge from '../../components/common/Badge';
 import Skeleton from '../../components/common/Skeleton';
 import EmptyState from '../../components/feedback/EmptyState';
 import ConfirmModal from '../../components/feedback/ConfirmModal';
-import { supabase } from '../../services/supabase';
+import { getProfiles, updateProfileRole, deleteUser } from '../../services/users';
+import { logAdmin } from '../../utils/logAdmin';
+import { getLocale } from '../../utils/format';
 import toast from 'react-hot-toast';
-
-async function logAdmin(action, table, recordId, details) {
-  await supabase.rpc('log_admin_action', { p_action: action, p_table_name: table, p_record_id: recordId, p_details: details }).catch(() => {});
-}
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -28,12 +26,8 @@ export default function AdminUsers() {
 
   const fetchUsers = async () => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      setUsers(data || []);
+      const data = await getProfiles();
+      setUsers(data);
     } catch {
       toast.error('Gagal memuat data user.');
     } finally {
@@ -44,11 +38,7 @@ export default function AdminUsers() {
   const handleRoleChange = async (userId, newRole) => {
     setUpdating(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ role: newRole })
-        .eq('id', userId);
-      if (error) throw error;
+      await updateProfileRole(userId, newRole);
       logAdmin('update', 'profiles', userId, { role: newRole });
       toast.success(`Role berhasil diubah menjadi ${newRole}`);
       setUsers((prev) => prev.map((u) => u.id === userId ? { ...u, role: newRole } : u));
@@ -64,8 +54,7 @@ export default function AdminUsers() {
     if (!deleteTarget) return;
     setDeleting(true);
     try {
-      const { error } = await supabase.auth.admin.deleteUser(deleteTarget);
-      if (error) throw error;
+      await deleteUser(deleteTarget);
       logAdmin('delete', 'profiles', deleteTarget);
       toast.success('User berhasil dihapus');
       setUsers((prev) => prev.filter((u) => u.id !== deleteTarget));
@@ -84,7 +73,7 @@ export default function AdminUsers() {
 
   const formatDate = (date) => {
     if (!date) return '-';
-    return new Date(date).toLocaleDateString('id-ID', {
+    return new Date(date).toLocaleDateString(getLocale(), {
       day: 'numeric', month: 'short', year: 'numeric'
     });
   };

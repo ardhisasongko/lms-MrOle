@@ -5,7 +5,7 @@ import Input from '../components/common/Input';
 import Skeleton from '../components/common/Skeleton';
 import Card, { CardContent, CardHeader } from '../components/common/Card';
 import { supabase } from '../services/supabase';
-import { useAuth } from '../features/auth/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
 const IS_DEMO = !import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL === 'https://placeholder.supabase.co';

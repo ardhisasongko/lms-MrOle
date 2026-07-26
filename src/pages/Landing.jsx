@@ -6,7 +6,7 @@ import {
 } from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
 import Badge from '../components/common/Badge';
-import { useAuth } from '../features/auth/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const courses = [
   { icon: BookOpen, title: 'Grammar', desc: 'Tata bahasa Inggris dari dasar hingga mahir', color: '#FDBCB4', bg: '#FFF0ED' },

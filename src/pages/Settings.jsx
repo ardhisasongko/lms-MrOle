@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { User, Moon, Sun, Translate, CaretRight } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import Card, { CardContent, CardHeader } from '../components/common/Card';
-import { useAuth } from '../features/auth/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { useDarkMode } from '../hooks/useDarkMode';
 
 export default function Settings() {

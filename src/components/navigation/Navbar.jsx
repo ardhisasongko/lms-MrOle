@@ -3,7 +3,7 @@ import { GraduationCap, SignOut, User, Moon, Sun, Shield } from '@phosphor-icons
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDarkMode } from '../../hooks/useDarkMode';
-import { useAdmin } from '../../features/admin/useAdmin';
+import { useAdmin } from '../../hooks/useAdmin';
 import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Navbar({ user, onLogout }) {

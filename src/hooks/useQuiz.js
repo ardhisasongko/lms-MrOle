@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import { supabase } from '../services/supabase';
-import { useAuth } from '../features/auth/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
+import { submitQuiz as submitQuizService } from '../services/quiz';
 
 export function useQuiz() {
   const { user } = useAuth();
@@ -11,26 +11,13 @@ export function useQuiz() {
     setSubmitting(true);
 
     try {
-      const pAnswers = questions.map((q) => ({
-        question_id: q.id,
-        user_answer: answers[q.id] || '',
-      }));
-
-      const { data, error } = await supabase.rpc('submit_quiz', {
-        p_user_id: user.id,
-        p_category_id: categoryId,
-        p_difficulty: difficulty,
-        p_answers: pAnswers,
+      return await submitQuizService({
+        userId: user.id,
+        categoryId,
+        difficulty,
+        questions,
+        answers,
       });
-
-      if (error) throw error;
-
-      return {
-        attemptId: data?.[0]?.attempt_id,
-        score: data?.[0]?.score,
-        correct: data?.[0]?.correct,
-        total: data?.[0]?.total,
-      };
     } finally {
       setSubmitting(false);
     }

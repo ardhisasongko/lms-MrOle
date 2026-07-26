@@ -1,8 +1,8 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { AuthProvider, useAuth } from './features/auth/AuthContext';
-import { useAdmin } from './features/admin/useAdmin';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { useAdmin } from './hooks/useAdmin';
 import MainLayout from './components/layout/MainLayout';
 import AuthLayout from './components/layout/AuthLayout';
 import DashboardLayout from './components/layout/DashboardLayout';

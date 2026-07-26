@@ -85,7 +85,7 @@ export default function QuizResult() {
         setLoading(false);
       }
     })();
-  }, [attemptId, data]);
+  }, [attemptId]);
 
   if (loading) {
     return (

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../services/supabase';
+import { getQuestions, createQuestion, updateQuestion, deleteQuestion } from '../services/questions';
 
 export function useQuestions(categoryId, difficulty) {
   const [questions, setQuestions] = useState([]);
@@ -11,13 +11,8 @@ export function useQuestions(categoryId, difficulty) {
     setLoading(true);
     setError(null);
     try {
-      const { data, error } = await supabase
-        .from('questions')
-        .select('*')
-        .eq('category_id', categoryId)
-        .eq('difficulty', difficulty);
-      if (error) throw error;
-      setQuestions(data || []);
+      const data = await getQuestions(categoryId, difficulty);
+      setQuestions(data);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -29,5 +24,21 @@ export function useQuestions(categoryId, difficulty) {
     fetchQuestions();
   }, [fetchQuestions]);
 
-  return { questions, loading, error, refetch: fetchQuestions };
+  const create = useCallback(async (payload) => {
+    const result = await createQuestion(payload);
+    await fetchQuestions();
+    return result;
+  }, [fetchQuestions]);
+
+  const update = useCallback(async (id, payload) => {
+    await updateQuestion(id, payload);
+    await fetchQuestions();
+  }, [fetchQuestions]);
+
+  const remove = useCallback(async (id) => {
+    await deleteQuestion(id);
+    setQuestions((prev) => prev.filter((q) => q.id !== id));
+  }, []);
+
+  return { questions, loading, error, refetch: fetchQuestions, create, update, remove };
 }

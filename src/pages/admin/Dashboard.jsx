@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Users, BookOpen, TreeStructure, ChartBar } from '@phosphor-icons/react';
 import Card, { CardContent } from '../../components/common/Card';
 import Skeleton from '../../components/common/Skeleton';
-import { supabase } from '../../services/supabase';
+import { getStatsCounts } from '../../services/users';
 import toast from 'react-hot-toast';
 
 export default function AdminDashboard() {
@@ -12,18 +12,8 @@ export default function AdminDashboard() {
   useEffect(() => {
     (async () => {
       try {
-        const [usersRes, questionsRes, categoriesRes, attemptsRes] = await Promise.all([
-          supabase.from('profiles').select('*', { count: 'exact', head: true }),
-          supabase.from('questions').select('*', { count: 'exact', head: true }),
-          supabase.from('categories').select('*', { count: 'exact', head: true }),
-          supabase.from('quiz_attempts').select('*', { count: 'exact', head: true }),
-        ]);
-        setStats({
-          users: usersRes.count || 0,
-          questions: questionsRes.count || 0,
-          categories: categoriesRes.count || 0,
-          attempts: attemptsRes.count || 0,
-        });
+        const data = await getStatsCounts();
+        setStats(data);
       } catch {
         toast.error('Gagal memuat statistik.');
         setStats({ users: 0, questions: 0, categories: 0, attempts: 0 });

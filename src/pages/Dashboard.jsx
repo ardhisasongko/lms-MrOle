@@ -3,7 +3,7 @@ import Card, { CardContent, CardHeader } from '../components/common/Card';
 import EmptyState from '../components/feedback/EmptyState';
 import Skeleton from '../components/common/Skeleton';
 import { useProgress } from '../hooks/useProgress';
-import { formatDate } from '../utils/format';
+import { formatDate, getLocale } from '../utils/format';
 
 export default function Dashboard() {
   const { stats, scoreByCategory, chartData, loading } = useProgress();
@@ -69,7 +69,10 @@ export default function Dashboard() {
                   return (
                     <div key={d.date} className="flex items-center gap-3">
                       <span className="w-8 text-xs text-gray-400 shrink-0 text-right">
-                        {new Date(d.date).toLocaleDateString('id-ID', { weekday: 'short' })}
+                        {new Date(d.date).toLocaleDateString(
+                          getLocale(),
+                          { weekday: 'short' }
+                        )}
                       </span>
                       <div className="flex-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-full h-5 overflow-hidden">
                         <div

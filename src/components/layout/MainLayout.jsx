@@ -7,7 +7,7 @@ export default function MainLayout({ user, onLogout }) {
       <a href="#main-content" className="skip-link">
         Langsung ke konten utama
       </a>
-      {user === undefined ? null : <Navbar user={user} onLogout={onLogout} />}
+      {!user && <Navbar user={user} onLogout={onLogout} />}
       <main id="main-content" className="flex-1" tabIndex={-1}>
         <Outlet />
       </main>
