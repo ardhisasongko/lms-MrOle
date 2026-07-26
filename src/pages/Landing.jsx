@@ -42,7 +42,7 @@ export default function Landing() {
           <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-white rounded-full blur-3xl" />
           <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-[#C4A8FF] rounded-full blur-3xl" />
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-36">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-28 lg:py-36">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/70 text-gray-700 text-sm font-medium backdrop-blur-sm mb-8 shadow-sm">
@@ -274,7 +274,7 @@ export default function Landing() {
           </p>
           <Link
             to="/register"
-            className="group inline-flex items-center justify-center gap-2 px-10 py-5 rounded-2xl font-bold text-xl text-white shadow-clay-lg hover:shadow-clay-xl transition-all duration-300 ease-spring active:scale-[0.98]"
+            className="group inline-flex items-center justify-center gap-2 px-6 sm:px-10 py-4 sm:py-5 rounded-2xl font-bold text-lg sm:text-xl text-white shadow-clay-lg hover:shadow-clay-xl transition-all duration-300 ease-spring active:scale-[0.98]"
             style={{ background: 'linear-gradient(135deg, #22C55E, #16A34A)' }}
           >
             Daftar Gratis <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" weight="bold" />

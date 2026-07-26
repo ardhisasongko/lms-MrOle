@@ -71,7 +71,7 @@ export default function History() {
           <div className="space-y-3">
             {attempts.map((a) => (
               <Card key={a.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="flex items-center justify-between py-4">
+                <CardContent className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-4">
                   <div className="flex items-center gap-4">
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold text-white ${
                       a.score >= 80 ? 'bg-green-500' : a.score >= 50 ? 'bg-yellow-500' : 'bg-red-500'

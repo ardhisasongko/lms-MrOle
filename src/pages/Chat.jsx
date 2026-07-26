@@ -105,7 +105,7 @@ export default function Chat() {
             <button
               key={m.id}
               onClick={() => switchMode(m.id)}
-              className={`flex-1 flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+              className={`flex-1 flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all min-h-[44px] ${
                 active
                   ? 'bg-primary-600 text-white shadow-md'
                   : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
