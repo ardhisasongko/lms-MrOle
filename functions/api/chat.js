@@ -35,7 +35,7 @@ export async function onRequest(context) {
       { role: 'user', content: message },
     ];
 
-    const response = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+    const response = await env.AI.run('@cf/meta/llama-3.2-3b-instruct', {
       messages,
       max_tokens: 500,
       temperature: 0.7,
