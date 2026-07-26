@@ -45,8 +45,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Geist', 'system-ui', '-apple-system', 'sans-serif'],
-        mono: ['Geist Mono', 'JetBrains Mono', 'monospace'],
+        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
       },
       boxShadow: {
         'clay': '0 4px 12px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)',

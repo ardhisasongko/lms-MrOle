@@ -57,7 +57,7 @@ export default function QuizResult() {
   };
 
   useEffect(() => {
-    if (data) return;
+    if (data) return; // ponytail: guard to prevent re-fetch, data set once
     (async () => {
       try {
         const { data: attempt } = await supabase
@@ -85,7 +85,7 @@ export default function QuizResult() {
         setLoading(false);
       }
     })();
-  }, [attemptId]);
+  }, [attemptId, data]);
 
   if (loading) {
     return (
