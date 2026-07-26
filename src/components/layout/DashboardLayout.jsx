@@ -1,11 +1,12 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, History, MessageSquare, User, Settings, GraduationCap } from 'lucide-react';
+import { LayoutDashboard, BookOpen, History, MessageSquare, User, Settings, GraduationCap, Trophy } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
 const sidebarLinks = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/practice', label: 'Latihan', icon: BookOpen },
   { to: '/history', label: 'Riwayat', icon: History },
+  { to: '/leaderboard', label: 'Peringkat', icon: Trophy },
   { to: '/chat', label: 'AI Chat', icon: MessageSquare },
   { to: '/profile', label: 'Profil', icon: User },
   { to: '/settings', label: 'Pengaturan', icon: Settings },

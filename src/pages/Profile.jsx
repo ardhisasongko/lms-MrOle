@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Camera, Save, User } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Camera, Save, User, Upload } from 'lucide-react';
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import Skeleton from '../components/common/Skeleton';
@@ -10,8 +10,10 @@ import toast from 'react-hot-toast';
 
 export default function Profile() {
   const { user } = useAuth();
+  const fileRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState({ fullName: '', avatarUrl: '' });
 
   useEffect(() => {
@@ -36,6 +38,41 @@ export default function Profile() {
       }
     })();
   }, [user]);
+
+  const handleUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Ukuran maksimal 2MB');
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      toast.error('Hanya file gambar');
+      return;
+    }
+    setUploading(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const filePath = `${user.id}/${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+      setForm((prev) => ({ ...prev, avatarUrl: publicUrl }));
+      toast.success('Foto profil diupload');
+    } catch (err) {
+      if (err.message?.includes('bucket') || err.message?.includes('not found')) {
+        toast.error('Bucket storage "avatars" belum dibuat. Buat dulu di Supabase Dashboard > Storage.');
+      } else {
+        toast.error(err.message || 'Gagal upload');
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -88,11 +125,20 @@ export default function Profile() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center relative">
-              <User className="w-8 h-8 text-primary-600" />
-              <span className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-primary-600 text-white flex items-center justify-center">
-                <Camera className="w-3 h-3" />
-              </span>
+            <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center relative overflow-hidden shrink-0">
+              {form.avatarUrl ? (
+                <img src={form.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-8 h-8 text-primary-600" />
+              )}
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                disabled={uploading}
+                className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity duration-150"
+              >
+                <Camera className="w-5 h-5 text-white" />
+              </button>
             </div>
             <div>
               <p className="font-semibold text-gray-900 dark:text-gray-100">{form.fullName || 'Belum diisi'}</p>
@@ -109,13 +155,31 @@ export default function Profile() {
               onChange={(e) => setForm({ ...form, fullName: e.target.value })}
               required
             />
-            <Input
-              label="URL Avatar"
-              type="url"
-              placeholder="https://example.com/avatar.jpg"
-              value={form.avatarUrl}
-              onChange={(e) => setForm({ ...form, avatarUrl: e.target.value })}
-            />
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Foto Profil</label>
+              <div className="flex items-center gap-3">
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleUpload}
+                  className="hidden"
+                />
+                <Button type="button" variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading} loading={uploading}>
+                  <Upload className="w-4 h-4 mr-2" /> Pilih Gambar
+                </Button>
+                {form.avatarUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setForm((prev) => ({ ...prev, avatarUrl: '' }))}
+                    className="text-sm text-red-600 hover:text-red-700"
+                  >
+                    Hapus
+                  </button>
+                )}
+              </div>
+              <p className="text-xs text-gray-500">Maksimal 2MB, format JPG/PNG</p>
+            </div>
             <Button type="submit" loading={loading}>
               <Save className="w-4 h-4 mr-2" /> Simpan Perubahan
             </Button>

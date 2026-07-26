@@ -219,11 +219,21 @@ Primary `#0D9488` (teal) instead of `#3b82f6` (blue) — untuk identitas educati
 
 ---
 
+### Round 3 — Feature Additions (4 fitur baru)
+
+| # | Fitur | File Baru | Detail |
+|---|-------|-----------|--------|
+| 1 | **Dark mode toggle** | `src/hooks/useDarkMode.js` | Tombol Moon/Sun di Navbar (desktop + mobile), persist ke localStorage, deteksi `prefers-color-scheme` sistem |
+| 2 | **Settings page** | `src/pages/Settings.jsx` | Halaman `/settings` dengan link profil + toggle dark mode (switch custom) |
+| 3 | **Confirm modal** | `src/components/feedback/ConfirmModal.jsx` | Ganti `confirm()` di AdminQuestions & AdminCategories dengan modal dialog proper (overlay, animasi, loading state) |
+| 4 | **Code splitting** | — (edit `App.jsx`) | 17 route pakai `React.lazy` + `Suspense`. Bundle: **928 kB → 500 kB (main) + 381 kB (Dashboard/Recharts)** — no more chunk warning |
+
+---
+
 ## IDE UNTUK NEXT SESSION (jika ada)
 
-1. Tambah fitur dark mode toggle
-2. Upload avatar/profile picture
-3. Export hasil quiz ke PDF
-4. Leaderboard / peringkat
-5. Multiple language support
-6. Better error handling di AI Chat
+1. Upload avatar/profile picture
+2. Export hasil quiz ke PDF
+3. Leaderboard / peringkat
+4. Multiple language support
+5. Better error handling di AI Chat

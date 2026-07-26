@@ -1,10 +1,12 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { CheckCircle, XCircle, ArrowLeft, Home, RefreshCw } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { CheckCircle, XCircle, ArrowLeft, Home, RefreshCw, FileDown } from 'lucide-react';
 import Card, { CardContent } from '../components/common/Card';
 import Button from '../components/common/Button';
 import { supabase } from '../services/supabase';
 import Skeleton from '../components/common/Skeleton';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 export default function QuizResult() {
   const { attemptId } = useParams();
@@ -15,6 +17,38 @@ export default function QuizResult() {
   const [data, setData] = useState(result || null);
   const [loading, setLoading] = useState(!result);
   const [answers, setAnswers] = useState([]);
+  const [exporting, setExporting] = useState(false);
+  const resultRef = useRef(null);
+
+  const handleExportPDF = async () => {
+    if (!resultRef.current) return;
+    setExporting(true);
+    try {
+      const canvas = await html2canvas(resultRef.current, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+      });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = (canvas.height * pageWidth) / canvas.width;
+      let heightLeft = pageHeight;
+      let position = 0;
+      pdf.addImage(imgData, 'PNG', 0, position, pageWidth, pageHeight);
+      heightLeft -= pdf.internal.pageSize.getHeight();
+      while (heightLeft > 0) {
+        position = heightLeft - pageHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, pageWidth, pageHeight);
+        heightLeft -= pdf.internal.pageSize.getHeight();
+      }
+      pdf.save(`quiz-result-${Math.round(data.score)}.pdf`);
+    } catch {
+      // silent
+    } finally {
+      setExporting(false);
+    }
+  };
 
   useEffect(() => {
     if (data) return;
@@ -68,7 +102,7 @@ export default function QuizResult() {
   const grade = data.score >= 80 ? 'bg-green-500' : data.score >= 50 ? 'bg-yellow-500' : 'bg-red-500';
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto space-y-6" ref={resultRef}>
       <Card>
         <CardContent className="text-center py-8">
           <div className={`w-24 h-24 rounded-full ${grade} flex items-center justify-center mx-auto mb-4`}>
@@ -117,9 +151,12 @@ export default function QuizResult() {
         </div>
       )}
 
-      <div className="flex gap-3 justify-center">
+      <div className="flex gap-3 justify-center flex-wrap">
         <Button variant="outline" onClick={() => navigate('/practice')}>
           <ArrowLeft className="w-4 h-4 mr-1" /> Latihan Lagi
+        </Button>
+        <Button variant="secondary" onClick={handleExportPDF} loading={exporting}>
+          <FileDown className="w-4 h-4 mr-1" /> Download PDF
         </Button>
         <Button onClick={() => navigate('/dashboard')}>
           <Home className="w-4 h-4 mr-1" /> Dashboard

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Sparkles, BookOpen, AlertCircle } from 'lucide-react';
+import { Send, Bot, User, Sparkles, BookOpen, AlertCircle, RefreshCw } from 'lucide-react';
 import { sendChatMessage } from '../services/chat';
 import Card, { CardContent } from '../components/common/Card';
 import Button from '../components/common/Button';
@@ -19,6 +19,7 @@ export default function Chat() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [failedMessage, setFailedMessage] = useState(null);
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -34,10 +35,20 @@ export default function Chat() {
         : 'Halo! Kirim kalimat bahasa Inggrismu, aku akan periksa grammar-nya.' },
     ]);
     setError(null);
+    setFailedMessage(null);
   };
 
-  const handleSend = async () => {
-    const text = input.trim();
+  const getErrorHint = (msg) => {
+    const lower = (msg || '').toLowerCase();
+    if (lower.includes('timeout') || lower.includes('timed out')) return 'Koneksi ke server lambat. Coba lagi.';
+    if (lower.includes('fetch') || lower.includes('network') || lower.includes('failed to fetch')) return 'Tidak bisa terhubung ke server. Periksa koneksi internetmu.';
+    if (lower.includes('500') || lower.includes('internal')) return 'Server sedang sibuk. Coba lagi nanti.';
+    if (lower.includes('429') || lower.includes('rate limit') || lower.includes('too many')) return 'Terlalu banyak permintaan. Tunggu sebentar.';
+    return 'Terjadi kesalahan tak terduga. Coba lagi nanti.';
+  };
+
+  const handleSend = async (retryText) => {
+    const text = retryText || input.trim();
     if (!text || loading) return;
 
     const userMsg = { role: 'user', content: text };
@@ -46,14 +57,17 @@ export default function Chat() {
     setInput('');
     setLoading(true);
     setError(null);
+    setFailedMessage(null);
 
     try {
       const history = updated.slice(-10).map((m) => ({ role: m.role, content: m.content }));
       const reply = await sendChatMessage(text, mode, history);
       setMessages((prev) => [...prev, { role: 'assistant', content: reply }]);
     } catch (err) {
-      setError(err.message);
-      setMessages((prev) => [...prev, { role: 'assistant', content: 'Maaf, terjadi kesalahan. Coba lagi nanti.' }]);
+      const hint = getErrorHint(err.message);
+      setError(hint);
+      setFailedMessage(text);
+      setMessages((prev) => [...prev, { role: 'assistant', content: 'Maaf, ' + hint.toLowerCase() }]);
     } finally {
       setLoading(false);
     }
@@ -65,6 +79,8 @@ export default function Chat() {
       handleSend();
     }
   };
+
+  const handleSendClick = () => handleSend();
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -137,9 +153,19 @@ export default function Chat() {
             )}
 
             {error && (
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 text-sm">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{error}</span>
+              <div className="flex items-center justify-between gap-2 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 text-sm">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{error}</span>
+                </div>
+                {failedMessage && (
+                  <button
+                    onClick={() => handleSend(failedMessage)}
+                    className="flex items-center gap-1 px-2 py-1 rounded bg-red-100 dark:bg-red-800/40 hover:bg-red-200 dark:hover:bg-red-800/60 transition-colors text-xs font-medium shrink-0"
+                  >
+                    <RefreshCw className="w-3 h-3" /> Coba Lagi
+                  </button>
+                )}
               </div>
             )}
 
@@ -157,7 +183,7 @@ export default function Chat() {
                 disabled={loading}
                 className="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 disabled:opacity-50"
               />
-              <Button onClick={handleSend} disabled={loading || !input.trim()} aria-label="Kirim pesan">
+              <Button onClick={handleSendClick} disabled={loading || !input.trim()} aria-label="Kirim pesan">
                 <Send className="w-4 h-4" />
               </Button>
             </div>
