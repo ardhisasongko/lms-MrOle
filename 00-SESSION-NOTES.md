@@ -160,11 +160,52 @@ git push
 - ✅ Dark mode with `transition-colors duration-200` on body
 - ✅ `font-display: swap` for web fonts (via Tailwind preflight + Inter font)
 
+**UX Audit via Skill (ux-guidelines.csv + colors.csv + stacks/react.csv):**
+```bash
+python .opencode/skills/ui-ux-pro-max/scripts/search.py "education learning form feedback" --domain ux
+python .opencode/skills/ui-ux-pro-max/scripts/search.py "accessibility focus navigation aria" --domain ux
+python .opencode/skills/ui-ux-pro-max/scripts/search.py "animation transition loading skeleton" --domain ux
+python .opencode/skills/ui-ux-pro-max/scripts/search.py "responsive layout spacing dark mode" --domain ux
+python .opencode/skills/ui-ux-pro-max/scripts/search.py "color contrast accessibility education" --domain color
+python .opencode/skills/ui-ux-pro-max/scripts/search.py "performance rerender memo" --stack react
+```
+
+**UX Issues Found & Fixed (skill-driven):**
+| Severity | Issue | Fix |
+|----------|-------|-----|
+| HIGH | No `prefers-reduced-motion` support | Added to globals.css — reduces all animations/transitions to 0.01ms |
+| HIGH | No skip-to-content link for keyboard users | Added `.skip-link` in globals.css + `<a href="#main-content">` in MainLayout.jsx |
+| HIGH | Invalid HTML (`<a><button>`) on all CTA links | Fixed all 8 instances (Landing, Navbar, NotFound, ErrorPage, Verify) |
+| HIGH | Bad form visible condition in AdminCategories | Fixed `!categories.length` bug → tambah state `adding` |
+| MED | No `aria-label` on icon-only buttons (profile, logout, menu, eye toggle) | Added to Navbar, Login, Register, ResetPassword |
+| MED | No focus ring on admin form elements (select, textarea, input) | Added `focus:border-primary-500 focus:ring-primary-500` |
+| MED | Missing transitions on pagination, filter, sidebar, mobile menu | Added `transition-colors duration-150` everywhere |
+| MED | Loading state "Memuat..." text → Skeleton | Fixed AdminQuestions, AdminCategories, Profile |
+| MED | Camera button was no-op `<button>` → decorative `<span>` | Fixed Profile.jsx |
+| MED | Chart bar color hardcoded `#3b82f6` | Changed to `fill="var(--color-primary, #3b82f6)"` |
+
+**UX Audit — Items Already Compliant:**
+- ✅ Form labels with `htmlFor` (skill severity: HIGH)
+- ✅ Loading → success/error feedback via toast (skill severity: HIGH)
+- ✅ Skeleton/spinner during async ops (skill severity: HIGH)
+- ✅ Disabled buttons during loading (skill severity: HIGH)
+- ✅ Touch targets min-44px (skill severity: MED)
+- ✅ Focus-visible outline on all elements via globals.css (skill severity: HIGH)
+- ✅ Hover states on clickable elements (skill severity: MED)
+- ✅ Viewport meta tag `width=device-width` (skill severity: HIGH) — via Vite
+- ✅ `font-display: swap` via Google Fonts URL (skill severity: MED)
+- ✅ Semantic heading hierarchy h1→h2→h3 (skill severity: MED)
+- ✅ `<html lang="id">` set (skill severity: HIGH)
+
+**Color Recommendation from Skill (LMS palette):**
+Primary `#0D9488` (teal) instead of `#3b82f6` (blue) — untuk identitas education yang lebih sesuai
+
 **Issues Not Fixed (low priority):**
-- Admin delete uses `confirm()` — sebaiknya modal
-- `prefers-reduced-motion` media query — butuh di globals.css
-- Chunk size warning (928KB JS) — perlu code splitting
+- Admin delete uses `confirm()` — sebaiknya modal dialog
+- Chunk size warning (931KB JS) — perlu code splitting via React.lazy
 - Belum ada system dark mode detection (masih manual via class)
+- Skip link visible only on focus — sesuai praktik aksesibilitas standar
+- React memo/lazy belum diterapkan — bisa untuk optimasi performa
 
 --- 
 
