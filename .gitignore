@@ -3,3 +3,12 @@ dist
 .env
 .env.local
 *.log
+
+# Agent / tool session data
+.omo/
+.agents/
+.claude/
+.playwright-mcp/
+skills-lock.json
+audit/
+*SESSION-NOTES*
