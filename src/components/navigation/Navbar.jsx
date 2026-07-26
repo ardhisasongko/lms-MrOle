@@ -1,14 +1,16 @@
 import { Link } from 'react-router-dom';
-import { GraduationCap, SignOut, User, Moon, Sun } from '@phosphor-icons/react';
+import { GraduationCap, SignOut, User, Moon, Sun, Shield } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDarkMode } from '../../hooks/useDarkMode';
+import { useAdmin } from '../../features/admin/useAdmin';
 import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Navbar({ user, onLogout }) {
   const [isOpen, setIsOpen] = useState(false);
   const { isDark, toggle } = useDarkMode();
   const { t } = useTranslation();
+  const { isAdmin } = useAdmin();
 
   return (
     <nav className="sticky top-0 z-50">
@@ -45,6 +47,12 @@ export default function Navbar({ user, onLogout }) {
                 <Link to="/chat" className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-500 rounded-xl hover:bg-black/[0.03] dark:hover:bg-white/[0.05] transition-all duration-200 ease-spring">
                   {t('nav.chat')}
                 </Link>
+                {isAdmin && (
+                  <Link to="/admin" className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-500 rounded-xl hover:bg-black/[0.03] dark:hover:bg-white/[0.05] transition-all duration-200 ease-spring flex items-center gap-1.5">
+                    <Shield className="w-4 h-4" weight="fill" />
+                    Admin
+                  </Link>
+                )}
                 <Link to="/profile" aria-label={t('nav.profile')} className="p-2 rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring">
                   <User className="w-5 h-5 text-gray-600 dark:text-gray-400" weight="regular" />
                 </Link>
@@ -96,6 +104,12 @@ export default function Navbar({ user, onLogout }) {
                 <Link to="/history" onClick={() => setIsOpen(false)} className="block px-4 py-3 rounded-xl text-sm hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring">{t('nav.history')}</Link>
                 <Link to="/chat" onClick={() => setIsOpen(false)} className="block px-4 py-3 rounded-xl text-sm hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring">{t('nav.chat')}</Link>
                 <Link to="/leaderboard" onClick={() => setIsOpen(false)} className="block px-4 py-3 rounded-xl text-sm hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring">{t('nav.leaderboard')}</Link>
+                {isAdmin && (
+                  <Link to="/admin" onClick={() => setIsOpen(false)} className="block px-4 py-3 rounded-xl text-sm hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring flex items-center gap-2">
+                    <Shield className="w-4 h-4" weight="fill" />
+                    Panel Admin
+                  </Link>
+                )}
                 <Link to="/profile" onClick={() => setIsOpen(false)} className="block px-4 py-3 rounded-xl text-sm hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring">{t('nav.profile')}</Link>
                 <button onClick={() => { onLogout(); setIsOpen(false); }} className="block w-full text-left px-4 py-3 rounded-xl text-sm hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring">{t('nav.logout')}</button>
               </>

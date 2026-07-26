@@ -36,8 +36,8 @@ export default function AdminDashboard() {
   const items = [
     { label: 'Pengguna', value: stats?.users, icon: Users, color: 'text-primary-600 bg-primary-100 dark:bg-primary-900/30' },
     { label: 'Soal', value: stats?.questions, icon: BookOpen, color: 'text-cta-600 bg-cta-100 dark:bg-cta-900/30' },
-    { label: 'Kategori', value: stats?.categories, icon: ListTree, color: 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30' },
-    { label: 'Quiz Attempts', value: stats?.attempts, icon: BarChart3, color: 'text-secondary-600 bg-secondary-100 dark:bg-secondary-900/30' },
+    { label: 'Kategori', value: stats?.categories, icon: TreeStructure, color: 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30' },
+    { label: 'Quiz Attempts', value: stats?.attempts, icon: ChartBar, color: 'text-secondary-600 bg-secondary-100 dark:bg-secondary-900/30' },
   ];
 
   return (

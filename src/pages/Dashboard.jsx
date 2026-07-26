@@ -74,6 +74,7 @@ export default function Dashboard() {
                       <div className="flex-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-full h-5 overflow-hidden">
                         <div
                           className="h-full rounded-full transition-all bg-gradient-to-r from-primary-300 to-primary-500"
+                          style={{ width: `${pct}%` }}
                         />
                       </div>
                       <span className="w-10 text-xs font-medium text-gray-600 dark:text-gray-400 text-right shrink-0">

@@ -125,7 +125,7 @@ export default function Chat() {
               <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
                 {msg.role === 'assistant' && (
                   <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center shrink-0 mt-1">
-                    <Bot className="w-4 h-4 text-primary-600" />
+                    <Robot className="w-4 h-4 text-primary-600" />
                   </div>
                 )}
                 <div
@@ -148,7 +148,7 @@ export default function Chat() {
             {loading && (
               <div className="flex gap-3">
                 <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center shrink-0">
-                  <Bot className="w-4 h-4 text-primary-600" />
+                  <Robot className="w-4 h-4 text-primary-600" />
                 </div>
                 <div className="bg-gray-100 dark:bg-gray-700 rounded-2xl rounded-bl-md px-4 py-3">
                   <div className="flex gap-1">

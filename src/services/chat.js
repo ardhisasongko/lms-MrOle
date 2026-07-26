@@ -6,7 +6,7 @@ export async function sendChatMessage(message, mode = 'chat', history = []) {
   const { data: { session } } = await supabase.auth.getSession();
   const token = session?.access_token;
 
-  const res = await fetch(`${API_URL}/chat`, {
+  const res = await fetch(`${API_URL}/api/chat`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

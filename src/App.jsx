@@ -27,6 +27,7 @@ const Leaderboard = lazy(() => import('./pages/Leaderboard'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const ErrorPage = lazy(() => import('./pages/ErrorPage'));
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
+const AdminUsers = lazy(() => import('./pages/admin/Users'));
 const AdminQuestions = lazy(() => import('./pages/admin/Questions'));
 const AdminCategories = lazy(() => import('./pages/admin/Categories'));
 
@@ -88,6 +89,7 @@ function AppRoutes() {
         </Route>
         <Route element={<AdminRoute><AdminLayout /></AdminRoute>}>
           <Route path="admin" element={<SuspenseWrapper><AdminDashboard /></SuspenseWrapper>} />
+          <Route path="admin/users" element={<SuspenseWrapper><AdminUsers /></SuspenseWrapper>} />
           <Route path="admin/questions" element={<SuspenseWrapper><AdminQuestions /></SuspenseWrapper>} />
           <Route path="admin/categories" element={<SuspenseWrapper><AdminCategories /></SuspenseWrapper>} />
         </Route>

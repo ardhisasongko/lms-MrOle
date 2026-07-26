@@ -141,7 +141,7 @@ export default function AdminCategories() {
       ) : categories.length === 0 ? (
         <Card>
           <CardContent className="py-12">
-            <EmptyState icon={ListTree} title="Belum Ada Kategori" description="Tambah kategori baru." />
+            <EmptyState icon={TreeStructure} title="Belum Ada Kategori" description="Tambah kategori baru." />
           </CardContent>
         </Card>
       ) : (

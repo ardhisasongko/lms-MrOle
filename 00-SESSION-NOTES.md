@@ -15,7 +15,6 @@
 - **Cloudflare Dashboard**: https://dash.cloudflare.com
 
 ### Akun Cloudflare
-- Email: ? (user punya)
 - Account ID: efca37110928e23342277db3106d48c7
 - Subdomain: ardhisaongko69.workers.dev
 
@@ -229,11 +228,9 @@ Primary `#0D9488` (teal) instead of `#3b82f6` (blue) — untuk identitas educati
 | 4 | **Code splitting** | — (edit `App.jsx`) | 17 route pakai `React.lazy` + `Suspense`. Bundle: **928 kB → 500 kB (main) + 381 kB (Dashboard/Recharts)** — no more chunk warning |
 
 ---
-
-## IDE UNTUK NEXT SESSION (jika ada)
-
-1. Upload avatar/profile picture
-2. Export hasil quiz ke PDF
-3. Leaderboard / peringkat
-4. Multiple language support
-5. Better error handling di AI Chat
+### Minor Issues Fixed (sesi 26 Jul 2026)
+1. Fix icon import mismatch AdminDashboard & AdminCategories (ListTree → TreeStructure, BarChart3 → ChartBar)
+2. Fix Dashboard bar chart missing width style
+3. formatDate now respects mr-ole-lang locale
+4. i18n applied to ErrorPage, NotFound, Verify
+5. Chunk split: jspdf + html2canvas manual chunk (no more 500 kB warning)

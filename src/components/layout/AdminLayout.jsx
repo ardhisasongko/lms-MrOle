@@ -5,6 +5,7 @@ import { cn } from '../../utils/cn';
 
 const sidebarLinks = [
   { to: '/admin', label: 'Dashboard' },
+  { to: '/admin/users', label: 'User' },
   { to: '/admin/questions', label: 'Soal' },
   { to: '/admin/categories', label: 'Kategori' },
 ];
