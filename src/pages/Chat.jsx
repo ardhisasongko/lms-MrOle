@@ -1,8 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Sparkles, BookOpen, AlertCircle, RefreshCw } from 'lucide-react';
 import { sendChatMessage } from '../services/chat';
+import { sanitize } from '../utils/sanitize';
+import { createRateLimit } from '../utils/rateLimit';
 import Card, { CardContent } from '../components/common/Card';
 import Button from '../components/common/Button';
+
+const chatRateLimit = createRateLimit(10, 60000);
 
 const modes = [
   { id: 'chat', label: 'Tanya Jawab', icon: Sparkles, desc: 'Tanya apa saja tentang bahasa Inggris' },
@@ -50,6 +54,10 @@ export default function Chat() {
   const handleSend = async (retryText) => {
     const text = retryText || input.trim();
     if (!text || loading) return;
+    if (!chatRateLimit()) {
+      setError('Terlalu banyak permintaan. Tunggu sebentar.');
+      return;
+    }
 
     const userMsg = { role: 'user', content: text };
     const updated = [...messages, userMsg];
@@ -62,7 +70,7 @@ export default function Chat() {
     try {
       const history = updated.slice(-10).map((m) => ({ role: m.role, content: m.content }));
       const reply = await sendChatMessage(text, mode, history);
-      setMessages((prev) => [...prev, { role: 'assistant', content: reply }]);
+      setMessages((prev) => [...prev, { role: 'assistant', content: sanitize(reply) }]);
     } catch (err) {
       const hint = getErrorHint(err.message);
       setError(hint);

@@ -6,7 +6,7 @@ const IS_DEMO = !import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPAB
 const AuthContext = createContext(null);
 
 function getDemoUser() {
-  const stored = localStorage.getItem('demo_user');
+  const stored = sessionStorage.getItem('demo_user');
   return stored ? JSON.parse(stored) : null;
 }
 
@@ -45,7 +45,7 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (email, password) => {
     if (IS_DEMO) {
       const demoUser = { id: 'demo-user-id', email, user_metadata: { full_name: email.split('@')[0] } };
-      localStorage.setItem('demo_user', JSON.stringify(demoUser));
+      sessionStorage.setItem('demo_user', JSON.stringify(demoUser));
       setUser(demoUser);
       return;
     }
@@ -56,7 +56,7 @@ export function AuthProvider({ children }) {
   const register = useCallback(async (email, password, fullName) => {
     if (IS_DEMO) {
       const demoUser = { id: 'demo-user-id', email, user_metadata: { full_name: fullName } };
-      localStorage.setItem('demo_user', JSON.stringify(demoUser));
+      sessionStorage.setItem('demo_user', JSON.stringify(demoUser));
       setUser(demoUser);
       return;
     }
@@ -70,7 +70,7 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(async () => {
     if (IS_DEMO) {
-      localStorage.removeItem('demo_user');
+      sessionStorage.removeItem('demo_user');
       setUser(null);
       return;
     }

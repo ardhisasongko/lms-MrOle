@@ -8,7 +8,12 @@ import EmptyState from '../../components/feedback/EmptyState';
 import ConfirmModal from '../../components/feedback/ConfirmModal';
 import { supabase } from '../../services/supabase';
 import { DIFFICULTY_LABEL } from '../../utils/constants';
+import { sanitize } from '../../utils/sanitize';
 import toast from 'react-hot-toast';
+
+async function logAdmin(action, table, recordId, details) {
+  await supabase.rpc('log_admin_action', { p_action: action, p_table_name: table, p_record_id: recordId, p_details: details }).catch(() => {});
+}
 
 export default function AdminQuestions() {
   const [questions, setQuestions] = useState([]);
@@ -80,10 +85,11 @@ export default function AdminQuestions() {
       if (editing) {
         const { error } = await supabase.from('questions').update(payload).eq('id', editing);
         if (error) throw error;
+        logAdmin('update', 'questions', editing, { question: form.question });
         toast.success('Soal diperbarui');
       } else {
-        const { error } = await supabase.from('questions').insert(payload);
-        if (error) throw error;
+        const { data: inserted } = await supabase.from('questions').insert(payload).select('id').single();
+        if (inserted) logAdmin('insert', 'questions', inserted.id, { question: form.question });
         toast.success('Soal ditambahkan');
       }
       resetForm();
@@ -99,6 +105,7 @@ export default function AdminQuestions() {
     setDeleting(true);
     try {
       await supabase.from('questions').delete().eq('id', deleteTarget);
+      logAdmin('delete', 'questions', deleteTarget);
       toast.success('Soal dihapus');
       setQuestions((prev) => prev.filter((q) => q.id !== deleteTarget));
       setDeleteTarget(null);
@@ -221,12 +228,12 @@ export default function AdminQuestions() {
               <CardContent className="py-3">
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <p className="font-medium text-gray-900 dark:text-gray-100">{q.question}</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{sanitize(q.question)}</p>
                     <div className="flex flex-wrap items-center gap-2 mt-1">
                       <Badge variant="primary" size="sm">{q.categories?.name}</Badge>
                       <Badge variant={difficultyBadge(q.difficulty)} size="sm">{DIFFICULTY_LABEL[q.difficulty]}</Badge>
                       <Badge size="sm">{q.type === 'multiple_choice' ? 'PG' : 'Isian'}</Badge>
-                      <span className="text-xs text-gray-500">Jawaban: {q.correct_answer}</span>
+                      <span className="text-xs text-gray-500">Jawaban: {sanitize(q.correct_answer)}</span>
                     </div>
                     {q.type === 'multiple_choice' && (
                       <p className="text-xs text-gray-400 mt-1 truncate">{renderOptions(q.options)}</p>

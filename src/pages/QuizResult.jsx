@@ -5,6 +5,7 @@ import Card, { CardContent } from '../components/common/Card';
 import Button from '../components/common/Button';
 import { supabase } from '../services/supabase';
 import Skeleton from '../components/common/Skeleton';
+import { sanitize } from '../utils/sanitize';
 import toast from 'react-hot-toast';
 
 export default function QuizResult() {
@@ -135,7 +136,7 @@ export default function QuizResult() {
                   }
                   <div>
                     <p className="text-gray-900 dark:text-gray-100 font-medium">
-                      {i + 1}. {a.question}
+                      {i + 1}. {sanitize(a.question)}
                     </p>
                     <div className="mt-2 text-sm space-y-1">
                       <p className={a.isCorrect ? 'text-green-600' : 'text-red-600'}>

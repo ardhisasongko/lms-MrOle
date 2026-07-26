@@ -8,6 +8,10 @@ import ConfirmModal from '../../components/feedback/ConfirmModal';
 import { supabase } from '../../services/supabase';
 import toast from 'react-hot-toast';
 
+async function logAdmin(action, table, recordId, details) {
+  await supabase.rpc('log_admin_action', { p_action: action, p_table_name: table, p_record_id: recordId, p_details: details }).catch(() => {});
+}
+
 export default function AdminCategories() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -47,10 +51,11 @@ export default function AdminCategories() {
       if (editing) {
         const { error } = await supabase.from('categories').update(form).eq('id', editing);
         if (error) throw error;
+        logAdmin('update', 'categories', editing, { name: form.name });
         toast.success('Kategori diperbarui');
       } else {
-        const { error } = await supabase.from('categories').insert(form);
-        if (error) throw error;
+        const { data: inserted } = await supabase.from('categories').insert(form).select('id').single();
+        if (inserted) logAdmin('insert', 'categories', inserted.id, { name: form.name });
         toast.success('Kategori ditambahkan');
       }
       resetForm();
@@ -66,6 +71,7 @@ export default function AdminCategories() {
     try {
       const { error } = await supabase.from('categories').delete().eq('id', deleteTarget);
       if (error) throw error;
+      logAdmin('delete', 'categories', deleteTarget);
       toast.success('Kategori dihapus');
       setDeleteTarget(null);
       await fetchCategories();
