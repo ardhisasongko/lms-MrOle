@@ -5,6 +5,7 @@ import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
 import Skeleton from '../../components/common/Skeleton';
 import EmptyState from '../../components/feedback/EmptyState';
+import ConfirmModal from '../../components/feedback/ConfirmModal';
 import { supabase } from '../../services/supabase';
 import { DIFFICULTY_LABEL } from '../../utils/constants';
 import toast from 'react-hot-toast';
@@ -14,6 +15,8 @@ export default function AdminQuestions() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const [form, setForm] = useState({
     category_id: '', difficulty: 'easy', type: 'multiple_choice',
     question: '', options: '[{"label":"A","text":""},{"label":"B","text":""},{"label":"C","text":""},{"label":"D","text":""}]',
@@ -73,14 +76,18 @@ export default function AdminQuestions() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('Hapus soal ini?')) return;
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
     try {
-      await supabase.from('questions').delete().eq('id', id);
+      await supabase.from('questions').delete().eq('id', deleteTarget);
       toast.success('Soal dihapus');
-      setQuestions((prev) => prev.filter((q) => q.id !== id));
+      setQuestions((prev) => prev.filter((q) => q.id !== deleteTarget));
+      setDeleteTarget(null);
     } catch (err) {
       toast.error(err.message);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -209,7 +216,7 @@ export default function AdminQuestions() {
                   </div>
                   <div className="flex gap-1 shrink-0">
                     <button onClick={() => handleEdit(q)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500"><Edit3 className="w-4 h-4" /></button>
-                    <button onClick={() => handleDelete(q.id)} className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500"><Trash2 className="w-4 h-4" /></button>
+                    <button onClick={() => setDeleteTarget(q.id)} className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500"><Trash2 className="w-4 h-4" /></button>
                   </div>
                 </div>
               </CardContent>
@@ -217,6 +224,16 @@ export default function AdminQuestions() {
           ))}
         </div>
       )}
+
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Hapus Soal"
+        message="Apakah kamu yakin ingin menghapus soal ini? Tindakan ini tidak bisa dibatalkan."
+        confirmLabel="Hapus"
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+        loading={deleting}
+      />
     </div>
   );
 }

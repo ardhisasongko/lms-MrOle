@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
-import { GraduationCap, Menu, X, LogOut, User } from 'lucide-react';
+import { GraduationCap, Menu, X, LogOut, User, Moon, Sun } from 'lucide-react';
 import { useState } from 'react';
+import { useDarkMode } from '../../hooks/useDarkMode';
 
 export default function Navbar({ user, onLogout }) {
   const [isOpen, setIsOpen] = useState(false);
+  const { isDark, toggle } = useDarkMode();
 
   return (
     <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
@@ -15,6 +17,13 @@ export default function Navbar({ user, onLogout }) {
           </Link>
 
           <div className="hidden md:flex items-center gap-4">
+            <button
+              onClick={toggle}
+              aria-label={isDark ? 'Aktifkan mode terang' : 'Aktifkan mode gelap'}
+              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150"
+            >
+              {isDark ? <Sun className="w-5 h-5 text-gray-400" /> : <Moon className="w-5 h-5 text-gray-600" />}
+            </button>
             {user ? (
               <>
                 <Link to="/dashboard" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600">
@@ -60,6 +69,13 @@ export default function Navbar({ user, onLogout }) {
 
       {isOpen && (
         <div className="md:hidden border-t border-gray-200 dark:border-gray-700 px-4 py-3 space-y-2">
+          <button
+            onClick={toggle}
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm w-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150 text-gray-700 dark:text-gray-300"
+          >
+            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            {isDark ? 'Mode Terang' : 'Mode Gelap'}
+          </button>
           {user ? (
             <>
               <Link to="/dashboard" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150">Dashboard</Link>

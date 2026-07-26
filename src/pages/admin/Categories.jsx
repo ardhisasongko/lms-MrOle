@@ -4,6 +4,7 @@ import Card, { CardContent, CardHeader } from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Skeleton from '../../components/common/Skeleton';
 import EmptyState from '../../components/feedback/EmptyState';
+import ConfirmModal from '../../components/feedback/ConfirmModal';
 import { supabase } from '../../services/supabase';
 import toast from 'react-hot-toast';
 
@@ -12,6 +13,8 @@ export default function AdminCategories() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null);
   const [adding, setAdding] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const [form, setForm] = useState({ name: '', slug: '', description: '', icon: '', display_order: 0 });
 
   const fetchCategories = async () => {
@@ -52,15 +55,19 @@ export default function AdminCategories() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('Hapus kategori ini?')) return;
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
     try {
-      const { error } = await supabase.from('categories').delete().eq('id', id);
+      const { error } = await supabase.from('categories').delete().eq('id', deleteTarget);
       if (error) throw error;
       toast.success('Kategori dihapus');
+      setDeleteTarget(null);
       await fetchCategories();
     } catch (err) {
       toast.error(err.message);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -137,13 +144,23 @@ export default function AdminCategories() {
                 </div>
                 <div className="flex gap-1">
                   <button onClick={() => handleEdit(cat)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500"><Edit3 className="w-4 h-4" /></button>
-                  <button onClick={() => handleDelete(cat.id)} className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500"><Trash2 className="w-4 h-4" /></button>
+                  <button onClick={() => setDeleteTarget(cat.id)} className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500"><Trash2 className="w-4 h-4" /></button>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
       )}
+
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Hapus Kategori"
+        message="Apakah kamu yakin ingin menghapus kategori ini? Soal dalam kategori ini mungkin perlu dipindahkan."
+        confirmLabel="Hapus"
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+        loading={deleting}
+      />
     </div>
   );
 }

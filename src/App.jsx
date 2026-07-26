@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './features/auth/AuthContext';
@@ -9,21 +10,32 @@ import AdminLayout from './components/layout/AdminLayout';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
-import Verify from './pages/Verify';
-import Dashboard from './pages/Dashboard';
-import Practice from './pages/Practice';
-import Quiz from './pages/Quiz';
-import QuizResult from './pages/QuizResult';
-import History from './pages/History';
-import Chat from './pages/Chat';
-import Profile from './pages/Profile';
-import NotFound from './pages/NotFound';
-import ErrorPage from './pages/ErrorPage';
-import AdminDashboard from './pages/admin/Dashboard';
-import AdminQuestions from './pages/admin/Questions';
-import AdminCategories from './pages/admin/Categories';
+import Skeleton from './components/common/Skeleton';
+
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const Verify = lazy(() => import('./pages/Verify'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Practice = lazy(() => import('./pages/Practice'));
+const Quiz = lazy(() => import('./pages/Quiz'));
+const QuizResult = lazy(() => import('./pages/QuizResult'));
+const History = lazy(() => import('./pages/History'));
+const Chat = lazy(() => import('./pages/Chat'));
+const Profile = lazy(() => import('./pages/Profile'));
+const Settings = lazy(() => import('./pages/Settings'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const ErrorPage = lazy(() => import('./pages/ErrorPage'));
+const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
+const AdminQuestions = lazy(() => import('./pages/admin/Questions'));
+const AdminCategories = lazy(() => import('./pages/admin/Categories'));
+
+function SuspenseWrapper({ children }) {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-[60vh]"><Skeleton className="h-8 w-48 rounded-lg" /></div>}>
+      {children}
+    </Suspense>
+  );
+}
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -58,27 +70,27 @@ function AppRoutes() {
         <Route element={<AuthLayout />}>
           <Route path="login" element={<PublicRoute><Login /></PublicRoute>} />
           <Route path="register" element={<PublicRoute><Register /></PublicRoute>} />
-          <Route path="forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
-          <Route path="reset-password" element={<ResetPassword />} />
-          <Route path="verify" element={<Verify />} />
+          <Route path="forgot-password" element={<PublicRoute><SuspenseWrapper><ForgotPassword /></SuspenseWrapper></PublicRoute>} />
+          <Route path="reset-password" element={<SuspenseWrapper><ResetPassword /></SuspenseWrapper>} />
+          <Route path="verify" element={<SuspenseWrapper><Verify /></SuspenseWrapper>} />
         </Route>
         <Route element={<ProtectedRoute><DashboardLayout user={user} onLogout={logout} /></ProtectedRoute>}>
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="practice" element={<Practice />} />
-          <Route path="practice/:categoryId" element={<Quiz />} />
-          <Route path="practice/:attemptId/result" element={<QuizResult />} />
-          <Route path="history" element={<History />} />
-          <Route path="chat" element={<Chat />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="settings" element={<div>Pengaturan</div>} />
+          <Route path="dashboard" element={<SuspenseWrapper><Dashboard /></SuspenseWrapper>} />
+          <Route path="practice" element={<SuspenseWrapper><Practice /></SuspenseWrapper>} />
+          <Route path="practice/:categoryId" element={<SuspenseWrapper><Quiz /></SuspenseWrapper>} />
+          <Route path="practice/:attemptId/result" element={<SuspenseWrapper><QuizResult /></SuspenseWrapper>} />
+          <Route path="history" element={<SuspenseWrapper><History /></SuspenseWrapper>} />
+          <Route path="chat" element={<SuspenseWrapper><Chat /></SuspenseWrapper>} />
+          <Route path="profile" element={<SuspenseWrapper><Profile /></SuspenseWrapper>} />
+          <Route path="settings" element={<SuspenseWrapper><Settings /></SuspenseWrapper>} />
         </Route>
         <Route element={<AdminRoute><AdminLayout /></AdminRoute>}>
-          <Route path="admin" element={<AdminDashboard />} />
-          <Route path="admin/questions" element={<AdminQuestions />} />
-          <Route path="admin/categories" element={<AdminCategories />} />
+          <Route path="admin" element={<SuspenseWrapper><AdminDashboard /></SuspenseWrapper>} />
+          <Route path="admin/questions" element={<SuspenseWrapper><AdminQuestions /></SuspenseWrapper>} />
+          <Route path="admin/categories" element={<SuspenseWrapper><AdminCategories /></SuspenseWrapper>} />
         </Route>
-        <Route path="error" element={<ErrorPage />} />
-        <Route path="*" element={<NotFound />} />
+        <Route path="error" element={<SuspenseWrapper><ErrorPage /></SuspenseWrapper>} />
+        <Route path="*" element={<SuspenseWrapper><NotFound /></SuspenseWrapper>} />
       </Route>
     </Routes>
   );
