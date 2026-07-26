@@ -1,50 +1,52 @@
 # LMS Mr Ole — Fase Implementasi
 
 ## Fase 1 — Fondasi
-- [ ] Inisialisasi project (Vite + React + Tailwind)
-- [ ] Struktur folder
-- [ ] Design system (warna, font, spacing)
-- [ ] Layout (AuthLayout, MainLayout, DashboardLayout)
-- [ ] Landing page
-- [ ] Routing + protected routes
-- [ ] Halaman error (404, error)
+- [x] Inisialisasi project (Vite + React + Tailwind)
+- [x] Struktur folder
+- [x] Design system (warna, font, spacing)
+- [x] Layout (AuthLayout, MainLayout, DashboardLayout)
+- [x] Landing page
+- [x] Routing + protected routes
+- [x] Halaman error (404, error)
 
 ## Fase 2 — Autentikasi
-- [ ] Setup Supabase project
-- [ ] Migration tabel `profiles` + RLS
-- [ ] Register
-- [ ] Login
-- [ ] Logout
-- [ ] Verifikasi email
-- [ ] Lupa & reset password
-- [ ] Profil pengguna (edit nama, avatar)
+- [x] Setup Supabase project
+- [x] Migration tabel `profiles` + RLS
+- [x] Register
+- [x] Login
+- [x] Logout
+- [x] Verifikasi email
+- [x] Lupa & reset password
+- [x] Profil pengguna (edit nama, avatar)
 
 ## Fase 3 — Latihan Soal
-- [ ] Migration tabel `categories`, `questions`
-- [ ] Seed data (kategori + soal contoh)
-- [ ] Halaman pilih kategori & level
-- [ ] Halaman kerjakan soal
-- [ ] Submit jawaban + hitung skor
-- [ ] Halaman hasil & pembahasan
-- [ ] Migration tabel `quiz_attempts`, `quiz_answers`
+- [x] Migration tabel `categories`, `questions`
+- [x] Seed data (kategori + soal contoh)
+- [x] Halaman pilih kategori & level
+- [x] Halaman kerjakan soal
+- [x] Submit jawaban + hitung skor
+- [x] Halaman hasil & pembahasan
+- [x] Migration tabel `quiz_attempts`, `quiz_answers`
 
 ## Fase 4 — Dashboard Progres
-- [ ] Migration tabel `learning_streaks` + RLS
-- [ ] Statistik utama (total soal, rata-rata, streak)
-- [ ] Grafik perkembangan (Recharts)
-- [ ] Skor per kategori
-- [ ] Riwayat latihan
-- [ ] Filter & pagination riwayat
+- [x] Migration tabel `learning_streaks` + RLS
+- [x] Statistik utama (total soal, rata-rata, streak)
+- [x] Grafik perkembangan (Recharts)
+- [x] Skor per kategori
+- [x] Riwayat latihan
+- [x] Filter & pagination riwayat
 
-## Fase 5 — Admin (Mendatang)
-- [ ] Role admin
-- [ ] Manajemen soal (CRUD)
-- [ ] Manajemen kategori
-- [ ] Lihat statistik pengguna
+## Fase 5 — Admin
+- [x] Role admin
+- [x] Manajemen soal (CRUD)
+- [x] Manajemen kategori
+- [x] Lihat statistik pengguna
 
 ## Fase 6 — Chatbot AI
-- [x] Cloudflare Worker + Gemini API (`functions/api/chat.js`)
+- [x] Cloudflare Pages Function (`functions/api/chat.js`)
+- [x] AI Binding Workers AI (env.AI)
+- [x] Model: @cf/meta/llama-3.2-3b-instruct
 - [x] Chat interface (`src/pages/Chat.jsx`)
+- [x] Route /chat (protected)
 - [x] Koreksi grammar
 - [x] Tanya jawab materi
-- [ ] Daftar API key gratis di https://aistudio.google.com/apikey
