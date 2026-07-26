@@ -64,19 +64,17 @@ export default function Navbar({ user, onLogout }) {
             )}
           </div>
 
-          {!user && (
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              aria-label={isOpen ? 'Tutup menu' : 'Buka menu'}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150"
-            >
-              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          )}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            aria-label={isOpen ? 'Tutup menu' : 'Buka menu'}
+            className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150"
+          >
+            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
       </div>
 
-      {isOpen && !user && (
+      {isOpen && (
         <div className="md:hidden border-t border-gray-200 dark:border-gray-700 px-4 py-3 space-y-2">
           <LanguageSwitcher isMobile />
           <button
