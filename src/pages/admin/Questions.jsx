@@ -123,19 +123,19 @@ export default function AdminQuestions() {
               <div className="grid sm:grid-cols-3 gap-4">
                 <div className="space-y-1">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Kategori</label>
-                  <select className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" value={form.category_id} onChange={(e) => setForm({ ...form, category_id: e.target.value })} required>
+                  <select className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:border-primary-500 focus:ring-primary-500" value={form.category_id} onChange={(e) => setForm({ ...form, category_id: e.target.value })} required>
                     {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </div>
                 <div className="space-y-1">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Kesulitan</label>
-                  <select className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" value={form.difficulty} onChange={(e) => setForm({ ...form, difficulty: e.target.value })}>
+                  <select className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:border-primary-500 focus:ring-primary-500" value={form.difficulty} onChange={(e) => setForm({ ...form, difficulty: e.target.value })}>
                     {Object.entries(DIFFICULTY_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                   </select>
                 </div>
                 <div className="space-y-1">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipe</label>
-                  <select className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
+                  <select className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:border-primary-500 focus:ring-primary-500" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
                     <option value="multiple_choice">Pilihan Ganda</option>
                     <option value="short_answer">Isian Singkat</option>
                   </select>
@@ -144,13 +144,13 @@ export default function AdminQuestions() {
 
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Soal</label>
-                <textarea className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" rows={2} value={form.question} onChange={(e) => setForm({ ...form, question: e.target.value })} required />
+                <textarea className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:border-primary-500 focus:ring-primary-500" rows={2} value={form.question} onChange={(e) => setForm({ ...form, question: e.target.value })} required />
               </div>
 
               {form.type === 'multiple_choice' && (
                 <div className="space-y-1">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Options (JSON)</label>
-                  <textarea className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-mono" rows={3} value={form.options} onChange={(e) => setForm({ ...form, options: e.target.value })} />
+                  <textarea className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-mono focus:border-primary-500 focus:ring-primary-500" rows={3} value={form.options} onChange={(e) => setForm({ ...form, options: e.target.value })} />
                   <p className="text-xs text-gray-500">Format: {`[{ "label": "A", "text": "..." }, { "label": "B", "text": "..." }]`}</p>
                 </div>
               )}
@@ -158,13 +158,13 @@ export default function AdminQuestions() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Jawaban Benar</label>
-                  <input className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" value={form.correct_answer} onChange={(e) => setForm({ ...form, correct_answer: e.target.value })} required />
+                  <input className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:border-primary-500 focus:ring-primary-500" value={form.correct_answer} onChange={(e) => setForm({ ...form, correct_answer: e.target.value })} required />
                 </div>
               </div>
 
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Pembahasan</label>
-                <textarea className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" rows={2} value={form.explanation} onChange={(e) => setForm({ ...form, explanation: e.target.value })} required />
+                <textarea className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:border-primary-500 focus:ring-primary-500" rows={2} value={form.explanation} onChange={(e) => setForm({ ...form, explanation: e.target.value })} required />
               </div>
 
               <div className="flex gap-2">

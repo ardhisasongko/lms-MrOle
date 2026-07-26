@@ -157,7 +157,7 @@ export default function Chat() {
                 disabled={loading}
                 className="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 disabled:opacity-50"
               />
-              <Button onClick={handleSend} disabled={loading || !input.trim()}>
+              <Button onClick={handleSend} disabled={loading || !input.trim()} aria-label="Kirim pesan">
                 <Send className="w-4 h-4" />
               </Button>
             </div>

@@ -30,10 +30,10 @@ export default function Navbar({ user, onLogout }) {
                 <Link to="/chat" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600">
                   AI Chat
                 </Link>
-                <Link to="/profile" className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+                <Link to="/profile" aria-label="Profil" className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150">
                   <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </Link>
-                <button onClick={onLogout} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+                <button onClick={onLogout} aria-label="Keluar" className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150">
                   <LogOut className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </button>
               </>
@@ -51,7 +51,8 @@ export default function Navbar({ user, onLogout }) {
 
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+            aria-label={isOpen ? 'Tutup menu' : 'Buka menu'}
+            className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150"
           >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -62,12 +63,12 @@ export default function Navbar({ user, onLogout }) {
         <div className="md:hidden border-t border-gray-200 dark:border-gray-700 px-4 py-3 space-y-2">
           {user ? (
             <>
-              <Link to="/dashboard" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800">Dashboard</Link>
-              <Link to="/practice" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800">Latihan</Link>
-              <Link to="/history" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800">Riwayat</Link>
-              <Link to="/chat" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800">AI Chat</Link>
-              <Link to="/profile" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800">Profil</Link>
-              <button onClick={onLogout} className="block w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800">Keluar</button>
+              <Link to="/dashboard" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150">Dashboard</Link>
+              <Link to="/practice" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150">Latihan</Link>
+              <Link to="/history" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150">Riwayat</Link>
+              <Link to="/chat" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150">AI Chat</Link>
+              <Link to="/profile" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150">Profil</Link>
+              <button onClick={onLogout} className="block w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150">Keluar</button>
             </>
           ) : (
             <div className="flex gap-2">

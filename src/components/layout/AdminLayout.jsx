@@ -45,7 +45,7 @@ export default function AdminLayout() {
         <div className="p-4 border-t border-gray-200 dark:border-gray-800">
           <Link
             to="/dashboard"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150"
           >
             <ArrowLeft className="w-4 h-4" /> Kembali ke Aplikasi
           </Link>

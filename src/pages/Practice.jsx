@@ -97,7 +97,7 @@ export default function Practice() {
             </div>
             <button
               onClick={handleStart}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors duration-150"
             >
               Mulai Kerjakan
               <ChevronRight className="w-4 h-4" />

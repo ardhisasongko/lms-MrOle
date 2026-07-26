@@ -30,7 +30,7 @@ export default function History() {
         <div className="flex gap-2">
           <button
             onClick={() => applyFilter('')}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-150 ${
               !categoryFilter ? 'bg-primary-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
             }`}
           >
@@ -40,7 +40,7 @@ export default function History() {
             <button
               key={cat.id}
               onClick={() => applyFilter(cat.id)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-150 ${
                 categoryFilter === cat.id ? 'bg-primary-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
               }`}
             >
@@ -98,7 +98,7 @@ export default function History() {
                   </div>
                   <button
                     onClick={() => navigate(`/practice/${a.id}/result`)}
-                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400"
+                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 transition-colors duration-150"
                   >
                     <ExternalLink className="w-4 h-4" />
                   </button>
@@ -111,7 +111,7 @@ export default function History() {
             <button
               onClick={() => goToPage(page - 1)}
               disabled={page === 0}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30"
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 transition-colors duration-150"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
@@ -119,7 +119,7 @@ export default function History() {
             <button
               onClick={() => goToPage(page + 1)}
               disabled={!hasMore}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30"
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 transition-colors duration-150"
             >
               <ChevronRight className="w-5 h-5" />
             </button>

@@ -116,6 +116,44 @@ git push
 
 ---
 
+### UI/UX Audit & Fixes (sesi ini — UI/UX Pro Max skill)
+
+**Design System Generated:**
+| Aspek | Rekomendasi | Dipakai? |
+|-------|-------------|----------|
+| Style | Vibrant & Block-based | Parsial (warna, spacing) |
+| Primary | Teal #0D9488 (educ. themed) | Tidak (keep blue #3b82f6) |
+| Heading | Baloo 2 | Tidak (keep Inter) |
+| Body | Comic Neue | Tidak (keep Inter) |
+
+**Issues Fixed (20+ file edits):**
+1. **Navbar.jsx** — tambah `aria-label` pada icon-only buttons (profile, logout, hamburger), tambah `transition-colors duration-150` pada mobile menu items
+2. **History.jsx** — tambah `transition-colors duration-150` pada filter buttons, pagination, & view detail button
+3. **AdminQuestions.jsx** — tambah `focus:border-primary-500 focus:ring-primary-500` pada semua `<select>`, `<textarea>`, `<input>`
+4. **AdminCategories.jsx** — tambah `focus:border-primary-500 focus:ring-primary-500` pada semua input
+5. **DashboardLayout.jsx** — tambah `duration-150` pada sidebar links
+6. **AdminLayout.jsx** — tambah `transition-colors duration-150` pada "Kembali ke Aplikasi" link
+7. **Chat.jsx** — tambah `aria-label` pada send button
+8. **Practice.jsx** — tambah `duration-150` pada Mulai Kerjakan button
+
+**UX Guidelines Applied:**
+- ✅ Form labels with `htmlFor` (already done)
+- ✅ Loading → success/error feedback on form submit (already done)
+- ✅ Skeleton loading during async operations (already done)
+- ✅ Loading buttons disabled during submission (already done)
+- ✅ Touch targets min-h-[44px] on Button component (already done)
+- ✅ Focus-visible outline on all interactive elements (globals.css)
+- ✅ Dark mode with `transition-colors duration-200` on body
+- ✅ `font-display: swap` for web fonts (via Tailwind preflight + Inter font)
+
+**Issues Not Fixed (low priority):**
+- Admin delete uses `confirm()` — sebaiknya modal
+- `prefers-reduced-motion` media query — butuh di globals.css
+- Chunk size warning (928KB JS) — perlu code splitting
+- Belum ada system dark mode detection (masih manual via class)
+
+--- 
+
 ### UI/UX Pro Max Skill (v2.0)
 - **Repo**: https://github.com/nextlevelbuilder/ui-ux-pro-max-skill
 - **Installasi**: `npm install -g ui-ux-pro-max-cli` lalu `uipro init --ai opencode`
