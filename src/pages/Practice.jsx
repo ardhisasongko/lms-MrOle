@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  BookOpen, Book, FileText, Headphones, Mic, PenTool,
-  ChevronRight,
-} from 'lucide-react';
+  BookOpen, Book, FileText, Headphones, Microphone, PenNib,
+  CaretRight,
+} from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
 import { useCategories } from '../hooks/useCategories';
 import { DIFFICULTY_LABEL } from '../utils/constants';
@@ -12,7 +12,7 @@ import ErrorState from '../components/feedback/ErrorState';
 import toast from 'react-hot-toast';
 
 const iconMap = {
-  BookOpen, Book, FileText, Headphones, Mic, PenTool,
+  BookOpen, Book, FileText, Headphones, Microphone, PenNib,
 };
 
 const difficulties = ['easy', 'medium', 'hard'];
@@ -97,10 +97,10 @@ export default function Practice() {
             </div>
             <button
               onClick={handleStart}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors duration-150"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-cta-500 text-white rounded-2xl font-medium hover:bg-cta-600 shadow-clay transition-all duration-150"
             >
               Mulai Kerjakan
-              <ChevronRight className="w-4 h-4" />
+              <CaretRight className="w-4 h-4" />
             </button>
           </CardContent>
         </Card>

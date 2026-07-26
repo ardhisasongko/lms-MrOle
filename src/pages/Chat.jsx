@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Sparkles, BookOpen, AlertCircle, RefreshCw } from 'lucide-react';
+import { PaperPlaneTilt, Robot, User, Sparkle, BookOpen, WarningCircle, ArrowsClockwise } from '@phosphor-icons/react';
 import { sendChatMessage } from '../services/chat';
 import { sanitize } from '../utils/sanitize';
 import { createRateLimit } from '../utils/rateLimit';
@@ -9,7 +9,7 @@ import Button from '../components/common/Button';
 const chatRateLimit = createRateLimit(10, 60000);
 
 const modes = [
-  { id: 'chat', label: 'Tanya Jawab', icon: Sparkles, desc: 'Tanya apa saja tentang bahasa Inggris' },
+  { id: 'chat', label: 'Tanya Jawab', icon: Sparkle, desc: 'Tanya apa saja tentang bahasa Inggris' },
   { id: 'grammar', label: 'Koreksi Grammar', icon: BookOpen, desc: 'Kirim kalimat untuk dikoreksi' },
 ];
 
@@ -163,7 +163,7 @@ export default function Chat() {
             {error && (
               <div className="flex items-center justify-between gap-2 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 text-sm">
                 <div className="flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <WarningCircle className="w-4 h-4 shrink-0" />
                   <span>{error}</span>
                 </div>
                 {failedMessage && (
@@ -171,7 +171,7 @@ export default function Chat() {
                     onClick={() => handleSend(failedMessage)}
                     className="flex items-center gap-1 px-2 py-1 rounded bg-red-100 dark:bg-red-800/40 hover:bg-red-200 dark:hover:bg-red-800/60 transition-colors text-xs font-medium shrink-0"
                   >
-                    <RefreshCw className="w-3 h-3" /> Coba Lagi
+                    <ArrowsClockwise className="w-3 h-3" /> Coba Lagi
                   </button>
                 )}
               </div>
@@ -192,7 +192,7 @@ export default function Chat() {
                 className="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 disabled:opacity-50"
               />
               <Button onClick={handleSendClick} disabled={loading || !input.trim()} aria-label="Kirim pesan">
-                <Send className="w-4 h-4" />
+                <PaperPlaneTilt className="w-4 h-4" />
               </Button>
             </div>
           </div>

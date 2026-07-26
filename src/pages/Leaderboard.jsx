@@ -1,4 +1,4 @@
-import { Trophy, Medal, User } from 'lucide-react';
+import { Trophy, Medal, User } from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
 import Skeleton from '../components/common/Skeleton';
 import EmptyState from '../components/feedback/EmptyState';

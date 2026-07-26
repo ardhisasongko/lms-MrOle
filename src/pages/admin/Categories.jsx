@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit3, Trash2, ListTree } from 'lucide-react';
+import { Plus, PencilSimple, Trash, TreeStructure } from '@phosphor-icons/react';
 import Card, { CardContent, CardHeader } from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Skeleton from '../../components/common/Skeleton';
@@ -154,8 +154,8 @@ export default function AdminCategories() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">{cat.slug} {cat.description ? `— ${cat.description}` : ''}</p>
                 </div>
                 <div className="flex gap-1">
-                  <button onClick={() => handleEdit(cat)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500"><Edit3 className="w-4 h-4" /></button>
-                  <button onClick={() => setDeleteTarget(cat.id)} className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500"><Trash2 className="w-4 h-4" /></button>
+                  <button onClick={() => handleEdit(cat)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500"><PencilSimple className="w-4 h-4" /></button>
+                  <button onClick={() => setDeleteTarget(cat.id)} className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500"><Trash className="w-4 h-4" /></button>
                 </div>
               </CardContent>
             </Card>

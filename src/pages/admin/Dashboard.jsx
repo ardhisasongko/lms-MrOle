@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, BookOpen, ListTree, BarChart3 } from 'lucide-react';
+import { Users, BookOpen, TreeStructure, ChartBar } from '@phosphor-icons/react';
 import Card, { CardContent } from '../../components/common/Card';
 import Skeleton from '../../components/common/Skeleton';
 import { supabase } from '../../services/supabase';
@@ -34,10 +34,10 @@ export default function AdminDashboard() {
   }, []);
 
   const items = [
-    { label: 'Pengguna', value: stats?.users, icon: Users, color: 'text-blue-600 bg-blue-100 dark:bg-blue-900/30' },
-    { label: 'Soal', value: stats?.questions, icon: BookOpen, color: 'text-green-600 bg-green-100 dark:bg-green-900/30' },
-    { label: 'Kategori', value: stats?.categories, icon: ListTree, color: 'text-orange-600 bg-orange-100 dark:bg-orange-900/30' },
-    { label: 'Quiz Attempts', value: stats?.attempts, icon: BarChart3, color: 'text-purple-600 bg-purple-100 dark:bg-purple-900/30' },
+    { label: 'Pengguna', value: stats?.users, icon: Users, color: 'text-primary-600 bg-primary-100 dark:bg-primary-900/30' },
+    { label: 'Soal', value: stats?.questions, icon: BookOpen, color: 'text-cta-600 bg-cta-100 dark:bg-cta-900/30' },
+    { label: 'Kategori', value: stats?.categories, icon: ListTree, color: 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30' },
+    { label: 'Quiz Attempts', value: stats?.attempts, icon: BarChart3, color: 'text-secondary-600 bg-secondary-100 dark:bg-secondary-900/30' },
   ];
 
   return (

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Home, RefreshCw } from 'lucide-react';
+import { House, ArrowsClockwise } from '@phosphor-icons/react';
 
 export default function ErrorPage() {
   return (
@@ -13,14 +13,14 @@ export default function ErrorPage() {
           onClick={() => window.location.reload()}
           className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium text-sm min-h-[44px] border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150"
         >
-          <RefreshCw className="w-4 h-4" />
+          <ArrowsClockwise className="w-4 h-4" />
           Muat Ulang
         </button>
         <Link
           to="/"
-          className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary-600 text-white hover:bg-primary-700 rounded-lg font-medium text-sm min-h-[44px] transition-colors duration-150"
+          className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-cta-500 text-white hover:bg-cta-600 rounded-2xl font-medium text-sm min-h-[44px] shadow-clay transition-all duration-150"
         >
-          <Home className="w-4 h-4" />
+          <House className="w-4 h-4" />
           Beranda
         </Link>
       </div>

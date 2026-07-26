@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { User, Moon, Sun, Languages, ChevronRight } from 'lucide-react';
+import { User, Moon, Sun, Translate, CaretRight } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import Card, { CardContent, CardHeader } from '../components/common/Card';
 import { useAuth } from '../features/auth/AuthContext';
@@ -41,7 +41,7 @@ export default function Settings() {
                 <p className="text-sm text-gray-500 dark:text-gray-400">{user?.email}</p>
               </div>
             </div>
-            <ChevronRight className="w-5 h-5 text-gray-400" />
+            <CaretRight className="w-5 h-5 text-gray-400" />
           </Link>
         </CardContent>
       </Card>
@@ -74,14 +74,14 @@ export default function Settings() {
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                <Languages className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                <Translate className="w-5 h-5 text-gray-600 dark:text-gray-400" />
               </div>
               <div className="text-left">
                 <p className="font-medium text-gray-900 dark:text-gray-100">Bahasa / Language</p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">{i18n.language === 'id' ? 'Indonesia' : 'English'}</p>
               </div>
             </div>
-            <ChevronRight className="w-5 h-5 text-gray-400" />
+            <CaretRight className="w-5 h-5 text-gray-400" />
           </button>
         </CardContent>
       </Card>

@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
-import { Mail, ArrowLeft } from 'lucide-react';
+import { Envelope, ArrowLeft } from '@phosphor-icons/react';
 
 export default function Verify() {
   return (
     <div className="text-center space-y-6">
       <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mx-auto">
-        <Mail className="w-8 h-8 text-primary-600" />
+        <Envelope className="w-8 h-8 text-primary-600" />
       </div>
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Cek Email Kamu</h1>

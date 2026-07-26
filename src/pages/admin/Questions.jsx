@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit3, Trash2, BookOpen } from 'lucide-react';
+import { Plus, PencilSimple, Trash, BookOpen } from '@phosphor-icons/react';
 import Card, { CardContent, CardHeader } from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
@@ -230,7 +230,7 @@ export default function AdminQuestions() {
                   <div className="min-w-0">
                     <p className="font-medium text-gray-900 dark:text-gray-100">{sanitize(q.question)}</p>
                     <div className="flex flex-wrap items-center gap-2 mt-1">
-                      <Badge variant="primary" size="sm">{q.categories?.name}</Badge>
+                          <Badge variant="secondary" size="sm">{q.categories?.name}</Badge>
                       <Badge variant={difficultyBadge(q.difficulty)} size="sm">{DIFFICULTY_LABEL[q.difficulty]}</Badge>
                       <Badge size="sm">{q.type === 'multiple_choice' ? 'PG' : 'Isian'}</Badge>
                       <span className="text-xs text-gray-500">Jawaban: {sanitize(q.correct_answer)}</span>
@@ -240,8 +240,8 @@ export default function AdminQuestions() {
                     )}
                   </div>
                   <div className="flex gap-1 shrink-0">
-                    <button onClick={() => handleEdit(q)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500"><Edit3 className="w-4 h-4" /></button>
-                    <button onClick={() => setDeleteTarget(q.id)} className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500"><Trash2 className="w-4 h-4" /></button>
+                    <button onClick={() => handleEdit(q)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500"><PencilSimple className="w-4 h-4" /></button>
+                    <button onClick={() => setDeleteTarget(q.id)} className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500"><Trash className="w-4 h-4" /></button>
                   </div>
                 </div>
               </CardContent>

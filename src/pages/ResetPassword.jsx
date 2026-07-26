@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, CheckCircle } from 'lucide-react';
+import { Eye, EyeSlash, CheckCircle } from '@phosphor-icons/react';
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import { supabase } from '../services/supabase';
@@ -71,7 +71,7 @@ export default function ResetPassword() {
             aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
             className="absolute right-3 top-[38px] text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded"
           >
-            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            {showPassword ? <EyeSlash className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
         </div>
         <Input

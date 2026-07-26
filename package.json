@@ -10,11 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
     "@supabase/supabase-js": "^2.110.8",
+    "dompurify": "^3.4.12",
     "html2canvas": "^1.4.1",
     "i18next": "^26.3.6",
     "jspdf": "^2.5.2",
-    "lucide-react": "^0.460.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.4.1",

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Home } from 'lucide-react';
+import { House } from '@phosphor-icons/react';
 
 export default function NotFound() {
   return (
@@ -11,9 +11,9 @@ export default function NotFound() {
       </p>
       <Link
         to="/"
-        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary-600 text-white hover:bg-primary-700 rounded-lg font-medium text-sm min-h-[44px] transition-colors duration-150"
+        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-cta-500 text-white hover:bg-cta-600 rounded-2xl font-medium text-sm min-h-[44px] shadow-clay transition-all duration-150"
       >
-        <Home className="w-4 h-4" />
+        <House className="w-4 h-4" />
         Kembali ke Beranda
       </Link>
     </div>

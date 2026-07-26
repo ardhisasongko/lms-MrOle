@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { History as HistoryIcon, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import { ClockCounterClockwise as HistoryIcon, CaretLeft, CaretRight, ArrowSquareOut } from '@phosphor-icons/react';
 import Card, { CardContent, CardHeader } from '../components/common/Card';
 import Badge from '../components/common/Badge';
 import EmptyState from '../components/feedback/EmptyState';
@@ -100,7 +100,7 @@ export default function History() {
                     onClick={() => navigate(`/practice/${a.id}/result`)}
                     className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 transition-colors duration-150"
                   >
-                    <ExternalLink className="w-4 h-4" />
+                    <ArrowSquareOut className="w-4 h-4" />
                   </button>
                 </CardContent>
               </Card>
@@ -113,7 +113,7 @@ export default function History() {
               disabled={page === 0}
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 transition-colors duration-150"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <CaretLeft className="w-5 h-5" />
             </button>
             <span className="text-sm text-gray-600 dark:text-gray-400">Halaman {currentPage}</span>
             <button
@@ -121,7 +121,7 @@ export default function History() {
               disabled={!hasMore}
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 transition-colors duration-150"
             >
-              <ChevronRight className="w-5 h-5" />
+              <CaretRight className="w-5 h-5" />
             </button>
           </div>
         </>

@@ -1,4 +1,4 @@
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { WarningCircle, ArrowsClockwise } from '@phosphor-icons/react';
 import Button from '../common/Button';
 
 export default function ErrorState({ title = 'Terjadi Kesalahan', message = 'Silakan coba lagi.', onRetry }) {
@@ -11,7 +11,7 @@ export default function ErrorState({ title = 'Terjadi Kesalahan', message = 'Sil
       <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm mb-4">{message}</p>
       {onRetry && (
         <Button variant="outline" size="sm" onClick={onRetry}>
-          <RefreshCw className="w-4 h-4 mr-2" />
+          <ArrowsClockwise className="w-4 h-4 mr-2" />
           Coba Lagi
         </Button>
       )}

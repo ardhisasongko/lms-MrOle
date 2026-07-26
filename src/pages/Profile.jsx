@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Camera, Save, User, Upload } from 'lucide-react';
+import { Camera, FloppyDisk, User, Upload } from '@phosphor-icons/react';
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import Skeleton from '../components/common/Skeleton';
@@ -189,7 +189,7 @@ export default function Profile() {
               <p className="text-xs text-gray-500">Maksimal 2MB, format JPG/PNG</p>
             </div>
             <Button type="submit" loading={loading}>
-              <Save className="w-4 h-4 mr-2" /> Simpan Perubahan
+              <FloppyDisk className="w-4 h-4 mr-2" /> Simpan Perubahan
             </Button>
           </form>
         </CardContent>

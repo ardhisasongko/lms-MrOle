@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Languages } from 'lucide-react';
+import { Translate } from '@phosphor-icons/react';
 
 export default function LanguageSwitcher({ isMobile }) {
   const { i18n } = useTranslation();
@@ -15,7 +15,7 @@ export default function LanguageSwitcher({ isMobile }) {
   if (isMobile) {
     return (
       <button onClick={toggle} className={`${base} w-full px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300`}>
-        <Languages className="w-4 h-4" />
+        <Translate className="w-4 h-4" />
         {i18n.language === 'id' ? 'English' : 'Indonesia'}
       </button>
     );
@@ -23,7 +23,7 @@ export default function LanguageSwitcher({ isMobile }) {
 
   return (
     <button onClick={toggle} className={`${base} px-3 py-1.5 text-xs font-medium border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300`}>
-      <Languages className="w-3.5 h-3.5" />
+      <Translate className="w-3.5 h-3.5" />
       {i18n.language === 'id' ? 'EN' : 'ID'}
     </button>
   );

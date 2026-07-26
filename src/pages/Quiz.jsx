@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle } from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
 import Button from '../components/common/Button';
 import { useQuestions } from '../hooks/useQuestions';

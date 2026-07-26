@@ -1,6 +1,6 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
-import { CheckCircle, XCircle, ArrowLeft, Home, FileDown } from 'lucide-react';
+import { CheckCircle, XCircle, ArrowLeft, House, FileArrowDown } from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
 import Button from '../components/common/Button';
 import { supabase } from '../services/supabase';
@@ -162,10 +162,10 @@ export default function QuizResult() {
           <ArrowLeft className="w-4 h-4 mr-1" /> Latihan Lagi
         </Button>
         <Button variant="secondary" onClick={handleExportPDF} loading={exporting}>
-          <FileDown className="w-4 h-4 mr-1" /> Download PDF
+          <FileArrowDown className="w-4 h-4 mr-1" /> Download PDF
         </Button>
         <Button onClick={() => navigate('/dashboard')}>
-          <Home className="w-4 h-4 mr-1" /> Dashboard
+          <House className="w-4 h-4 mr-1" /> Dashboard
         </Button>
       </div>
     </div>

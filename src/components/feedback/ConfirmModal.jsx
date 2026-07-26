@@ -1,4 +1,4 @@
-import { AlertTriangle, X } from 'lucide-react';
+import { Warning, X } from '@phosphor-icons/react';
 import Button from '../common/Button';
 
 export default function ConfirmModal({ open, title, message, confirmLabel = 'Hapus', cancelLabel = 'Batal', onConfirm, onCancel, loading }) {
@@ -17,7 +17,7 @@ export default function ConfirmModal({ open, title, message, confirmLabel = 'Hap
         </button>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0">
-            <AlertTriangle className="w-5 h-5 text-red-600" />
+            <Warning className="w-5 h-5 text-red-600" />
           </div>
           <div>
             <h3 className="font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
