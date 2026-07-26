@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, Component } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -30,6 +30,25 @@ const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
 const AdminUsers = lazy(() => import('./pages/admin/Users'));
 const AdminQuestions = lazy(() => import('./pages/admin/Questions'));
 const AdminCategories = lazy(() => import('./pages/admin/Categories'));
+
+class ErrorBoundary extends Component {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">Ups!</h1>
+          <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-sm">Terjadi kesalahan tak terduga.</p>
+          <button onClick={() => { this.setState({ hasError: false }); window.location.href = '/'; }} className="px-6 py-3 bg-cta-500 text-white rounded-2xl font-medium hover:bg-cta-600 shadow-clay transition-all">
+            Kembali ke Beranda
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 function SuspenseWrapper({ children }) {
   return (
@@ -104,7 +123,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <ErrorBoundary>
+          <AppRoutes />
+        </ErrorBoundary>
         <Toaster
           position="top-right"
           toastOptions={{

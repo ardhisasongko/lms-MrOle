@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate, Navigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, CheckCircle } from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
 import Button from '../components/common/Button';
@@ -20,6 +20,8 @@ export default function Quiz() {
   const { submitQuiz, submitting } = useQuiz();
   const [answers, setAnswers] = useState({});
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  if (!difficulty) return <Navigate to="/practice" replace />;
 
   const current = questions[currentIndex];
   const isLast = currentIndex === questions.length - 1;

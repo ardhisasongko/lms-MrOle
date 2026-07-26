@@ -9,10 +9,4 @@ export function formatDate(date) {
   }).format(new Date(date));
 }
 
-export function formatDateShort(date) {
-  return new Intl.DateTimeFormat(getLocale(), {
-    dateStyle: 'medium',
-  }).format(new Date(date));
-}
-
 

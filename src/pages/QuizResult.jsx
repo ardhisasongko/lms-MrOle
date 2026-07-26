@@ -57,7 +57,8 @@ export default function QuizResult() {
   };
 
   useEffect(() => {
-    if (data) return; // ponytail: guard to prevent re-fetch, data set once
+    if (data) return;
+    let cancelled = false;
     (async () => {
       try {
         const { data: attempt } = await supabase
@@ -65,6 +66,7 @@ export default function QuizResult() {
           .select('*, quiz_answers(*, questions(*))')
           .eq('id', attemptId)
           .single();
+        if (cancelled) return;
         if (attempt) {
           setData({
             score: attempt.score,
@@ -80,12 +82,13 @@ export default function QuizResult() {
           })));
         }
       } catch {
-        toast.error('Gagal memuat hasil quiz.');
+        if (!cancelled) toast.error('Gagal memuat hasil quiz.');
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     })();
-  }, [attemptId, data]);
+    return () => { cancelled = true; };
+  }, [attemptId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
     return (

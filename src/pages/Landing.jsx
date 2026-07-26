@@ -1,6 +1,6 @@
 import { Link, Navigate } from 'react-router-dom';
 import {
-  GraduationCap, BookOpen, ChartBar, ArrowRight,
+  GraduationCap, BookOpen, ArrowRight,
   Sparkle, Star, Target, Lightning, Heart, Brain, Globe,
   CheckCircle, Flame,
 } from '@phosphor-icons/react';

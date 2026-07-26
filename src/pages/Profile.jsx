@@ -8,7 +8,7 @@ import { supabase } from '../services/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
-const IS_DEMO = !import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL === 'https://placeholder.supabase.co';
+import { IS_DEMO } from '../utils/constants';
 
 export default function Profile() {
   const { user } = useAuth();

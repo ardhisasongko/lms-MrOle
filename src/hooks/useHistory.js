@@ -1,25 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../services/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { useCategories } from './useCategories';
 
 const PAGE_SIZE = 10;
 
 export function useHistory() {
   const { user } = useAuth();
+  const { categories } = useCategories();
   const [attempts, setAttempts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState('');
-  const [categories, setCategories] = useState([]);
-
-  useEffect(() => {
-    if (!user) return;
-    (async () => {
-      const { data } = await supabase.from('categories').select('id, name').order('display_order');
-      setCategories(data || []);
-    })();
-  }, [user]);
 
   const fetchAttempts = useCallback(async (pageNum = 0, catFilter = categoryFilter) => {
     if (!user) return;

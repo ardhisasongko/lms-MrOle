@@ -110,7 +110,7 @@ export default function AdminQuestions() {
       onDelete={handleDelete}
       deleteTitle="Hapus Soal"
       deleteMessage="Apakah kamu yakin ingin menghapus soal ini? Tindakan ini tidak bisa dibatalkan."
-      addItemLabel="Tambah Soal"
+      addLabel="Tambah Soal"
       renderItem={(q) => (
         <div>
           <p className="font-medium text-gray-900 dark:text-gray-100">{sanitize(q.question)}</p>

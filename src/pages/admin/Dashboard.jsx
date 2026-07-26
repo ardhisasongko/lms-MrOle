@@ -10,17 +10,21 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
     (async () => {
       try {
         const data = await getStatsCounts();
-        setStats(data);
+        if (!cancelled) setStats(data);
       } catch {
-        toast.error('Gagal memuat statistik.');
-        setStats({ users: 0, questions: 0, categories: 0, attempts: 0 });
+        if (!cancelled) {
+          toast.error('Gagal memuat statistik.');
+          setStats({ users: 0, questions: 0, categories: 0, attempts: 0 });
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     })();
+    return () => { cancelled = true; };
   }, []);
 
   const items = [
