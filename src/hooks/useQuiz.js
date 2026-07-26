@@ -11,48 +11,26 @@ export function useQuiz() {
     setSubmitting(true);
 
     try {
-      let correct = 0;
-      const answerRows = questions.map((q) => {
-        const userAnswer = answers[q.id] || '';
-        const isCorrect = userAnswer.toLowerCase().trim() === q.correct_answer.toLowerCase().trim();
-        if (isCorrect) correct++;
-        return {
-          question_id: q.id,
-          user_answer: userAnswer,
-          is_correct: isCorrect,
-        };
+      const pAnswers = questions.map((q) => ({
+        question_id: q.id,
+        user_answer: answers[q.id] || '',
+      }));
+
+      const { data, error } = await supabase.rpc('submit_quiz', {
+        p_user_id: user.id,
+        p_category_id: categoryId,
+        p_difficulty: difficulty,
+        p_answers: pAnswers,
       });
 
-      const score = (correct / questions.length) * 100;
+      if (error) throw error;
 
-      const { data: attempt, error: attemptError } = await supabase
-        .from('quiz_attempts')
-        .insert({
-          user_id: user.id,
-          category_id: categoryId,
-          difficulty,
-          total_questions: questions.length,
-          correct_answers: correct,
-          score,
-        })
-        .select()
-        .single();
-
-      if (attemptError) throw attemptError;
-
-      const { error: answersError } = await supabase.from('quiz_answers').insert(
-        answerRows.map((r) => ({ ...r, attempt_id: attempt.id }))
-      );
-
-      if (answersError) throw answersError;
-
-      await supabase.from('learning_streaks').upsert({
-        user_id: user.id,
-        date: new Date().toISOString().split('T')[0],
-        questions_done: questions.length,
-      }, { onConflict: 'user_id,date', ignoreDuplicates: false });
-
-      return { attemptId: attempt.id, score, correct, total: questions.length };
+      return {
+        attemptId: data?.[0]?.attempt_id,
+        score: data?.[0]?.score,
+        correct: data?.[0]?.correct,
+        total: data?.[0]?.total,
+      };
     } finally {
       setSubmitting(false);
     }
