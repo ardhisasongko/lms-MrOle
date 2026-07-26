@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { GraduationCap, Menu, X } from 'lucide-react';
+import { GraduationCap, Shield, Menu, X } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import { useAdmin } from '../../features/admin/useAdmin';
 
 const sidebarLinks = [
   { to: '/dashboard', key: 'nav.dashboard' },
@@ -16,6 +17,7 @@ const sidebarLinks = [
 
 export default function DashboardLayout({ user, onLogout }) {
   const { t } = useTranslation();
+  const { isAdmin } = useAdmin();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -57,6 +59,11 @@ export default function DashboardLayout({ user, onLogout }) {
               {t(link.key)}
             </Link>
           ))}
+          {isAdmin && (
+            <Link to="/admin" className={linkClass('/admin')}>
+              <Shield className="w-4 h-4" /> Panel Admin
+            </Link>
+          )}
         </nav>
         <div className="p-4 border-t border-gray-200 dark:border-gray-800">
           <button
