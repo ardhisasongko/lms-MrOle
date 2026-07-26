@@ -32,7 +32,7 @@ export default function Profile() {
           setForm({ fullName: user.user_metadata?.full_name || '', avatarUrl: '' });
         }
       } catch (err) {
-        console.error('Error fetching profile:', err);
+        toast.error('Gagal memuat profil.');
       } finally {
         setFetching(false);
       }

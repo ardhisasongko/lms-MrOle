@@ -3,6 +3,7 @@ import { Users, BookOpen, ListTree, BarChart3 } from 'lucide-react';
 import Card, { CardContent } from '../../components/common/Card';
 import Skeleton from '../../components/common/Skeleton';
 import { supabase } from '../../services/supabase';
+import toast from 'react-hot-toast';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
@@ -24,6 +25,7 @@ export default function AdminDashboard() {
           attempts: attemptsRes.count || 0,
         });
       } catch {
+        toast.error('Gagal memuat statistik.');
         setStats({ users: 0, questions: 0, categories: 0, attempts: 0 });
       } finally {
         setLoading(false);

@@ -7,6 +7,7 @@ import { supabase } from '../services/supabase';
 import Skeleton from '../components/common/Skeleton';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import toast from 'react-hot-toast';
 
 export default function QuizResult() {
   const { attemptId } = useParams();
@@ -44,7 +45,7 @@ export default function QuizResult() {
       }
       pdf.save(`quiz-result-${Math.round(data.score)}.pdf`);
     } catch {
-      // silent
+      toast.error('Gagal mengexport PDF. Coba lagi.');
     } finally {
       setExporting(false);
     }
@@ -74,7 +75,7 @@ export default function QuizResult() {
           })));
         }
       } catch {
-        // silent
+        toast.error('Gagal memuat hasil quiz.');
       } finally {
         setLoading(false);
       }

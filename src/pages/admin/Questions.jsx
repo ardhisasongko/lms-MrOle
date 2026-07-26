@@ -26,12 +26,17 @@ export default function AdminQuestions() {
 
   useEffect(() => {
     (async () => {
-      const { data: cats } = await supabase.from('categories').select('id, name').order('display_order');
-      setCategories(cats || []);
-      if (cats?.length) setForm((f) => ({ ...f, category_id: cats[0].id }));
-      const { data: qs } = await supabase.from('questions').select('*, categories(name)').order('created_at', { ascending: false });
-      setQuestions(qs || []);
-      setLoading(false);
+      try {
+        const { data: cats } = await supabase.from('categories').select('id, name').order('display_order');
+        setCategories(cats || []);
+        if (cats?.length) setForm((f) => ({ ...f, category_id: cats[0].id }));
+        const { data: qs } = await supabase.from('questions').select('*, categories(name)').order('created_at', { ascending: false });
+        setQuestions(qs || []);
+      } catch {
+        toast.error('Gagal memuat data.');
+      } finally {
+        setLoading(false);
+      }
     })();
   }, []);
 

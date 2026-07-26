@@ -18,9 +18,14 @@ export default function AdminCategories() {
   const [form, setForm] = useState({ name: '', slug: '', description: '', icon: '', display_order: 0 });
 
   const fetchCategories = async () => {
-    const { data } = await supabase.from('categories').select('*').order('display_order');
-    setCategories(data || []);
-    setLoading(false);
+    try {
+      const { data } = await supabase.from('categories').select('*').order('display_order');
+      setCategories(data || []);
+    } catch {
+      toast.error('Gagal memuat kategori.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { fetchCategories(); }, []);
