@@ -29,6 +29,7 @@
 | Grafik | Recharts |
 | Ikon | Lucide React |
 | Hosting | Cloudflare Pages |
+| UI/UX Skill | UI/UX Pro Max (`.opencode/skills/`) |
 
 ---
 
@@ -112,6 +113,16 @@ git push
 | `supabase/seed/seed.sql` | Seed data soal |
 | `src/features/auth/AuthContext.jsx` | Auth logic (ada mode demo) |
 | `.env` | Environment lokal |
+
+---
+
+### UI/UX Pro Max Skill (v2.0)
+- **Repo**: https://github.com/nextlevelbuilder/ui-ux-pro-max-skill
+- **Installasi**: `npm install -g ui-ux-pro-max-cli` lalu `uipro init --ai opencode`
+- **Folder**: `.opencode/skills/ui-ux-pro-max/` + 6 sub-skills (design, design-system, brand, ui-styling, banner-design, slides)
+- **Fitur**: 84 UI styles, 192 color palettes, 74 font pairings, 161 industry reasoning rules
+- **Cara pakai**: tinggal minta "Buat landing page" atau "Desain dashboard" — skill aktif otomatis
+- **CLI manual**: `python3 .opencode/skills/ui-ux-pro-max/scripts/search.py "beauty spa" --design-system`
 
 ---
 
