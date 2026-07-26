@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit3, Trash2 } from 'lucide-react';
+import { Plus, Edit3, Trash2, BookOpen } from 'lucide-react';
 import Card, { CardContent, CardHeader } from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
+import Skeleton from '../../components/common/Skeleton';
 import EmptyState from '../../components/feedback/EmptyState';
 import { supabase } from '../../services/supabase';
 import { DIFFICULTY_LABEL } from '../../utils/constants';
@@ -177,7 +178,11 @@ export default function AdminQuestions() {
       )}
 
       {loading ? (
-        <p className="text-gray-500">Memuat...</p>
+        <div className="space-y-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-20 rounded-xl" />
+          ))}
+        </div>
       ) : questions.length === 0 ? (
         <Card>
           <CardContent className="py-12">

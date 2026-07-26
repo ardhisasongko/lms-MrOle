@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Camera, Save, User } from 'lucide-react';
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
+import Skeleton from '../components/common/Skeleton';
 import Card, { CardContent, CardHeader } from '../components/common/Card';
 import { supabase } from '../services/supabase';
 import { useAuth } from '../features/auth/AuthContext';
@@ -55,7 +56,27 @@ export default function Profile() {
     }
   };
 
-  if (fetching) return null;
+  if (fetching) {
+    return (
+      <div className="max-w-2xl mx-auto space-y-6">
+        <Skeleton className="h-8 w-48 rounded-lg" />
+        <Card>
+          <CardContent className="space-y-4">
+            <div className="flex items-center gap-4">
+              <Skeleton className="w-16 h-16 rounded-full" />
+              <div className="space-y-2 flex-1">
+                <Skeleton className="h-5 w-40 rounded" />
+                <Skeleton className="h-4 w-56 rounded" />
+              </div>
+            </div>
+            <Skeleton className="h-10 w-full rounded-lg" />
+            <Skeleton className="h-10 w-full rounded-lg" />
+            <Skeleton className="h-10 w-40 rounded-lg" />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -69,9 +90,9 @@ export default function Profile() {
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center relative">
               <User className="w-8 h-8 text-primary-600" />
-              <button className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-primary-600 text-white flex items-center justify-center">
+              <span className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-primary-600 text-white flex items-center justify-center">
                 <Camera className="w-3 h-3" />
-              </button>
+              </span>
             </div>
             <div>
               <p className="font-semibold text-gray-900 dark:text-gray-100">{form.fullName || 'Belum diisi'}</p>

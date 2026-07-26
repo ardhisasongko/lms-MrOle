@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Edit3, Trash2, ListTree } from 'lucide-react';
 import Card, { CardContent, CardHeader } from '../../components/common/Card';
 import Button from '../../components/common/Button';
+import Skeleton from '../../components/common/Skeleton';
 import EmptyState from '../../components/feedback/EmptyState';
 import { supabase } from '../../services/supabase';
 import toast from 'react-hot-toast';
@@ -10,6 +11,7 @@ export default function AdminCategories() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null);
+  const [adding, setAdding] = useState(false);
   const [form, setForm] = useState({ name: '', slug: '', description: '', icon: '', display_order: 0 });
 
   const fetchCategories = async () => {
@@ -22,6 +24,7 @@ export default function AdminCategories() {
 
   const resetForm = () => {
     setEditing(null);
+    setAdding(false);
     setForm({ name: '', slug: '', description: '', icon: '', display_order: 0 });
   };
 
@@ -68,14 +71,14 @@ export default function AdminCategories() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Kategori</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">Kelola kategori soal.</p>
         </div>
-        {!editing && (
-          <Button onClick={resetForm}>
+        {!editing && !adding && (
+          <Button onClick={() => { resetForm(); setAdding(true); }}>
             <Plus className="w-4 h-4 mr-2" /> Tambah
           </Button>
         )}
       </div>
 
-      {(editing || (!editing && !categories.length && !loading)) && (
+      {(editing || adding) && (
         <Card>
           <CardHeader>
             <h3 className="font-semibold text-gray-900 dark:text-gray-100">{editing ? 'Edit Kategori' : 'Kategori Baru'}</h3>
@@ -112,7 +115,11 @@ export default function AdminCategories() {
       )}
 
       {loading ? (
-        <p className="text-gray-500">Memuat...</p>
+        <div className="space-y-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-16 rounded-xl" />
+          ))}
+        </div>
       ) : categories.length === 0 ? (
         <Card>
           <CardContent className="py-12">

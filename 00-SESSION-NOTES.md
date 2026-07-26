@@ -126,6 +126,20 @@ git push
 | Heading | Baloo 2 | Tidak (keep Inter) |
 | Body | Comic Neue | Tidak (keep Inter) |
 
+**Round 2 — All `<Link><Button>` Pattern Fixed (invalid HTML):**
+- **Landing.jsx** — 3 CTAs: `bg-white text-primary-700` langsung di Link (no Button)
+- **Navbar.jsx** — login/register links langsung pakai Link style, hapus Button import + unused icons
+- **NotFound.jsx** — Link langsung styled sebagai button
+- **ErrorPage.jsx** — `<button onClick={reload}>` langsung styled, Link styled sebagai button
+- **Verify.jsx** — Link langsung styled sebagai button
+
+**Additional Bugs Found & Fixed:**
+- **AdminCategories.jsx** — form tidak muncul saat klik "Tambah" (bug: condition `!categories.length`). Fix: tambah state `adding`
+- **Profile.jsx** — camera button no-op (ganti ke `<span>`), loading state pakai Skeleton (sebelumnya `return null`)
+- **Login/Register/ResetPassword.jsx** — eye toggle button tambah `aria-label` dan `focus-visible` ring
+- **Dashboard.jsx** — bar chart color `fill="#3b82f6"` → `fill="var(--color-primary, #3b82f6)"` (theme-aware)
+- **AdminQuestions/Categories.jsx** — loading state `"Memuat..."` → Skeleton cards
+
 **Issues Fixed (20+ file edits):**
 1. **Navbar.jsx** — tambah `aria-label` pada icon-only buttons (profile, logout, hamburger), tambah `transition-colors duration-150` pada mobile menu items
 2. **History.jsx** — tambah `transition-colors duration-150` pada filter buttons, pagination, & view detail button

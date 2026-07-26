@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { Home } from 'lucide-react';
-import Button from '../components/common/Button';
 
 export default function NotFound() {
   return (
@@ -10,11 +9,12 @@ export default function NotFound() {
       <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-sm">
         Halaman yang kamu cari tidak ada atau telah dipindahkan.
       </p>
-      <Link to="/">
-        <Button>
-          <Home className="w-4 h-4 mr-2" />
-          Kembali ke Beranda
-        </Button>
+      <Link
+        to="/"
+        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary-600 text-white hover:bg-primary-700 rounded-lg font-medium text-sm min-h-[44px] transition-colors duration-150"
+      >
+        <Home className="w-4 h-4" />
+        Kembali ke Beranda
       </Link>
     </div>
   );

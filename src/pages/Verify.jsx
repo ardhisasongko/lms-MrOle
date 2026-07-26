@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { Mail, ArrowLeft } from 'lucide-react';
-import Button from '../components/common/Button';
 
 export default function Verify() {
   return (
@@ -14,10 +13,11 @@ export default function Verify() {
           Kami sudah mengirim email verifikasi. Klik link di email untuk mengaktifkan akunmu.
         </p>
       </div>
-      <Link to="/login">
-        <Button variant="outline">
-          <ArrowLeft className="w-4 h-4 mr-2" /> Kembali ke Login
-        </Button>
+      <Link
+        to="/login"
+        className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium text-sm min-h-[44px] border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150"
+      >
+        <ArrowLeft className="w-4 h-4" /> Kembali ke Login
       </Link>
     </div>
   );

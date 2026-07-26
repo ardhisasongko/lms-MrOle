@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
-import { GraduationCap, Menu, X, Moon, Sun, LogOut, User, MessageSquare } from 'lucide-react';
+import { GraduationCap, Menu, X, LogOut, User } from 'lucide-react';
 import { useState } from 'react';
-import Button from '../common/Button';
 
 export default function Navbar({ user, onLogout }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -39,11 +38,11 @@ export default function Navbar({ user, onLogout }) {
               </>
             ) : (
               <>
-                <Link to="/login">
-                  <Button variant="ghost" size="sm">Masuk</Button>
+                <Link to="/login" className="px-4 py-2 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150">
+                  Masuk
                 </Link>
-                <Link to="/register">
-                  <Button size="sm">Daftar</Button>
+                <Link to="/register" className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-700 transition-colors duration-150 min-h-[44px]">
+                  Daftar
                 </Link>
               </>
             )}
@@ -72,8 +71,12 @@ export default function Navbar({ user, onLogout }) {
             </>
           ) : (
             <div className="flex gap-2">
-              <Link to="/login" className="flex-1"><Button variant="outline" className="w-full">Masuk</Button></Link>
-              <Link to="/register" className="flex-1"><Button className="w-full">Daftar</Button></Link>
+              <Link to="/login" className="flex-1 flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150 min-h-[44px]">
+                Masuk
+              </Link>
+              <Link to="/register" className="flex-1 flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-700 transition-colors duration-150 min-h-[44px]">
+                Daftar
+              </Link>
             </div>
           )}
         </div>

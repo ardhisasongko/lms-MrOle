@@ -77,7 +77,7 @@ export default function Dashboard() {
                     labelFormatter={(d) => new Date(d).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric' })}
                     formatter={(val) => [`${val}%`, 'Nilai']}
                   />
-                  <Bar dataKey="score" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="score" fill="var(--color-primary, #3b82f6)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}

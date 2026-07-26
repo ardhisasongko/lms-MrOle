@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { GraduationCap, BookOpen, BarChart3, MessageSquare, ArrowRight, CheckCircle } from 'lucide-react';
-import Button from '../components/common/Button';
 
 const features = [
   {
@@ -42,16 +41,18 @@ export default function Landing() {
               pembahasan detail, dan pantau progres belajarmu.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/register">
-                <Button size="lg" className="bg-white text-primary-700 hover:bg-primary-50 w-full sm:w-auto">
-                  Mulai Belajar Gratis
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
+              <Link
+                to="/register"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-primary-700 hover:bg-primary-50 rounded-lg font-medium text-base min-h-[48px] transition-colors duration-150 w-full sm:w-auto"
+              >
+                Mulai Belajar Gratis
+                <ArrowRight className="w-5 h-5" />
               </Link>
-              <Link to="/login">
-                <Button variant="outline" size="lg" className="border-white/30 text-white hover:bg-white/10 w-full sm:w-auto">
-                  Sudah Punya Akun
-                </Button>
+              <Link
+                to="/login"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-white/30 text-white hover:bg-white/10 rounded-lg font-medium text-base min-h-[48px] transition-colors duration-150 w-full sm:w-auto"
+              >
+                Sudah Punya Akun
               </Link>
             </div>
           </div>
@@ -112,11 +113,12 @@ export default function Landing() {
           <p className="text-primary-100 mb-8 text-lg">
             Mulai belajar sekarang, gratis!
           </p>
-          <Link to="/register">
-            <Button size="lg" className="bg-white text-primary-700 hover:bg-primary-50">
-              Daftar Gratis
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
+          <Link
+            to="/register"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-primary-700 hover:bg-primary-50 rounded-lg font-medium text-base min-h-[48px] transition-colors duration-150"
+          >
+            Daftar Gratis
+            <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
       </section>
