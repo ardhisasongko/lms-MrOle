@@ -1,12 +1,10 @@
 import { supabase } from './supabase';
 
-const API_URL = import.meta.env.VITE_API_URL || '';
-
 export async function sendChatMessage(message, mode = 'chat', history = []) {
   const { data: { session } } = await supabase.auth.getSession();
   const token = session?.access_token;
 
-  const res = await fetch(`${API_URL}/api/chat`, {
+  const res = await fetch('/api/chat', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
