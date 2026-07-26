@@ -1,19 +1,21 @@
 import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { GraduationCap, Menu, X } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
 const sidebarLinks = [
-  { to: '/dashboard', label: 'Dashboard' },
-  { to: '/practice', label: 'Latihan' },
-  { to: '/history', label: 'Riwayat' },
-  { to: '/leaderboard', label: 'Peringkat' },
-  { to: '/chat', label: 'AI Chat' },
-  { to: '/profile', label: 'Profil' },
-  { to: '/settings', label: 'Pengaturan' },
+  { to: '/dashboard', key: 'nav.dashboard' },
+  { to: '/practice', key: 'nav.practice' },
+  { to: '/history', key: 'nav.history' },
+  { to: '/leaderboard', key: 'nav.leaderboard' },
+  { to: '/chat', key: 'nav.chat' },
+  { to: '/profile', key: 'nav.profile' },
+  { to: '/settings', key: 'nav.settings' },
 ];
 
 export default function DashboardLayout({ user, onLogout }) {
+  const { t } = useTranslation();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -52,7 +54,7 @@ export default function DashboardLayout({ user, onLogout }) {
         <nav className="flex-1 px-4 space-y-1">
           {sidebarLinks.map((link) => (
             <Link key={link.to} to={link.to} className={linkClass(link.to)}>
-              {link.label}
+              {t(link.key)}
             </Link>
           ))}
         </nav>
@@ -61,7 +63,7 @@ export default function DashboardLayout({ user, onLogout }) {
             onClick={onLogout}
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 w-full transition-colors duration-150"
           >
-            Keluar
+            {t('nav.logout')}
           </button>
         </div>
       </aside>

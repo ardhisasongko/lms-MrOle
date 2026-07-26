@@ -5,7 +5,6 @@ import EmptyState from '../components/feedback/EmptyState';
 import Skeleton from '../components/common/Skeleton';
 import { useProgress } from '../hooks/useProgress';
 import { formatDate } from '../utils/format';
-import Badge from '../components/common/Badge';
 
 export default function Dashboard() {
   const { stats, scoreByCategory, chartData, loading } = useProgress();

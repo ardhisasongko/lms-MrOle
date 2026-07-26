@@ -1,5 +1,6 @@
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { GraduationCap, BookOpen, BarChart3, MessageSquare, ArrowRight, CheckCircle } from 'lucide-react';
+import { useAuth } from '../features/auth/AuthContext';
 
 const features = [
   {
@@ -27,6 +28,9 @@ const benefits = [
 ];
 
 export default function Landing() {
+  const { user } = useAuth();
+  if (user) return <Navigate to="/dashboard" replace />;
+
   return (
     <div className="min-h-screen">
       <section className="relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 text-white">

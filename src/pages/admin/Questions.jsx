@@ -15,6 +15,7 @@ export default function AdminQuestions() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null);
+  const [showForm, setShowForm] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [form, setForm] = useState({
@@ -36,6 +37,7 @@ export default function AdminQuestions() {
 
   const resetForm = () => {
     setEditing(null);
+    setShowForm(false);
     setForm({
       category_id: categories[0]?.id || '', difficulty: 'easy', type: 'multiple_choice',
       question: '', options: '[{"label":"A","text":""},{"label":"B","text":""},{"label":"C","text":""},{"label":"D","text":""}]',
@@ -45,6 +47,7 @@ export default function AdminQuestions() {
 
   const handleEdit = (q) => {
     setEditing(q.id);
+    setShowForm(true);
     setForm({
       category_id: q.category_id, difficulty: q.difficulty, type: q.type,
       question: q.question, options: JSON.stringify(q.options || ''), correct_answer: q.correct_answer, explanation: q.explanation,
@@ -114,14 +117,14 @@ export default function AdminQuestions() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Soal</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">Kelola bank soal.</p>
         </div>
-        {!editing && (
-          <Button onClick={resetForm}>
+        {!editing && !showForm && (
+          <Button onClick={() => { resetForm(); setShowForm(true); }}>
             <Plus className="w-4 h-4 mr-2" /> Tambah Soal
           </Button>
         )}
       </div>
 
-      {(editing || form.category_id) && (
+      {(editing || showForm) && (
         <Card>
           <CardHeader>
             <h3 className="font-semibold text-gray-900 dark:text-gray-100">{editing ? 'Edit Soal' : 'Soal Baru'}</h3>

@@ -1,6 +1,6 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
-import { CheckCircle, XCircle, ArrowLeft, Home, RefreshCw, FileDown } from 'lucide-react';
+import { CheckCircle, XCircle, ArrowLeft, Home, FileDown } from 'lucide-react';
 import Card, { CardContent } from '../components/common/Card';
 import Button from '../components/common/Button';
 import { supabase } from '../services/supabase';

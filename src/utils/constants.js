@@ -36,6 +36,12 @@ export const ROUTES = {
   PRACTICE_CATEGORY: '/practice/:categoryId',
   QUIZ_RESULT: '/practice/:attemptId/result',
   HISTORY: '/history',
+  CHAT: '/chat',
+  LEADERBOARD: '/leaderboard',
   PROFILE: '/profile',
   SETTINGS: '/settings',
+  ADMIN: '/admin',
+  ADMIN_QUESTIONS: '/admin/questions',
+  ADMIN_CATEGORIES: '/admin/categories',
+  ERROR: '/error',
 };
