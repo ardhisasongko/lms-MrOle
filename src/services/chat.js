@@ -1,9 +1,17 @@
+import { supabase } from './supabase';
+
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 export async function sendChatMessage(message, mode = 'chat', history = []) {
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token;
+
   const res = await fetch(`${API_URL}/chat`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify({ message, mode, history }),
   });
 

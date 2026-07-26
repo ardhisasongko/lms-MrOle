@@ -1,6 +1,7 @@
+import { memo } from 'react';
 import { cn } from '../../utils/cn';
 
-export default function Card({ children, className, ...props }) {
+function Card({ children, className, ...props }) {
   return (
     <div
       className={cn(
@@ -14,7 +15,7 @@ export default function Card({ children, className, ...props }) {
   );
 }
 
-export function CardHeader({ children, className }) {
+function CardHeader({ children, className }) {
   return (
     <div className={cn('px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700', className)}>
       {children}
@@ -22,10 +23,13 @@ export function CardHeader({ children, className }) {
   );
 }
 
-export function CardContent({ children, className }) {
+function CardContent({ children, className }) {
   return (
     <div className={cn('px-4 sm:px-6 py-4', className)}>
       {children}
     </div>
   );
 }
+
+export default memo(Card);
+export { CardHeader, CardContent };

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { cn } from '../../utils/cn';
 
 const variants = {
@@ -13,10 +14,12 @@ const sizes = {
   md: 'px-2.5 py-1 text-sm',
 };
 
-export default function Badge({ children, variant = 'default', size = 'sm', className }) {
+function Badge({ children, variant = 'default', size = 'sm', className }) {
   return (
     <span className={cn('inline-flex items-center font-medium rounded-full', variants[variant], sizes[size], className)}>
       {children}
     </span>
   );
 }
+
+export default memo(Badge);

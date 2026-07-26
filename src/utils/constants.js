@@ -1,28 +1,8 @@
-export const DIFFICULTY = {
-  EASY: 'easy',
-  MEDIUM: 'medium',
-  HARD: 'hard',
-};
-
 export const DIFFICULTY_LABEL = {
-  [DIFFICULTY.EASY]: 'Mudah',
-  [DIFFICULTY.MEDIUM]: 'Sedang',
-  [DIFFICULTY.HARD]: 'Sulit',
+  easy: 'Mudah',
+  medium: 'Sedang',
+  hard: 'Sulit',
 };
-
-export const QUESTION_TYPE = {
-  MULTIPLE_CHOICE: 'multiple_choice',
-  SHORT_ANSWER: 'short_answer',
-};
-
-export const CATEGORIES = [
-  { id: 'grammar', name: 'Grammar', slug: 'grammar', icon: 'BookOpen' },
-  { id: 'vocabulary', name: 'Vocabulary', slug: 'vocabulary', icon: 'Book' },
-  { id: 'reading', name: 'Reading', slug: 'reading', icon: 'FileText' },
-  { id: 'listening', name: 'Listening', slug: 'listening', icon: 'Headphones' },
-  { id: 'speaking', name: 'Speaking', slug: 'speaking', icon: 'Mic' },
-  { id: 'writing', name: 'Writing', slug: 'writing', icon: 'PenTool' },
-];
 
 export const ROUTES = {
   HOME: '/',

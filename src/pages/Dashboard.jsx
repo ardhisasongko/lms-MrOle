@@ -1,5 +1,4 @@
 import { BookOpen, TrendingUp, Award, Clock } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import Card, { CardContent, CardHeader } from '../components/common/Card';
 import EmptyState from '../components/feedback/EmptyState';
 import Skeleton from '../components/common/Skeleton';
@@ -64,21 +63,27 @@ export default function Dashboard() {
             ) : chartData.every((d) => d.score === 0) ? (
               <EmptyState icon={TrendingUp} title="Belum Ada Data" description="Kerjakan latihan untuk melihat grafik." />
             ) : (
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={chartData}>
-                  <XAxis
-                    dataKey="date"
-                    tickFormatter={(d) => new Date(d).toLocaleDateString('id-ID', { weekday: 'short' })}
-                    tick={{ fontSize: 12 }}
-                  />
-                  <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
-                  <Tooltip
-                    labelFormatter={(d) => new Date(d).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric' })}
-                    formatter={(val) => [`${val}%`, 'Nilai']}
-                  />
-                  <Bar dataKey="score" fill="var(--color-primary, #3b82f6)" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="space-y-2 pt-2">
+                {chartData.map((d) => {
+                  const pct = d.score;
+                  return (
+                    <div key={d.date} className="flex items-center gap-3">
+                      <span className="w-8 text-xs text-gray-500 shrink-0 text-right">
+                        {new Date(d.date).toLocaleDateString('id-ID', { weekday: 'short' })}
+                      </span>
+                      <div className="flex-1 bg-gray-100 dark:bg-gray-700 rounded-full h-5 overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all"
+                          style={{ width: `${pct}%`, background: 'var(--color-primary, #3b82f6)' }}
+                        />
+                      </div>
+                      <span className="w-10 text-xs font-medium text-gray-700 dark:text-gray-300 text-right shrink-0">
+                        {pct}%
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </CardContent>
         </Card>

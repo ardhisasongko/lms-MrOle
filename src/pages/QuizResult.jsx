@@ -5,8 +5,6 @@ import Card, { CardContent } from '../components/common/Card';
 import Button from '../components/common/Button';
 import { supabase } from '../services/supabase';
 import Skeleton from '../components/common/Skeleton';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import toast from 'react-hot-toast';
 
 export default function QuizResult() {
@@ -25,6 +23,12 @@ export default function QuizResult() {
     if (!resultRef.current) return;
     setExporting(true);
     try {
+      const [html2canvasModule, jsPDFModule] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf'),
+      ]);
+      const html2canvas = html2canvasModule.default;
+      const jsPDF = jsPDFModule.default;
       const canvas = await html2canvas(resultRef.current, {
         scale: 2,
         backgroundColor: '#ffffff',

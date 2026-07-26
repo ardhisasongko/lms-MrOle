@@ -1,6 +1,7 @@
+import { memo } from 'react';
 import { cn } from '../../utils/cn';
 
-export default function Input({
+function Input({
   label,
   error,
   className,
@@ -36,3 +37,5 @@ export default function Input({
     </div>
   );
 }
+
+export default memo(Input);

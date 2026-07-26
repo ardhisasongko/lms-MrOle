@@ -25,7 +25,8 @@ export function useProgress() {
             .from('quiz_attempts')
             .select('score, total_questions, completed_at, category_id, categories(name)')
             .eq('user_id', user.id)
-            .order('completed_at', { ascending: false }),
+            .order('completed_at', { ascending: false })
+            .limit(100),
           supabase.rpc('calculate_streak', { p_user_id: user.id }),
         ]);
 

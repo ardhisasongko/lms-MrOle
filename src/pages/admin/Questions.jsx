@@ -63,7 +63,17 @@ export default function AdminQuestions() {
     e.preventDefault();
     let options = null;
     if (form.type === 'multiple_choice') {
-      try { options = JSON.parse(form.options); } catch { toast.error('Format JSON options tidak valid'); return; }
+      try {
+        const parsed = JSON.parse(form.options);
+        if (!Array.isArray(parsed) || parsed.length === 0) throw new Error();
+        for (const item of parsed) {
+          if (!item.label || item.text === undefined) throw new Error();
+        }
+        options = parsed;
+      } catch {
+        toast.error('Format JSON options tidak valid. Setiap item harus punya "label" dan "text".');
+        return;
+      }
     }
     const payload = { ...form, options };
     try {

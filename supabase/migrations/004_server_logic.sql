@@ -31,6 +31,9 @@ DECLARE
   total_count INT;
   v_attempt_id UUID;
 BEGIN
+  IF p_user_id != auth.uid() THEN
+    RAISE EXCEPTION 'User ID mismatch';
+  END IF;
   total_count := jsonb_array_length(p_answers);
 
   FOR ans IN SELECT * FROM jsonb_array_elements(p_answers)

@@ -8,6 +8,8 @@ import { supabase } from '../services/supabase';
 import { useAuth } from '../features/auth/AuthContext';
 import toast from 'react-hot-toast';
 
+const IS_DEMO = !import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL === 'https://placeholder.supabase.co';
+
 export default function Profile() {
   const { user } = useAuth();
   const fileRef = useRef(null);
@@ -18,6 +20,11 @@ export default function Profile() {
 
   useEffect(() => {
     if (!user) return;
+    if (IS_DEMO) {
+      setForm({ fullName: user.user_metadata?.full_name || user.email?.split('@')[0] || '', avatarUrl: '' });
+      setFetching(false);
+      return;
+    }
     (async () => {
       try {
         const { data, error } = await supabase
@@ -29,10 +36,11 @@ export default function Profile() {
         if (data) {
           setForm({ fullName: data.full_name || '', avatarUrl: data.avatar_url || '' });
         } else {
-          setForm({ fullName: user.user_metadata?.full_name || '', avatarUrl: '' });
+          setForm({ fullName: user.user_metadata?.full_name || user.email?.split('@')[0] || '', avatarUrl: '' });
         }
       } catch (err) {
-        toast.error('Gagal memuat profil.');
+        console.error('Profile fetch error:', err);
+        setForm({ fullName: user.user_metadata?.full_name || user.email?.split('@')[0] || '', avatarUrl: '' });
       } finally {
         setFetching(false);
       }
@@ -127,7 +135,7 @@ export default function Profile() {
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center relative overflow-hidden shrink-0">
               {form.avatarUrl ? (
-                <img src={form.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                <img src={form.avatarUrl} alt="Avatar" loading="lazy" className="w-full h-full object-cover" />
               ) : (
                 <User className="w-8 h-8 text-primary-600" />
               )}

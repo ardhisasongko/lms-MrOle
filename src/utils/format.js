@@ -11,10 +11,4 @@ export function formatDateShort(date) {
   }).format(new Date(date));
 }
 
-export function formatPercentage(value) {
-  return `${Math.round(value)}%`;
-}
 
-export function formatNumber(value) {
-  return new Intl.NumberFormat('id-ID').format(value);
-}
