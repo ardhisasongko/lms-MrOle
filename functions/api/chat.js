@@ -1,28 +1,37 @@
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+  });
+}
+
 export async function onRequest(context) {
   const { request, env } = context;
 
+  // Handle CORS preflight
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: CORS_HEADERS });
+  }
+
   if (request.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return json({ error: 'Method not allowed' }, 405);
   }
 
   if (!env.AI) {
-    return new Response(JSON.stringify({ error: 'Workers AI not configured. Add AI binding in Cloudflare Dashboard.' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return json({ error: 'Workers AI not configured. Add AI binding in Cloudflare Dashboard.' }, 500);
   }
 
   try {
     const { message, mode = 'chat', history = [] } = await request.json();
 
     if (!message || typeof message !== 'string') {
-      return new Response(JSON.stringify({ error: 'Message is required' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return json({ error: 'Message is required' }, 400);
     }
 
     const systemPrompt = mode === 'grammar'
@@ -43,21 +52,12 @@ export async function onRequest(context) {
 
     const reply = response?.response || '';
     if (!reply) {
-      return new Response(JSON.stringify({ error: 'AI returned empty response' }), {
-        status: 502,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return json({ error: 'AI returned empty response' }, 502);
     }
 
-    return new Response(JSON.stringify({ reply }), {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return json({ reply });
   } catch (err) {
     console.error('Chat error:', err);
-    const message = err.message || 'Internal error';
-    return new Response(JSON.stringify({ error: message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return json({ error: err.message || 'Internal error' }, 500);
   }
 }

@@ -18,8 +18,12 @@ export default function Register() {
       toast.error('Password tidak cocok');
       return;
     }
-    if (form.password.length < 6) {
-      toast.error('Password minimal 6 karakter');
+    if (form.password.length < 8) {
+      toast.error('Password minimal 8 karakter');
+      return;
+    }
+    if (!/[a-zA-Z]/.test(form.password) || !/[0-9]/.test(form.password)) {
+      toast.error('Password harus mengandung minimal 1 huruf dan 1 angka');
       return;
     }
     setLoading(true);
@@ -62,7 +66,7 @@ export default function Register() {
           <Input
             label="Password"
             type={showPassword ? 'text' : 'password'}
-            placeholder="Minimal 6 karakter"
+            placeholder="Minimal 8 karakter, huruf + angka"
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
             required
