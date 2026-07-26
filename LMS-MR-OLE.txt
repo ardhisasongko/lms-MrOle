@@ -1,0 +1,1897 @@
+# PROMPT INDUK PEMBUATAN WEBSITE
+
+
+
+## KONFIGURASI PROYEK — EDIT BAGIAN INI SAJA
+
+
+
+Nama proyek:
+
+`[MODUL AJAR OTOMATIS]` 
+
+
+
+Nama produk yang ditampilkan:
+
+`[MODUL AJAR OTOMATIS]` 
+
+
+
+Jenis aplikasi:
+
+`[Pendidikan]` 
+
+
+
+Tujuan utama:
+
+`[Membuat modul ajar bagi guru ]` 
+
+
+
+Masalah yang ingin diselesaikan:
+
+`[Banyak guru masih membuat modul ajar dengan manual, dan membutuhkan waktu laam]` 
+
+
+
+Target pengguna:
+
+`[Guru Guru di Indonesia]` 
+
+
+
+Peran pengguna:
+
+- `[Membaut modul ajar otomatis dengan bantuan ai]` 
+
+- `[Mendapatkan modul ajar dengan dokumen word]` 
+
+- `[Bisa edit dokumen modul ajar]` 
+
+
+
+Fitur utama:
+
+1. `[FITUR_UTAMA_1]`
+
+2. `[FITUR_UTAMA_2]`
+
+3. `[FITUR_UTAMA_3]`
+
+4. `[FITUR_UTAMA_4]`
+
+5. `[FITUR_UTAMA_5]`
+
+
+
+Data utama yang dikelola:
+
+- `[DATA_UTAMA_1]`
+
+- `[DATA_UTAMA_2]`
+
+- `[DATA_UTAMA_3]`
+
+
+
+Output yang dapat diunduh:
+
+- `[WORD/PDF/EXCEL]` 
+
+
+
+Apakah menggunakan AI:
+
+`[YA]` 
+
+
+
+Jika menggunakan AI, jelaskan kegunaannya:
+
+`[FUNGSI_AI]`
+
+
+
+Warna atau karakter visual:
+
+`[PROFESIONAL/MODERN/EDUKATIF/MINIMALIS/DAN_LAINNYA]`
+
+
+
+Bahasa utama:
+
+`Bahasa Indonesia`
+
+
+
+Repository referensi:
+
+`[LOKASI_REPOSITORY_REFERENSI]`
+
+
+
+Repository tujuan:
+
+`[NAMA_REPOSITORY_BARU]`
+
+
+
+---
+
+
+
+## INSTRUKSI UTAMA
+
+
+
+Bangun aplikasi baru berdasarkan konfigurasi proyek di atas.
+
+
+
+Proyek harus dibuat di repository dan folder baru. Jangan mengubah, menghapus, atau mencampurkan proyek lain yang sudah ada.
+
+
+
+Gunakan repository referensi hanya sebagai acuan untuk:
+
+
+
+- Struktur frontend.
+
+- Pola komponen.
+
+- UI/UX.
+
+- Responsivitas.
+
+- Dark mode.
+
+- Autentikasi.
+
+- Dashboard.
+
+- Lazy loading.
+
+- Validasi.
+
+- Keamanan.
+
+- Pengujian.
+
+- Review hasil.
+
+- Pengelolaan deployment.
+
+
+
+Jangan menyalin nama, identitas, teks, logo, data, atau isi bisnis dari repository referensi.
+
+
+
+Jika ada bagian konfigurasi yang belum lengkap, buat asumsi yang masuk akal dan tuliskan asumsi tersebut sebelum implementasi. Jangan mengubah tujuan produk tanpa persetujuan.
+
+
+
+---
+
+
+
+# STACK UTAMA
+
+
+
+## Frontend
+
+
+
+Gunakan:
+
+
+
+- React 19.
+
+- React DOM 19.
+
+- React Router DOM 7.
+
+- Vite.
+
+- Tailwind CSS 3.
+
+- Lucide React.
+
+- React Hot Toast.
+
+- Recharts.
+
+- jsPDF.
+
+- jsPDF AutoTable.
+
+- ESLint.
+
+- PostCSS.
+
+- Autoprefixer.
+
+
+
+## Backend dan layanan
+
+
+
+Gunakan:
+
+
+
+- Cloudflare Pages untuk frontend.
+
+- Cloudflare Workers atau Pages Functions untuk API.
+
+- Supabase Auth untuk autentikasi.
+
+- Supabase PostgreSQL untuk database.
+
+- Supabase Storage jika diperlukan.
+
+- Zod untuk validasi.
+
+- DOMPurify atau sanitasi setara untuk konten pengguna.
+
+- UUID untuk identifier.
+
+- Wrangler untuk development dan deployment Cloudflare.
+
+
+
+## AI
+
+
+
+Jika konfigurasi menyatakan menggunakan AI, gunakan:
+
+
+
+- OpenAI Responses API.
+
+- Structured Output dalam format JSON.
+
+- Zod untuk memvalidasi hasil AI.
+
+- Cloudflare Worker sebagai penghubung ke OpenAI.
+
+- API key hanya disimpan sebagai environment variable server.
+
+
+
+Jika aplikasi tidak menggunakan AI:
+
+
+
+- Jangan memasang dependency OpenAI.
+
+- Jangan membuat endpoint AI.
+
+- Jangan membuat tabel penggunaan token.
+
+- Pertahankan arsitektur frontend, autentikasi, database, keamanan, dan deployment lainnya.
+
+
+
+## Dokumen
+
+
+
+Jika aplikasi memerlukan Word:
+
+
+
+- Gunakan library `docx`.
+
+
+
+Jika memerlukan PDF:
+
+
+
+- Gunakan `jspdf`.
+
+- Gunakan `jspdf-autotable` untuk tabel.
+
+
+
+Jika memerlukan Excel:
+
+
+
+- Gunakan library yang sesuai setelah menjelaskan alasan pemasangannya.
+
+
+
+Jangan memasang dependency baru tanpa menjelaskan fungsi, manfaat, risiko, dan alternatifnya.
+
+
+
+Gunakan versi stabil yang kompatibel. Hindari versi beta kecuali benar-benar diperlukan dan telah disetujui.
+
+
+
+Buat serta pertahankan `package-lock.json`.
+
+
+
+---
+
+
+
+# ARSITEKTUR FOLDER
+
+
+
+Gunakan struktur dasar berikut:
+
+
+
+```text
+
+src/
+
+├── components/
+
+│   ├── common/
+
+│   ├── forms/
+
+│   ├── feedback/
+
+│   ├── navigation/
+
+│   └── layout/
+
+├── pages/
+
+├── features/
+
+│   ├── auth/
+
+│   ├── dashboard/
+
+│   ├── profile/
+
+│   ├── admin/
+
+│   └── [FITUR_BISNIS]/
+
+├── services/
+
+├── hooks/
+
+├── utils/
+
+├── schemas/
+
+├── constants/
+
+├── templates/
+
+├── assets/
+
+└── styles/
+
+
+
+functions/
+
+└── api/
+
+
+
+supabase/
+
+├── migrations/
+
+└── seed/
+
+
+
+tests/
+
+
+
+public/
+
+```
+
+
+
+Aturan:
+
+
+
+- `components` hanya untuk komponen yang dapat digunakan kembali.
+
+- Logika bisnis ditempatkan berdasarkan fitur.
+
+- Pemanggilan API ditempatkan di `services`.
+
+- Validasi ditempatkan di `schemas`.
+
+- Konstanta tidak boleh tersebar di banyak file.
+
+- Halaman besar harus menggunakan lazy loading.
+
+- Hindari file komponen yang terlalu besar.
+
+- Hindari duplikasi logika.
+
+- Jangan menyimpan secret di source code.
+
+
+
+---
+
+
+
+# AUTENTIKASI
+
+
+
+Aplikasi wajib memiliki:
+
+
+
+- Daftar.
+
+- Login.
+
+- Logout.
+
+- Verifikasi email.
+
+- Lupa password.
+
+- Reset password.
+
+- Pemulihan session.
+
+- Proteksi halaman.
+
+- Profil pengguna.
+
+- Status akun.
+
+- Penghapusan atau penonaktifan akun sesuai kebutuhan.
+
+
+
+Gunakan Supabase Auth.
+
+
+
+Setiap data pribadi harus terhubung dengan `auth.users.id`.
+
+
+
+Jangan membuat sistem password, JWT, atau session sendiri jika Supabase Auth sudah mencukupi.
+
+
+
+---
+
+
+
+# HAK AKSES
+
+
+
+Buat sistem peran berdasarkan konfigurasi proyek.
+
+
+
+Minimal siapkan:
+
+
+
+- `user`
+
+- `admin`
+
+
+
+Jika aplikasi membutuhkan proses pemeriksaan, tambahkan:
+
+
+
+- `reviewer`
+
+
+
+Jika membutuhkan organisasi atau sekolah, tambahkan:
+
+
+
+- `organization_admin`
+
+
+
+Setiap peran hanya boleh melihat menu dan menjalankan tindakan yang memang diizinkan.
+
+
+
+Jangan hanya menyembunyikan tombol di frontend. Terapkan hak akses di database menggunakan Supabase Row Level Security.
+
+
+
+---
+
+
+
+# DATABASE
+
+
+
+Rancang tabel berdasarkan data utama yang dicantumkan dalam konfigurasi proyek.
+
+
+
+Minimal siapkan tabel:
+
+
+
+- `profiles`
+
+- `organizations` jika diperlukan
+
+- tabel utama sesuai kebutuhan bisnis
+
+- tabel versi atau riwayat jika data dapat direvisi
+
+- `usage_quotas` jika menggunakan AI atau sistem kuota
+
+- `ai_generations` jika menggunakan AI
+
+- `audit_logs`
+
+- `app_settings`
+
+
+
+Setiap tabel harus mempertimbangkan:
+
+
+
+- Primary key UUID.
+
+- Foreign key.
+
+- `created_at`.
+
+- `updated_at`.
+
+- Index.
+
+- Constraint.
+
+- Status data.
+
+- Soft delete jika diperlukan.
+
+- Pemisahan data pengguna.
+
+- Pemisahan data organisasi.
+
+- Row Level Security.
+
+- Audit perubahan sensitif.
+
+
+
+Buat migration SQL yang:
+
+
+
+- Dapat dijalankan dengan aman.
+
+- Tidak merusak data yang sudah ada.
+
+- Tidak bergantung pada tindakan manual yang tidak terdokumentasi.
+
+- Memiliki seed data kecil untuk development.
+
+
+
+Jika aplikasi digunakan banyak organisasi, sekolah, perusahaan, atau lembaga, setiap data bisnis harus memiliki `organization_id`.
+
+
+
+---
+
+
+
+# ROW LEVEL SECURITY
+
+
+
+RLS wajib diterapkan.
+
+
+
+Aturan minimum:
+
+
+
+- Pengguna hanya dapat membaca datanya sendiri.
+
+- Pengguna hanya dapat mengubah datanya sendiri.
+
+- Admin hanya mendapat akses sesuai organisasi yang dikelolanya.
+
+- Data antarorganisasi tidak boleh tercampur.
+
+- Service-role key tidak boleh berada di browser.
+
+- Operasi berisiko harus dijalankan melalui endpoint server.
+
+- Kebijakan RLS harus diuji menggunakan lebih dari satu akun.
+
+
+
+---
+
+
+
+# FITUR BISNIS
+
+
+
+Turunkan fitur aplikasi dari bagian konfigurasi proyek.
+
+
+
+Untuk setiap fitur, definisikan:
+
+
+
+- Tujuan.
+
+- Pengguna yang berhak mengakses.
+
+- Input.
+
+- Output.
+
+- Validasi.
+
+- Status data.
+
+- Alur pengguna.
+
+- Tabel yang digunakan.
+
+- Endpoint yang digunakan.
+
+- Kondisi kosong.
+
+- Kondisi loading.
+
+- Kondisi error.
+
+- Kondisi berhasil.
+
+- Hak akses.
+
+- Audit log jika diperlukan.
+
+
+
+Jangan membuat fitur hanya berdasarkan nama menu. Setiap fitur harus menyelesaikan masalah pengguna yang dijelaskan dalam konfigurasi proyek.
+
+
+
+---
+
+
+
+# INTEGRASI AI
+
+
+
+Bagian ini hanya berlaku jika aplikasi menggunakan AI.
+
+
+
+AI harus diposisikan sebagai alat bantu, bukan sumber kebenaran tunggal.
+
+
+
+Alur:
+
+
+
+```text
+
+Pengguna mengisi formulir
+
+        ↓
+
+Frontend memvalidasi input
+
+        ↓
+
+Cloudflare Worker memvalidasi request
+
+        ↓
+
+Worker memeriksa akun dan kuota
+
+        ↓
+
+OpenAI menghasilkan JSON terstruktur
+
+        ↓
+
+Zod memvalidasi output
+
+        ↓
+
+Data disimpan sebagai draf
+
+        ↓
+
+Pengguna memeriksa dan mengedit
+
+        ↓
+
+Data ditandai selesai atau disetujui
+
+```
+
+
+
+Aturan:
+
+
+
+- Jangan menerima output AI bebas tanpa schema.
+
+- Gunakan Structured Output.
+
+- Batasi panjang input.
+
+- Batasi panjang output.
+
+- Maksimal satu retry otomatis.
+
+- Cegah request ganda.
+
+- Gunakan idempotency key.
+
+- Simpan hasil agar tidak dibuat ulang.
+
+- Izinkan regenerasi per bagian.
+
+- Catat token dan estimasi biaya.
+
+- Tetapkan kuota harian dan bulanan.
+
+- Jangan mengirim data sensitif.
+
+- Jangan mengirim password, token, NIK, alamat lengkap, atau data pribadi yang tidak diperlukan.
+
+- Jangan mengarang sumber atau referensi.
+
+- Hasil AI harus memiliki status `ai_draft`.
+
+- Pengguna harus memeriksa hasil sebelum digunakan.
+
+
+
+Tampilkan peringatan:
+
+
+
+“Konten ini dibuat dengan bantuan AI dan wajib diperiksa sebelum digunakan.”
+
+
+
+---
+
+
+
+# EKSPOR DOKUMEN
+
+
+
+Bagian ini diterapkan sesuai output yang dipilih dalam konfigurasi.
+
+
+
+AI atau database hanya menyediakan data. Tata letak dokumen ditentukan oleh template aplikasi.
+
+
+
+## Word
+
+
+
+Jika menggunakan Word:
+
+
+
+- Ukuran A4.
+
+- Margin konsisten.
+
+- Heading yang benar.
+
+- Tabel rapi.
+
+- Logo opsional.
+
+- Header dan footer.
+
+- Nomor halaman.
+
+- Page break yang benar.
+
+- Dapat diedit di Microsoft Word.
+
+- Nama file aman.
+
+- Dokumen dibuka dan diperiksa setelah dibuat.
+
+
+
+## PDF
+
+
+
+Jika menggunakan PDF:
+
+
+
+- Ukuran A4.
+
+- Font terbaca.
+
+- Tabel tidak terpotong.
+
+- Page break benar.
+
+- Header dan footer konsisten.
+
+- Hasil diperiksa secara visual.
+
+
+
+## Excel
+
+
+
+Jika menggunakan Excel:
+
+
+
+- Nama sheet jelas.
+
+- Header tabel konsisten.
+
+- Tipe data benar.
+
+- Formula diuji.
+
+- Lebar kolom disesuaikan.
+
+- Tidak ada formula error.
+
+
+
+Sediakan preview sebelum download jika memungkinkan.
+
+
+
+---
+
+
+
+# KEAMANAN
+
+
+
+Terapkan:
+
+
+
+- API key hanya di server.
+
+- Supabase service-role key hanya di server.
+
+- RLS pada seluruh data pengguna.
+
+- Validasi frontend dan server.
+
+- Sanitasi konten.
+
+- Rate limiting.
+
+- Pembatasan ukuran request.
+
+- Security headers.
+
+- Content Security Policy.
+
+- HTTPS.
+
+- Proteksi clickjacking.
+
+- Proteksi MIME sniffing.
+
+- Kebijakan referrer.
+
+- Pembatasan permission browser.
+
+- Pesan error produksi yang aman.
+
+- Audit log tindakan sensitif.
+
+- Pembatasan percobaan login.
+
+- Proteksi request ganda.
+
+- Pembatasan kuota.
+
+- Pemeriksaan dependency.
+
+- Environment variable untuk seluruh secret.
+
+
+
+Dilarang:
+
+
+
+- Menaruh secret di frontend.
+
+- Commit `.env`.
+
+- Mencatat password atau token.
+
+- Menampilkan stack trace di produksi.
+
+- Mengandalkan frontend untuk keamanan.
+
+- Menggunakan `localStorage` untuk menyimpan data sensitif jika tersedia metode yang lebih aman.
+
+- Membuka CORS untuk semua origin tanpa alasan.
+
+- Mempercayai role yang dikirim frontend.
+
+
+
+---
+
+
+
+# UI/UX
+
+
+
+Gunakan desain:
+
+
+
+- Profesional.
+
+- Modern.
+
+- Ringan.
+
+- Mobile-first.
+
+- Mudah digunakan pengguna nonteknis.
+
+- Konsisten.
+
+- Tidak berlebihan.
+
+
+
+Pertahankan:
+
+
+
+- Dark mode.
+
+- Font Inter atau system font.
+
+- Kontras minimal WCAG AA.
+
+- Focus indicator.
+
+- Skip-to-content link.
+
+- Tombol minimal 44px.
+
+- Skeleton loading.
+
+- Empty state.
+
+- Error state.
+
+- Success state.
+
+- Toast yang tidak mengganggu.
+
+- Animasi 150–300ms.
+
+- `prefers-reduced-motion`.
+
+- Navigasi keyboard.
+
+- Label formulir yang jelas.
+
+- Pesan validasi berbahasa Indonesia.
+
+
+
+Hindari:
+
+
+
+- Emoji sebagai ikon struktural.
+
+- Gradient berlebihan.
+
+- Animasi tanpa henti.
+
+- Teks terlalu kecil.
+
+- Tombol hanya berupa ikon tanpa label aksesibel.
+
+- Dashboard berisi terlalu banyak kartu.
+
+- Loading berupa halaman kosong.
+
+- Layout yang bergeser saat data dimuat.
+
+- Popup `alert()` browser.
+
+- Bahasa Indonesia dan Inggris yang tercampur tanpa alasan.
+
+
+
+Gunakan Lucide React untuk ikon.
+
+
+
+---
+
+
+
+# DESIGN SYSTEM
+
+
+
+Buat design system sederhana yang mencakup:
+
+
+
+- Primary color.
+
+- Secondary color.
+
+- Accent color.
+
+- Success.
+
+- Warning.
+
+- Error.
+
+- Info.
+
+- Background terang dan gelap.
+
+- Text primer dan sekunder.
+
+- Border.
+
+- Shadow.
+
+- Radius.
+
+- Spacing.
+
+- Typography.
+
+- Button variants.
+
+- Input states.
+
+- Card variants.
+
+- Badge variants.
+
+
+
+Warna harus disesuaikan dengan karakter visual yang ditentukan dalam konfigurasi proyek.
+
+
+
+Jangan menyalin palet merek dari repository referensi secara langsung.
+
+
+
+---
+
+
+
+# HALAMAN MINIMUM
+
+
+
+Sesuaikan daftar ini dengan tujuan aplikasi:
+
+
+
+- Landing page.
+
+- Register.
+
+- Login.
+
+- Verifikasi email.
+
+- Lupa password.
+
+- Reset password.
+
+- Dashboard.
+
+- Halaman fitur utama.
+
+- Halaman membuat data.
+
+- Halaman mengedit data.
+
+- Halaman detail.
+
+- Riwayat.
+
+- Profil.
+
+- Pengaturan.
+
+- Dashboard admin.
+
+- Kebijakan privasi.
+
+- Ketentuan penggunaan.
+
+- Halaman 403.
+
+- Halaman 404.
+
+- Halaman error.
+
+
+
+Jangan membuat halaman yang tidak memiliki kegunaan jelas.
+
+
+
+---
+
+
+
+# DASHBOARD
+
+
+
+Dashboard harus menjawab:
+
+
+
+- Apa status pengguna saat ini?
+
+- Apa pekerjaan yang harus dilanjutkan?
+
+- Apa aktivitas terbaru?
+
+- Berapa kuota yang tersisa?
+
+- Apa tindakan utama berikutnya?
+
+- Apakah ada error atau data yang perlu diperbaiki?
+
+
+
+Jangan menggunakan angka atau statistik palsu.
+
+
+
+Gunakan Recharts hanya jika grafik benar-benar membantu pengguna mengambil keputusan.
+
+
+
+---
+
+
+
+# LOADING DAN PERFORMA
+
+
+
+Terapkan:
+
+
+
+- Route lazy loading.
+
+- Code splitting.
+
+- Vendor chunks jika bermanfaat.
+
+- Skeleton loading.
+
+- Cache untuk data yang aman.
+
+- Debounce pencarian.
+
+- Pagination.
+
+- Optimistic update hanya jika aman.
+
+- Image lazy loading.
+
+- Ukuran aset yang kecil.
+
+- Pembersihan console log produksi.
+
+- Pembatalan request yang tidak diperlukan.
+
+- Pencegahan request duplikat.
+
+
+
+Target:
+
+
+
+- Halaman utama cepat dibuka.
+
+- Tidak ada layout shift besar.
+
+- Tidak ada bundle awal yang terlalu besar.
+
+- Halaman berat dimuat hanya saat dibutuhkan.
+
+- Aplikasi tetap nyaman pada jaringan seluler.
+
+
+
+---
+
+
+
+# ERROR HANDLING
+
+
+
+Tangani:
+
+
+
+- Koneksi internet terputus.
+
+- API timeout.
+
+- OpenAI rate limit.
+
+- Kuota pengguna habis.
+
+- Session kedaluwarsa.
+
+- Database gagal.
+
+- Download dokumen gagal.
+
+- Validasi output AI gagal.
+
+- Data tidak ditemukan.
+
+- Pengguna tidak berizin.
+
+- Deployment asset berubah.
+
+
+
+Pesan error harus:
+
+
+
+- Mudah dipahami.
+
+- Tidak membocorkan informasi sensitif.
+
+- Menjelaskan tindakan berikutnya.
+
+- Memiliki tombol coba lagi jika relevan.
+
+
+
+---
+
+
+
+# HOSTING
+
+
+
+Gunakan:
+
+
+
+```text
+
+Cloudflare Pages
+
+→ Frontend React
+
+
+
+Cloudflare Workers/Pages Functions
+
+→ API dan server-side logic
+
+
+
+Supabase
+
+→ Auth, PostgreSQL, dan Storage
+
+
+
+OpenAI API
+
+→ Generasi AI jika digunakan
+
+
+
+Browser
+
+→ Pembuatan Word/PDF jika aman dan memungkinkan
+
+```
+
+
+
+Target paket gratis Cloudflare:
+
+
+
+- Aset statis dilayani dari Pages.
+
+- Endpoint dinamis melalui Workers.
+
+- Maksimal 100.000 request Worker per hari pada paket gratis.
+
+- Hindari pekerjaan CPU berat.
+
+- Hindari server Express tradisional.
+
+- Gunakan Fetch API dan runtime Web Standard.
+
+- Siapkan arsitektur agar mudah ditingkatkan ke Workers Paid.
+
+- Jangan menggunakan Vercel untuk proyek ini.
+
+
+
+Buat:
+
+
+
+- `wrangler.jsonc` atau konfigurasi Wrangler yang sesuai.
+
+- Environment development.
+
+- Environment production.
+
+- Dokumentasi pemasangan secret.
+
+- Konfigurasi SPA fallback.
+
+- Security headers.
+
+- Deployment dari GitHub.
+
+
+
+---
+
+
+
+# ENVIRONMENT VARIABLE
+
+
+
+Siapkan `.env.example` tanpa nilai rahasia.
+
+
+
+Variabel minimum:
+
+
+
+```text
+
+VITE_SUPABASE_URL=
+
+VITE_SUPABASE_ANON_KEY=
+
+SUPABASE_SERVICE_ROLE_KEY=
+
+OPENAI_API_KEY=
+
+APP_URL=
+
+ALLOWED_ORIGINS=
+
+```
+
+
+
+Jika tidak menggunakan AI, hapus `OPENAI_API_KEY`.
+
+
+
+Jelaskan:
+
+
+
+- Variabel yang aman untuk frontend.
+
+- Variabel yang hanya boleh di server.
+
+- Cara memasang secret di Cloudflare.
+
+- Cara memasang konfigurasi Supabase.
+
+- Cara merotasi key.
+
+
+
+---
+
+
+
+# PENGUJIAN
+
+
+
+Minimal uji:
+
+
+
+- Register.
+
+- Login.
+
+- Logout.
+
+- Reset password.
+
+- Session.
+
+- Proteksi halaman.
+
+- Hak akses setiap peran.
+
+- RLS.
+
+- Pemisahan data pengguna.
+
+- Pemisahan data organisasi.
+
+- Validasi form.
+
+- Operasi CRUD.
+
+- Rate limit.
+
+- Kuota.
+
+- API AI jika digunakan.
+
+- Structured Output jika menggunakan AI.
+
+- Ekspor dokumen.
+
+- Error handling.
+
+- Responsivitas.
+
+- Keyboard navigation.
+
+- Dark mode.
+
+- Build produksi.
+
+
+
+Gunakan lebih dari satu akun uji untuk memastikan data tidak tercampur.
+
+
+
+Jangan menggunakan data pribadi nyata.
+
+
+
+---
+
+
+
+# ALUR KERJA
+
+
+
+## Sebelum coding
+
+
+
+1. Baca konfigurasi proyek.
+
+2. Periksa repository referensi.
+
+3. Ringkas dependency dan pola yang akan dipertahankan.
+
+4. Identifikasi bagian yang tidak cocok dengan Cloudflare.
+
+5. Buat spesifikasi MVP.
+
+6. Buat user flow.
+
+7. Buat arsitektur.
+
+8. Buat rancangan database.
+
+9. Buat rancangan RLS.
+
+10. Buat wireframe.
+
+11. Buat rencana implementasi.
+
+12. Jelaskan asumsi dan risiko.
+
+
+
+Jangan langsung membuat seluruh aplikasi sebelum fondasinya jelas.
+
+
+
+## Saat implementasi
+
+
+
+1. Kerjakan dalam fase kecil.
+
+2. Pertahankan perubahan pengguna.
+
+3. Jangan mengubah file yang tidak berkaitan.
+
+4. Jalankan lint setelah perubahan.
+
+5. Jalankan build produksi.
+
+6. Jalankan pengujian terkait.
+
+7. Review keamanan.
+
+8. Review UI/UX.
+
+9. Periksa mobile dan desktop.
+
+10. Periksa console browser.
+
+11. Dokumentasikan setup.
+
+12. Commit dengan pesan jelas.
+
+
+
+Jangan push atau deploy tanpa izin.
+
+
+
+---
+
+
+
+# FASE IMPLEMENTASI
+
+
+
+## Fase 1 — Fondasi
+
+
+
+- Repository baru.
+
+- Struktur folder.
+
+- Dependency.
+
+- Design system.
+
+- Layout.
+
+- Routing.
+
+- Landing.
+
+- Error pages.
+
+- Konfigurasi Cloudflare.
+
+
+
+## Fase 2 — Akun
+
+
+
+- Supabase.
+
+- Migration profiles.
+
+- Register.
+
+- Login.
+
+- Logout.
+
+- Verifikasi email.
+
+- Reset password.
+
+- Protected routes.
+
+- RLS dasar.
+
+
+
+## Fase 3 — Fitur utama
+
+
+
+- Dashboard.
+
+- CRUD data utama.
+
+- Form.
+
+- Detail.
+
+- Editor.
+
+- Riwayat.
+
+- Pencarian.
+
+- Filter.
+
+- Pagination.
+
+
+
+## Fase 4 — AI
+
+
+
+Hanya jika menggunakan AI:
+
+
+
+- Cloudflare Worker.
+
+- OpenAI Responses API.
+
+- Structured Output.
+
+- Zod validation.
+
+- Kuota.
+
+- Idempotency.
+
+- Pencatatan token dan biaya.
+
+- Retry dan error handling.
+
+
+
+## Fase 5 — Dokumen
+
+
+
+Hanya jika dibutuhkan:
+
+
+
+- Template.
+
+- Preview.
+
+- Word.
+
+- PDF.
+
+- Excel.
+
+- Pengujian visual hasil dokumen.
+
+
+
+## Fase 6 — Admin
+
+
+
+- Manajemen pengguna.
+
+- Manajemen data master.
+
+- Kuota.
+
+- Statistik.
+
+- Audit log.
+
+- Pengaturan aplikasi.
+
+
+
+## Fase 7 — Produksi
+
+
+
+- Security review.
+
+- Dependency audit.
+
+- Performance review.
+
+- Accessibility review.
+
+- Load testing.
+
+- Deployment Cloudflare.
+
+- Verifikasi website live.
+
+- Dokumentasi penggunaan.
+
+
+
+---
+
+
+
+# REVIEW WAJIB
+
+
+
+Setelah setiap fase, laporkan:
+
+
+
+- Apa yang dibuat.
+
+- File yang berubah.
+
+- Pengujian yang dilakukan.
+
+- Hasil lint.
+
+- Hasil build.
+
+- Hasil tes.
+
+- Temuan keamanan.
+
+- Temuan UI/UX.
+
+- Risiko yang tersisa.
+
+- Rekomendasi berikutnya.
+
+
+
+Jika menemukan masalah yang aman untuk diperbaiki dan masih berada dalam ruang lingkup, perbaiki lalu review kembali.
+
+
+
+Jangan menyatakan “semuanya lancar” tanpa bukti pengujian.
+
+
+
+---
+
+
+
+# KRITERIA SELESAI
+
+
+
+Pekerjaan hanya dianggap selesai jika:
+
+
+
+- Tujuan produk terpenuhi.
+
+- Lint lulus.
+
+- Build produksi lulus.
+
+- Pengujian terkait lulus.
+
+- Tidak ada secret di repository.
+
+- Tidak ada error penting di console.
+
+- Mobile dan desktop diperiksa.
+
+- Keyboard navigation diperiksa.
+
+- RLS diuji.
+
+- Role diuji.
+
+- Data antaruser tidak tercampur.
+
+- Dokumen hasil ekspor diperiksa.
+
+- Security headers aktif.
+
+- Website live diperiksa.
+
+- Repository bersih.
+
+- Dokumentasi diperbarui.
+
+- Hasil direview setelah deployment.
+
+
+
+---
+
+
+
+# INSTRUKSI PERTAMA
+
+
+
+Mulailah dengan:
+
+
+
+1. Membaca bagian KONFIGURASI PROYEK.
+
+2. Memeriksa repository referensi.
+
+3. Membuat ringkasan produk.
+
+4. Menyusun MVP.
+
+5. Menjelaskan arsitektur.
+
+6. Merancang database.
+
+7. Merancang user flow.
+
+8. Menyusun fase implementasi.
+
+9. Menjelaskan estimasi biaya.
+
+10. Menjelaskan keputusan yang masih membutuhkan persetujuan.

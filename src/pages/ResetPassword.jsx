@@ -1,0 +1,90 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Eye, EyeOff, CheckCircle } from 'lucide-react';
+import Button from '../components/common/Button';
+import Input from '../components/common/Input';
+import { supabase } from '../services/supabase';
+import toast from 'react-hot-toast';
+
+export default function ResetPassword() {
+  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({ password: '', confirmPassword: '' });
+  const [success, setSuccess] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (form.password !== form.confirmPassword) {
+      toast.error('Password tidak cocok');
+      return;
+    }
+    if (form.password.length < 6) {
+      toast.error('Password minimal 6 karakter');
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: form.password });
+      if (error) throw error;
+      setSuccess(true);
+      setTimeout(() => navigate('/login'), 3000);
+    } catch (err) {
+      toast.error(err.message || 'Gagal mereset password');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (success) {
+    return (
+      <div className="text-center space-y-4">
+        <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto">
+          <CheckCircle className="w-6 h-6 text-green-600" />
+        </div>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Password Berhasil Diubah</h1>
+        <p className="text-sm text-gray-600 dark:text-gray-400">Kamu akan diarahkan ke halaman login...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Reset Password</h1>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Buat password baru untuk akunmu.</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="relative">
+          <Input
+            label="Password Baru"
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Minimal 6 karakter"
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+            required
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-[38px] text-gray-400 hover:text-gray-600"
+          >
+            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          </button>
+        </div>
+        <Input
+          label="Konfirmasi Password Baru"
+          type="password"
+          placeholder="Ulangi password"
+          value={form.confirmPassword}
+          onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
+          required
+        />
+        <Button type="submit" loading={loading} className="w-full">
+          Simpan Password Baru
+        </Button>
+      </form>
+    </div>
+  );
+}
