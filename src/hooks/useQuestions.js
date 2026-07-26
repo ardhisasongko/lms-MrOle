@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getQuestions, createQuestion, updateQuestion, deleteQuestion } from '../services/questions';
+import { getQuestions } from '../services/questions';
 
 export function useQuestions(categoryId, difficulty) {
   const [questions, setQuestions] = useState([]);
@@ -24,21 +24,5 @@ export function useQuestions(categoryId, difficulty) {
     fetchQuestions();
   }, [fetchQuestions]);
 
-  const create = useCallback(async (payload) => {
-    const result = await createQuestion(payload);
-    await fetchQuestions();
-    return result;
-  }, [fetchQuestions]);
-
-  const update = useCallback(async (id, payload) => {
-    await updateQuestion(id, payload);
-    await fetchQuestions();
-  }, [fetchQuestions]);
-
-  const remove = useCallback(async (id) => {
-    await deleteQuestion(id);
-    setQuestions((prev) => prev.filter((q) => q.id !== id));
-  }, []);
-
-  return { questions, loading, error, refetch: fetchQuestions, create, update, remove };
+  return { questions, loading, error, refetch: fetchQuestions };
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getCategories, createCategory, updateCategory, deleteCategory } from '../services/categories';
+import { getCategories } from '../services/categories';
 
 export function useCategories() {
   const [categories, setCategories] = useState([]);
@@ -33,21 +33,5 @@ export function useCategories() {
     return () => { cancelled = true; };
   }, []);
 
-  const create = useCallback(async (form) => {
-    const result = await createCategory(form);
-    await refetch();
-    return result;
-  }, [refetch]);
-
-  const update = useCallback(async (id, form) => {
-    await updateCategory(id, form);
-    await refetch();
-  }, [refetch]);
-
-  const remove = useCallback(async (id) => {
-    await deleteCategory(id);
-    await refetch();
-  }, [refetch]);
-
-  return { categories, loading, error, refetch, create, update, remove };
+  return { categories, loading, error, refetch };
 }

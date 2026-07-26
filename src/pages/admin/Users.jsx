@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Users as UsersIcon, PencilSimple, Trash, MagnifyingGlass, Shield, User } from '@phosphor-icons/react';
-import Card, { CardContent, CardHeader } from '../../components/common/Card';
+import Card, { CardContent } from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
 import Skeleton from '../../components/common/Skeleton';

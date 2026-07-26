@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { ClockCounterClockwise as HistoryIcon, CaretLeft, CaretRight, ArrowSquareOut } from '@phosphor-icons/react';
-import Card, { CardContent, CardHeader } from '../components/common/Card';
+import Card, { CardContent } from '../components/common/Card';
 import Badge from '../components/common/Badge';
 import EmptyState from '../components/feedback/EmptyState';
 import Skeleton from '../components/common/Skeleton';
