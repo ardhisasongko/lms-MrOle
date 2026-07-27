@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus } from '@phosphor-icons/react';
+import { Plus, PencilSimple, Trash } from '@phosphor-icons/react';
 import Card, { CardContent, CardHeader } from './Card';
 import Button from './Button';
 import Skeleton from './Skeleton';
@@ -128,12 +128,12 @@ export default function CrudTable({
                   <div className="flex gap-1 shrink-0">
                     <button
                       onClick={() => { handleEdit(item); setForm(item); }}
-                      className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500"
-                    >Edit</button>
+                      className="inline-flex items-center gap-1.5 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500"
+                    ><PencilSimple className="w-4 h-4" /> Edit</button>
                     <button
                       onClick={() => setDeleteTarget(item.id)}
-                      className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500"
-                    >Hapus</button>
+                      className="inline-flex items-center gap-1.5 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500"
+                    ><Trash className="w-4 h-4" /> Hapus</button>
                   </div>
                 </div>
               </CardContent>

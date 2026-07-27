@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BookOpen } from '@phosphor-icons/react';
+import { BookOpen, CheckCircle, X } from '@phosphor-icons/react';
 import Badge from '../../components/common/Badge';
 import CrudTable from '../../components/common/CrudTable';
 import { getAllQuestions, createQuestion, updateQuestion, deleteQuestion } from '../../services/questions';
@@ -161,8 +161,8 @@ export default function AdminQuestions() {
             <textarea className={inputCls} rows={2} value={form.explanation} onChange={(e) => setForm({ ...form, explanation: e.target.value })} required />
           </div>
           <div className="flex gap-2">
-            <button type="submit" className="px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700">{editing ? 'Simpan' : 'Tambah'}</button>
-            {editing && <button type="button" onClick={onCancel} className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700">Batal</button>}
+            <button type="submit" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700"><CheckCircle className="w-4 h-4" /> {editing ? 'Simpan' : 'Tambah'}</button>
+            {editing && <button type="button" onClick={onCancel} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700"><X className="w-4 h-4" /> Batal</button>}
           </div>
         </div>
       )}

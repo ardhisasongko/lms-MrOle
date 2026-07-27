@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { GraduationCap, ArrowLeft, List, X } from '@phosphor-icons/react';
+import { GraduationCap, ArrowLeft, List, X, Gauge, Users, FileText, Bookmarks } from '@phosphor-icons/react';
 import { cn } from '../../utils/cn';
 
 const sidebarLinks = [
-  { to: '/admin', label: 'Dashboard' },
-  { to: '/admin/users', label: 'User' },
-  { to: '/admin/questions', label: 'Soal' },
-  { to: '/admin/categories', label: 'Kategori' },
+  { to: '/admin', label: 'Dashboard', icon: Gauge },
+  { to: '/admin/users', label: 'User', icon: Users },
+  { to: '/admin/questions', label: 'Soal', icon: FileText },
+  { to: '/admin/categories', label: 'Kategori', icon: Bookmarks },
 ];
 
 export default function AdminLayout() {
@@ -50,11 +50,15 @@ export default function AdminLayout() {
           </button>
         </div>
         <nav className="flex-1 px-3 space-y-0.5">
-          {sidebarLinks.map((link) => (
-            <Link key={link.to} to={link.to} className={linkClass(link.to)}>
-              {link.label}
-            </Link>
-          ))}
+          {sidebarLinks.map((link) => {
+            const Icon = link.icon;
+            return (
+              <Link key={link.to} to={link.to} className={linkClass(link.to)}>
+                <Icon className="w-4 h-4" />
+                {link.label}
+              </Link>
+            );
+          })}
         </nav>
         <div className="p-3 border-t border-black/[0.04] dark:border-white/[0.06]">
           <Link

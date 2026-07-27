@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, EyeSlash } from '@phosphor-icons/react';
+import { Eye, EyeSlash, UserPlus } from '@phosphor-icons/react';
 import { useAuth } from '../contexts/AuthContext';
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
@@ -89,7 +89,7 @@ export default function Register() {
           required
         />
         <Button type="submit" loading={loading} className="w-full">
-          Daftar
+          <UserPlus className="w-4 h-4" /> Daftar
         </Button>
       </form>
 

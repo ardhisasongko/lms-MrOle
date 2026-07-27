@@ -1,18 +1,18 @@
 import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { GraduationCap, Shield, X, List } from '@phosphor-icons/react';
+import { GraduationCap, Shield, X, List, SquaresFour, NotePencil, ClockCounterClockwise, Trophy, ChatCircleDots, User, Gear, SignOut } from '@phosphor-icons/react';
 import { cn } from '../../utils/cn';
 import { useAdmin } from '../../hooks/useAdmin';
 
 const sidebarLinks = [
-  { to: '/dashboard', key: 'nav.dashboard' },
-  { to: '/practice', key: 'nav.practice' },
-  { to: '/history', key: 'nav.history' },
-  { to: '/leaderboard', key: 'nav.leaderboard' },
-  { to: '/chat', key: 'nav.chat' },
-  { to: '/profile', key: 'nav.profile' },
-  { to: '/settings', key: 'nav.settings' },
+  { to: '/dashboard', key: 'nav.dashboard', icon: SquaresFour },
+  { to: '/practice', key: 'nav.practice', icon: NotePencil },
+  { to: '/history', key: 'nav.history', icon: ClockCounterClockwise },
+  { to: '/leaderboard', key: 'nav.leaderboard', icon: Trophy },
+  { to: '/chat', key: 'nav.chat', icon: ChatCircleDots },
+  { to: '/profile', key: 'nav.profile', icon: User },
+  { to: '/settings', key: 'nav.settings', icon: Gear },
 ];
 
 export default function DashboardLayout({ user, onLogout }) {
@@ -55,11 +55,15 @@ export default function DashboardLayout({ user, onLogout }) {
             </button>
           </div>
           <nav className="flex-1 px-3 space-y-0.5">
-            {sidebarLinks.map((link) => (
-              <Link key={link.to} to={link.to} className={linkClass(link.to)}>
-                {t(link.key)}
-              </Link>
-            ))}
+            {sidebarLinks.map((link) => {
+              const Icon = link.icon;
+              return (
+                <Link key={link.to} to={link.to} className={linkClass(link.to)}>
+                  <Icon className="w-4 h-4" />
+                  {t(link.key)}
+                </Link>
+              );
+            })}
             {isAdmin && (
               <Link to="/admin" className={linkClass('/admin')}>
                 <Shield className="w-4 h-4" weight="fill" /> Panel Admin
@@ -71,7 +75,7 @@ export default function DashboardLayout({ user, onLogout }) {
               onClick={onLogout}
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-black/[0.03] dark:hover:bg-white/[0.05] w-full transition-all duration-200 ease-spring"
             >
-              {t('nav.logout')}
+              <SignOut className="w-4 h-4" /> {t('nav.logout')}
             </button>
           </div>
         </aside>

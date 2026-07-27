@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TreeStructure } from '@phosphor-icons/react';
+import { TreeStructure, CheckCircle, X } from '@phosphor-icons/react';
 import CrudTable from '../../components/common/CrudTable';
 import { getCategories, createCategory, updateCategory, deleteCategory } from '../../services/categories';
 import { useAsync } from '../../hooks/useAsync';
@@ -82,8 +82,8 @@ export default function AdminCategories() {
             <input type="number" className={inputCls} value={form.display_order} onChange={(e) => setForm({ ...form, display_order: Number(e.target.value) })} />
           </div>
           <div className="sm:col-span-2 flex gap-2">
-            <button type="submit" className="px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700">{editing ? 'Simpan' : 'Tambah'}</button>
-            {editing && <button type="button" onClick={onCancel} className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700">Batal</button>}
+            <button type="submit" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700"><CheckCircle className="w-4 h-4" /> {editing ? 'Simpan' : 'Tambah'}</button>
+            {editing && <button type="button" onClick={onCancel} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700"><X className="w-4 h-4" /> Batal</button>}
           </div>
         </div>
       )}

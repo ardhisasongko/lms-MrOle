@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { GraduationCap, SignOut, User, Moon, Sun, Shield } from '@phosphor-icons/react';
+import { GraduationCap, SignOut, User, Moon, Sun, Shield, SquaresFour, NotePencil, ClockCounterClockwise, Trophy, ChatCircleDots, SignIn, UserPlus } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDarkMode } from '../../hooks/useDarkMode';
@@ -32,20 +32,20 @@ export default function Navbar({ user, onLogout }) {
             </button>
             {user ? (
               <>
-                <Link to="/dashboard" className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-500 rounded-xl hover:bg-black/[0.03] dark:hover:bg-white/[0.05] transition-all duration-200 ease-spring">
-                  {t('nav.dashboard')}
+                <Link to="/dashboard" className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-500 rounded-xl hover:bg-black/[0.03] dark:hover:bg-white/[0.05] transition-all duration-200 ease-spring">
+                  <SquaresFour className="w-4 h-4" /> {t('nav.dashboard')}
                 </Link>
-                <Link to="/practice" className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-500 rounded-xl hover:bg-black/[0.03] dark:hover:bg-white/[0.05] transition-all duration-200 ease-spring">
-                  {t('nav.practice')}
+                <Link to="/practice" className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-500 rounded-xl hover:bg-black/[0.03] dark:hover:bg-white/[0.05] transition-all duration-200 ease-spring">
+                  <NotePencil className="w-4 h-4" /> {t('nav.practice')}
                 </Link>
-                <Link to="/history" className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-500 rounded-xl hover:bg-black/[0.03] dark:hover:bg-white/[0.05] transition-all duration-200 ease-spring">
-                  {t('nav.history')}
+                <Link to="/history" className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-500 rounded-xl hover:bg-black/[0.03] dark:hover:bg-white/[0.05] transition-all duration-200 ease-spring">
+                  <ClockCounterClockwise className="w-4 h-4" /> {t('nav.history')}
                 </Link>
-                <Link to="/leaderboard" className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-500 rounded-xl hover:bg-black/[0.03] dark:hover:bg-white/[0.05] transition-all duration-200 ease-spring">
-                  {t('nav.leaderboard')}
+                <Link to="/leaderboard" className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-500 rounded-xl hover:bg-black/[0.03] dark:hover:bg-white/[0.05] transition-all duration-200 ease-spring">
+                  <Trophy className="w-4 h-4" /> {t('nav.leaderboard')}
                 </Link>
-                <Link to="/chat" className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-500 rounded-xl hover:bg-black/[0.03] dark:hover:bg-white/[0.05] transition-all duration-200 ease-spring">
-                  {t('nav.chat')}
+                <Link to="/chat" className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-500 rounded-xl hover:bg-black/[0.03] dark:hover:bg-white/[0.05] transition-all duration-200 ease-spring">
+                  <ChatCircleDots className="w-4 h-4" /> {t('nav.chat')}
                 </Link>
                 {isAdmin && (
                   <Link to="/admin" className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-500 rounded-xl hover:bg-black/[0.03] dark:hover:bg-white/[0.05] transition-all duration-200 ease-spring flex items-center gap-1.5">
@@ -62,11 +62,11 @@ export default function Navbar({ user, onLogout }) {
               </>
             ) : (
               <>
-                <Link to="/login" className="px-4 py-2 text-sm font-medium rounded-xl text-gray-700 dark:text-gray-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring">
-                  {t('nav.login')}
+                <Link to="/login" className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl text-gray-700 dark:text-gray-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring">
+                  <SignIn className="w-4 h-4" /> {t('nav.login')}
                 </Link>
-                <Link to="/register" className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium rounded-xl bg-cta-500 text-white hover:bg-cta-600 shadow-clay transition-all duration-200 ease-spring active:scale-[0.98] min-h-[44px]">
-                  {t('nav.register')}
+                <Link to="/register" className="inline-flex items-center justify-center gap-1.5 px-5 py-2.5 text-sm font-medium rounded-xl bg-cta-500 text-white hover:bg-cta-600 shadow-clay transition-all duration-200 ease-spring active:scale-[0.98] min-h-[44px]">
+                  <UserPlus className="w-4 h-4" /> {t('nav.register')}
                 </Link>
               </>
             )}
@@ -99,19 +99,19 @@ export default function Navbar({ user, onLogout }) {
             </button>
             {user ? (
               <>
-                <Link to="/dashboard" onClick={() => setIsOpen(false)} className="block px-4 py-3 rounded-xl text-sm hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring">{t('nav.dashboard')}</Link>
-                <Link to="/practice" onClick={() => setIsOpen(false)} className="block px-4 py-3 rounded-xl text-sm hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring">{t('nav.practice')}</Link>
-                <Link to="/history" onClick={() => setIsOpen(false)} className="block px-4 py-3 rounded-xl text-sm hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring">{t('nav.history')}</Link>
-                <Link to="/chat" onClick={() => setIsOpen(false)} className="block px-4 py-3 rounded-xl text-sm hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring">{t('nav.chat')}</Link>
-                <Link to="/leaderboard" onClick={() => setIsOpen(false)} className="block px-4 py-3 rounded-xl text-sm hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring">{t('nav.leaderboard')}</Link>
+                <Link to="/dashboard" onClick={() => setIsOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring"><SquaresFour className="w-4 h-4" /> {t('nav.dashboard')}</Link>
+                <Link to="/practice" onClick={() => setIsOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring"><NotePencil className="w-4 h-4" /> {t('nav.practice')}</Link>
+                <Link to="/history" onClick={() => setIsOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring"><ClockCounterClockwise className="w-4 h-4" /> {t('nav.history')}</Link>
+                <Link to="/chat" onClick={() => setIsOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring"><ChatCircleDots className="w-4 h-4" /> {t('nav.chat')}</Link>
+                <Link to="/leaderboard" onClick={() => setIsOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring"><Trophy className="w-4 h-4" /> {t('nav.leaderboard')}</Link>
                 {isAdmin && (
                   <Link to="/admin" onClick={() => setIsOpen(false)} className="block px-4 py-3 rounded-xl text-sm hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring flex items-center gap-2">
                     <Shield className="w-4 h-4" weight="fill" />
                     Panel Admin
                   </Link>
                 )}
-                <Link to="/profile" onClick={() => setIsOpen(false)} className="block px-4 py-3 rounded-xl text-sm hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring">{t('nav.profile')}</Link>
-                <button onClick={() => { onLogout(); setIsOpen(false); }} className="block w-full text-left px-4 py-3 rounded-xl text-sm hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring">{t('nav.logout')}</button>
+                <Link to="/profile" onClick={() => setIsOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring"><User className="w-4 h-4" /> {t('nav.profile')}</Link>
+                <button onClick={() => { onLogout(); setIsOpen(false); }} className="flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-sm hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring"><SignOut className="w-4 h-4" /> {t('nav.logout')}</button>
               </>
             ) : (
               <div className="flex gap-3 mt-2">

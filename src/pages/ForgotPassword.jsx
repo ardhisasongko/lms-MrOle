@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, CheckCircle } from '@phosphor-icons/react';
+import { ArrowLeft, CheckCircle, LockKey } from '@phosphor-icons/react';
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import { supabase } from '../services/supabase';
@@ -63,7 +63,7 @@ export default function ForgotPassword() {
           required
         />
         <Button type="submit" loading={loading} className="w-full">
-          Kirim Link Reset
+          <LockKey className="w-4 h-4" /> Kirim Link Reset
         </Button>
       </form>
 

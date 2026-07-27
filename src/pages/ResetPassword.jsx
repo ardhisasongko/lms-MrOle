@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeSlash, CheckCircle } from '@phosphor-icons/react';
+import { Eye, EyeSlash, CheckCircle, LockKey } from '@phosphor-icons/react';
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import { supabase } from '../services/supabase';
@@ -87,7 +87,7 @@ export default function ResetPassword() {
           required
         />
         <Button type="submit" loading={loading} className="w-full">
-          Simpan Password Baru
+          <LockKey className="w-4 h-4" /> Simpan Password Baru
         </Button>
       </form>
     </div>
