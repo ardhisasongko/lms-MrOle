@@ -3,7 +3,7 @@ import Navbar from '../navigation/Navbar';
 
 export default function MainLayout({ user, onLogout }) {
   return (
-    <div className="min-h-screen flex flex-col bg-[#F7F8FA] dark:bg-[#0F1117]">
+    <div className="min-h-screen flex flex-col bg-page-light dark:bg-page-dark">
       <a href="#main-content" className="skip-link">
         Langsung ke konten utama
       </a>

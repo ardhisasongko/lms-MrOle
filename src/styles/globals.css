@@ -2,23 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
+/* === SEMANTIC TOKENS === */
 @layer base {
   :root {
+    /* Background */
     --color-bg: 255 255 255;
     --color-bg-secondary: 249 250 251;
+    --color-bg-page: #F7F8FA;
+    --color-bg-card: #FFFFFF;
+    --color-bg-muted: #F9FAFB;
+
+    /* Text */
     --color-text: 17 24 39;
     --color-text-secondary: 107 114 128;
+    --color-text-muted: 156 163 175;
+
+    /* Border */
     --color-border: 229 231 235;
+    --color-border-subtle: rgba(0, 0, 0, 0.04);
+
+    /* Shadow */
     --color-shadow: 0 0 0 0 rgb(0 0 0 / 0.05);
+
+    /* Gradient */
+    --gradient-hero: linear-gradient(135deg, #FDBCB4 0%, #ADD8E6 50%, #C4A8FF 100%);
+    --gradient-cta: linear-gradient(135deg, #22C55E, #16A34A);
+    --gradient-progress: linear-gradient(90deg, #FDBCB4, #ADD8E6);
+
+    /* Auth */
+    --gradient-auth: linear-gradient(135deg, #FFF5F3 0%, #FFFFFF 50%, #F0F8FC 100%);
   }
 
   .dark {
     --color-bg: 17 24 39;
     --color-bg-secondary: 31 41 55;
+    --color-bg-page: #0F1117;
+    --color-bg-card: #1F2937;
+    --color-bg-muted: #111827;
+
     --color-text: 243 244 246;
     --color-text-secondary: 156 163 175;
+    --color-text-muted: 107 114 128;
+
     --color-border: 55 65 81;
+    --color-border-subtle: rgba(255, 255, 255, 0.06);
+
     --color-shadow: 0 0 0 0 rgb(0 0 0 / 0.3);
+
+    --gradient-auth: linear-gradient(135deg, #030712 0%, #111827 50%, #030712 100%);
   }
 
   html {

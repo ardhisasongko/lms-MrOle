@@ -32,7 +32,7 @@ export default function QuizResult() {
       const jsPDF = jsPDFModule.default;
       const canvas = await html2canvas(resultRef.current, {
         scale: 2,
-        backgroundColor: '#ffffff',
+        backgroundColor: '#FFFFFF',
       });
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');

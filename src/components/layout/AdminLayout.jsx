@@ -24,7 +24,7 @@ export default function AdminLayout() {
   );
 
   return (
-    <div className="min-h-screen flex bg-[#F7F8FA] dark:bg-[#0F1117]">
+    <div className="min-h-screen flex bg-page-light dark:bg-page-dark">
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"

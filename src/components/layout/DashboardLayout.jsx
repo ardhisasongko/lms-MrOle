@@ -31,7 +31,7 @@ export default function DashboardLayout({ user, onLogout }) {
   );
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-[#F7F8FA] dark:bg-[#0F1117]">
+    <div className="h-screen flex flex-col overflow-hidden bg-page-light dark:bg-page-dark">
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"

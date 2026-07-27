@@ -3,7 +3,7 @@ import { GraduationCap } from '@phosphor-icons/react';
 
 export default function AuthLayout() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 bg-gradient-to-br from-[#FFF5F3] via-white to-[#F0F8FC] dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 bg-gradient-to-br from-primary-50 via-white to-secondary-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       <Link to="/" className="flex items-center gap-2 mb-8">
         <GraduationCap className="w-10 h-10 text-primary-400" weight="fill" />
         <span className="text-2xl font-bold text-primary-400">Mr Ole</span>

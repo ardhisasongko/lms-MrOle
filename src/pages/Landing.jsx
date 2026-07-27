@@ -9,18 +9,18 @@ import Badge from '../components/common/Badge';
 import { useAuth } from '../contexts/AuthContext';
 
 const courses = [
-  { icon: BookOpen, title: 'Grammar', desc: 'Tata bahasa Inggris dari dasar hingga mahir', color: '#FDBCB4', bg: '#FFF0ED' },
-  { icon: Globe, title: 'Vocabulary', desc: 'Perkaya kosakata sehari-hari & akademik', color: '#ADD8E6', bg: '#EDF6FA' },
-  { icon: Brain, title: 'Reading', desc: 'Pahami teks bahasa Inggris dengan cepat', color: '#C4A8FF', bg: '#F3EDFF' },
-  { icon: Target, title: 'Listening', desc: 'Latihan mendengar berbagai aksen native', color: '#A8E6CF', bg: '#EDFBF4' },
-  { icon: Lightning, title: 'Speaking', desc: 'Praktik pengucapan & percakapan sehari-hari', color: '#FFD6A5', bg: '#FFF8F0' },
-  { icon: Heart, title: 'Writing', desc: 'Tulis esai, email & pesan profesional', color: '#FFB5C2', bg: '#FFF0F3' },
+  { icon: BookOpen, title: 'Grammar', desc: 'Tata bahasa Inggris dari dasar hingga mahir', colorClass: 'text-primary-300', bgClass: 'bg-primary-50' },
+  { icon: Globe, title: 'Vocabulary', desc: 'Perkaya kosakata sehari-hari & akademik', colorClass: 'text-secondary-300', bgClass: 'bg-secondary-50' },
+  { icon: Brain, title: 'Reading', desc: 'Pahami teks bahasa Inggris dengan cepat', colorClass: 'text-lavender-400', bgClass: 'bg-lavender-50' },
+  { icon: Target, title: 'Listening', desc: 'Latihan mendengar berbagai aksen native', colorClass: 'text-mint-400', bgClass: 'bg-mint-50' },
+  { icon: Lightning, title: 'Speaking', desc: 'Praktik pengucapan & percakapan sehari-hari', colorClass: 'text-peach-300', bgClass: 'bg-peach-50' },
+  { icon: Heart, title: 'Writing', desc: 'Tulis esai, email & pesan profesional', colorClass: 'text-rose-300', bgClass: 'bg-rose-50' },
 ];
 
 const testimonials = [
-  { name: 'Siti Aisyah', role: 'Siswa SMA Kelas 11', avatar: 'SA', color: '#FDBCB4', text: 'Belajar jadi lebih seru! Aku nggak sadar kalau udah belajar grammar 30 menit. Nilai bahasa Inggris naik dari 65 jadi 85 dalam sebulan.' },
-  { name: 'Budi Santoso', role: 'Mahasiswa Semester 3', avatar: 'BS', color: '#ADD8E6', text: 'Fitur latihan soal per kategori bantu banget persiapan TOEFL. Streak feature bikin aku makin semangat belajar tiap hari.' },
-  { name: 'Dewi Lestari', role: 'Karyawan Swasta', avatar: 'DL', color: '#C4A8FF', text: 'Jadwal kerja padat, tapi Mr Ole bisa diakses kapan aja. Chatbot AI-nya cocok buat tanya-tanya cepat soal grammar.' },
+  { name: 'Siti Aisyah', role: 'Siswa SMA Kelas 11', avatar: 'SA', colorClass: 'bg-primary-300', text: 'Belajar jadi lebih seru! Aku nggak sadar kalau udah belajar grammar 30 menit. Nilai bahasa Inggris naik dari 65 jadi 85 dalam sebulan.' },
+  { name: 'Budi Santoso', role: 'Mahasiswa Semester 3', avatar: 'BS', colorClass: 'bg-secondary-300', text: 'Fitur latihan soal per kategori bantu banget persiapan TOEFL. Streak feature bikin aku makin semangat belajar tiap hari.' },
+  { name: 'Dewi Lestari', role: 'Karyawan Swasta', avatar: 'DL', colorClass: 'bg-lavender-400', text: 'Jadwal kerja padat, tapi Mr Ole bisa diakses kapan aja. Chatbot AI-nya cocok buat tanya-tanya cepat soal grammar.' },
 ];
 
 const weeklyData = [
@@ -36,11 +36,11 @@ export default function Landing() {
     <div className="min-h-screen overflow-x-hidden">
 
       {/* ─── HERO ─── */}
-      <section className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #FDBCB4 0%, #ADD8E6 50%, #C4A8FF 100%)' }}>
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary-300 via-secondary-300 to-lavender-400">
         <div className="absolute inset-0 opacity-20">
           <div className="absolute -top-20 -left-20 w-80 h-80 bg-white rounded-full blur-3xl" />
           <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-white rounded-full blur-3xl" />
-          <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-[#C4A8FF] rounded-full blur-3xl" />
+          <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-lavender-400 rounded-full blur-3xl" />
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-28 lg:py-36">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -58,8 +58,7 @@ export default function Landing() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   to="/register"
-                  className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg text-white shadow-clay-lg hover:shadow-clay-xl transition-all duration-300 ease-spring active:scale-[0.98] w-full sm:w-auto"
-                  style={{ background: 'linear-gradient(135deg, #22C55E, #16A34A)' }}
+                  className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg text-white shadow-clay-lg hover:shadow-clay-xl transition-all duration-300 ease-spring active:scale-[0.98] w-full sm:w-auto bg-gradient-to-r from-cta-500 to-cta-600"
                 >
                   Mulai Gratis <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" weight="bold" />
                 </Link>
@@ -73,15 +72,15 @@ export default function Landing() {
             </div>
             <div className="hidden lg:flex justify-center">
               <div className="relative w-80 h-80">
-                <div className="absolute inset-0 rounded-[40px] shadow-clay-xl" style={{ background: 'linear-gradient(145deg, #FFF5F0, #F0F8FF)' }}>
+                <div className="absolute inset-0 rounded-[40px] shadow-clay-xl bg-gradient-to-br from-primary-50 to-secondary-50">
                   <div className="p-8 h-full flex flex-col justify-center items-center text-center">
                     <GraduationCap className="w-20 h-20 text-primary-400 mb-4" weight="fill" />
                     <div className="text-4xl font-bold text-gray-800">Mr Ole</div>
                     <div className="text-gray-500 mt-2">Learn English with Joy!</div>
                     <div className="mt-6 flex gap-2">
-                      {Array.from({ length: 3 }).map((_, i) => (
-                        <div key={i} className="w-3 h-3 rounded-full" style={{ background: i === 0 ? '#FDBCB4' : i === 1 ? '#ADD8E6' : '#C4A8FF' }} />
-                      ))}
+                      <div className="w-3 h-3 rounded-full bg-primary-300" />
+                      <div className="w-3 h-3 rounded-full bg-secondary-300" />
+                      <div className="w-3 h-3 rounded-full bg-lavender-400" />
                     </div>
                   </div>
                 </div>
@@ -97,14 +96,14 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
             {[
-              { value: '500+', label: 'Siswa Aktif', color: '#FDBCB4' },
-              { value: '250+', label: 'Bank Soal', color: '#ADD8E6' },
-              { value: '6', label: 'Kategori Belajar', color: '#C4A8FF' },
-              { value: '100%', label: 'Gratis!', color: '#A8E6CF' },
+              { value: '500+', label: 'Siswa Aktif', colorClass: 'text-primary-300' },
+              { value: '250+', label: 'Bank Soal', colorClass: 'text-secondary-300' },
+              { value: '6', label: 'Kategori Belajar', colorClass: 'text-lavender-400' },
+              { value: '100%', label: 'Gratis!', colorClass: 'text-mint-400' },
             ].map((stat) => (
               <Card key={stat.label} hover={false}>
                 <CardContent className="text-center py-6">
-                  <div className="text-3xl sm:text-4xl font-bold mb-1" style={{ color: stat.color }}>{stat.value}</div>
+                  <div className={`text-3xl sm:text-4xl font-bold mb-1 ${stat.colorClass}`}>{stat.value}</div>
                   <div className="text-sm text-gray-400 font-medium">{stat.label}</div>
                 </CardContent>
               </Card>
@@ -130,16 +129,14 @@ export default function Landing() {
               return (
                 <Card key={course.title} className="p-6 group cursor-pointer">
                   <div
-                    className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 ease-spring"
-                    style={{ background: course.bg }}
+                    className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 ease-spring ${course.bgClass}`}
                   >
-                    <Icon className="w-7 h-7" weight="fill" style={{ color: course.color }} />
+                    <Icon className={`w-7 h-7 ${course.colorClass}`} weight="fill" />
                   </div>
                   <h3 className="text-xl font-bold text-gray-800 mb-2">{course.title}</h3>
                   <p className="text-gray-400 text-sm leading-relaxed">{course.desc}</p>
                   <div
-                    className="mt-4 h-1.5 rounded-full w-0 group-hover:w-full transition-all duration-500 ease-spring"
-                    style={{ background: `linear-gradient(90deg, ${course.color}, ${course.color}88)` }}
+                    className={`mt-4 h-1.5 rounded-full w-0 group-hover:w-full transition-all duration-500 ease-spring bg-gradient-to-r ${course.colorClass} to-transparent opacity-50`}
                   />
                 </Card>
               );
@@ -149,7 +146,7 @@ export default function Landing() {
       </section>
 
       {/* ─── PROGRESS DEMO ─── */}
-      <section className="py-16 sm:py-20 bg-[#F7F8FA] dark:bg-[#0F1117]">
+      <section className="py-16 sm:py-20 bg-page-light dark:bg-page-dark">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-4 tracking-tight">
@@ -171,8 +168,8 @@ export default function Landing() {
                     <span className="w-8 text-sm font-semibold text-gray-400">{d.day}</span>
                     <div className="flex-1 h-5 rounded-full bg-black/[0.04] dark:bg-white/[0.06]">
                       <div
-                        className="h-full rounded-full transition-all duration-500 ease-spring"
-                        style={{ width: `${d.pct}%`, background: d.pct > 0 ? 'linear-gradient(90deg, #FDBCB4, #ADD8E6)' : 'transparent' }}
+                        className="h-full rounded-full transition-all duration-500 ease-spring bg-gradient-to-r from-primary-300 to-secondary-300"
+                        style={{ width: `${d.pct}%` }}
                       />
                     </div>
                     <span className="w-10 text-sm font-bold text-gray-600 text-right">{d.pct}%</span>
@@ -221,8 +218,7 @@ export default function Landing() {
                 </p>
                 <div className="flex items-center gap-3">
                   <div
-                    className="w-10 h-10 rounded-2xl flex items-center justify-center text-white font-bold text-sm shadow-sm"
-                    style={{ background: t.color }}
+                    className={`w-10 h-10 rounded-2xl flex items-center justify-center text-white font-bold text-sm shadow-sm ${t.colorClass}`}
                   >
                     {t.avatar}
                   </div>
@@ -238,7 +234,7 @@ export default function Landing() {
       </section>
 
       {/* ─── FEATURES STRIP ─── */}
-      <section className="py-12 bg-[#F0F8FC] dark:bg-gray-900/30">
+      <section className="py-12 bg-secondary-50 dark:bg-gray-900/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-wrap justify-center gap-6 sm:gap-10">
             {[
@@ -260,7 +256,7 @@ export default function Landing() {
       </section>
 
       {/* ─── CTA ─── */}
-      <section className="py-20 sm:py-28 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #FDBCB4 0%, #ADD8E6 50%, #C4A8FF 100%)' }}>
+      <section className="py-20 sm:py-28 relative overflow-hidden bg-gradient-to-br from-primary-300 via-secondary-300 to-lavender-400">
         <div className="absolute inset-0 opacity-15">
           <div className="absolute top-10 right-10 w-72 h-72 bg-white rounded-full blur-3xl" />
           <div className="absolute bottom-10 left-10 w-80 h-80 bg-white rounded-full blur-3xl" />
@@ -274,8 +270,7 @@ export default function Landing() {
           </p>
           <Link
             to="/register"
-            className="group inline-flex items-center justify-center gap-2 px-6 sm:px-10 py-4 sm:py-5 rounded-2xl font-bold text-lg sm:text-xl text-white shadow-clay-lg hover:shadow-clay-xl transition-all duration-300 ease-spring active:scale-[0.98]"
-            style={{ background: 'linear-gradient(135deg, #22C55E, #16A34A)' }}
+            className="group inline-flex items-center justify-center gap-2 px-6 sm:px-10 py-4 sm:py-5 rounded-2xl font-bold text-lg sm:text-xl text-white shadow-clay-lg hover:shadow-clay-xl transition-all duration-300 ease-spring active:scale-[0.98] bg-gradient-to-r from-cta-500 to-cta-600"
           >
             Daftar Gratis <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" weight="bold" />
           </Link>
