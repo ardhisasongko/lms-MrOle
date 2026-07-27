@@ -27,6 +27,11 @@ export default function Quiz() {
   const isLast = currentIndex === questions.length - 1;
   const progress = questions.length > 0 ? ((currentIndex + 1) / questions.length) * 100 : 0;
 
+  // ponytail: handle both [{...}] and {options:[{...}]} formats from DB
+  const options = current?.options
+    ? (Array.isArray(current.options) ? current.options : current.options.options)
+    : null;
+
   const handleAnswer = (questionId, value) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
   };
@@ -107,9 +112,9 @@ export default function Quiz() {
             {current.question}
           </p>
 
-          {current.type === 'multiple_choice' && current.options ? (
+          {current.type === 'multiple_choice' && options ? (
             <div className="space-y-3">
-              {current.options.map((opt) => {
+              {options.map((opt) => {
                 const isSelected = answers[current.id] === opt.label;
                 return (
                   <button
