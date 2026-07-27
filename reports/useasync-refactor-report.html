@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Candidate #1 - useAsync Refactor Report</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --green: #3fb950;
+    --green-bg: rgba(63,185,80,0.1);
+    --red: #f85149;
+    --red-bg: rgba(248,81,73,0.1);
+    --blue: #58a6ff;
+    --blue-bg: rgba(88,166,255,0.1);
+    --yellow: #d29922;
+    --yellow-bg: rgba(210,153,34,0.1);
+    --purple: #bc8cff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 2rem;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 3rem 2rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2rem;
+  }
+  .header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .header .subtitle { color: var(--text-dim); font-size: 1rem; }
+  .header .commit {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.25rem 0.75rem;
+    background: var(--blue-bg);
+    border: 1px solid rgba(88,166,255,0.3);
+    border-radius: 6px;
+    color: var(--blue);
+    font-family: monospace;
+    font-size: 0.85rem;
+  }
+
+  /* Stats Grid */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    text-align: center;
+  }
+  .stat-card .value {
+    font-size: 2rem;
+    font-weight: 700;
+  }
+  .stat-card .label {
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+  .stat-card.green .value { color: var(--green); }
+  .stat-card.red .value { color: var(--red); }
+  .stat-card.blue .value { color: var(--blue); }
+  .stat-card.yellow .value { color: var(--yellow); }
+
+  /* Section */
+  .section {
+    margin-bottom: 2.5rem;
+  }
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* File Card */
+  .file-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+  .file-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+  }
+  .file-header .filename {
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: var(--blue);
+  }
+  .file-header .badge {
+    font-size: 0.75rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .badge.new { background: var(--green-bg); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
+  .badge.modified { background: var(--yellow-bg); color: var(--yellow); border: 1px solid rgba(210,153,34,0.3); }
+
+  /* Diff Grid */
+  .diff-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .diff-panel { overflow-x: auto; }
+  .diff-panel-header {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+  }
+  .diff-panel.before .diff-panel-header { color: var(--red); background: var(--red-bg); }
+  .diff-panel.after .diff-panel-header { color: var(--green); background: var(--green-bg); }
+  .diff-panel + .diff-panel { border-left: 1px solid var(--border); }
+
+  pre {
+    padding: 1rem;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    overflow-x: auto;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    white-space: pre;
+    tab-size: 2;
+  }
+  .line-del { color: var(--red); background: var(--red-bg); display: block; }
+  .line-add { color: var(--green); background: var(--green-bg); display: block; }
+  .line-ctx { color: var(--text-dim); display: block; }
+  .line-highlight { display: block; }
+
+  /* Impact */
+  .impact-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+  .impact-bar .saved { color: var(--green); font-weight: 600; }
+  .impact-bar .added { color: var(--red); font-weight: 600; }
+
+  /* Summary Table */
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  .summary-table th, .summary-table td {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+  }
+  .summary-table th {
+    color: var(--text-dim);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+  }
+  .summary-table .minus { color: var(--green); }
+  .summary-table .plus { color: var(--red); }
+
+  /* Pattern Box */
+  .pattern-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .pattern-box h3 { color: var(--purple); margin-bottom: 0.75rem; font-size: 1rem; }
+  .pattern-box pre {
+    background: var(--bg);
+    border-radius: 6px;
+    padding: 1rem;
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 768px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .diff-grid { grid-template-columns: 1fr; }
+    .diff-panel + .diff-panel { border-left: none; border-top: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>Candidate #1: Extract useAsync Hook</h1>
+    <div class="subtitle">Eliminate cancelled-flag boilerplate across 8 files</div>
+    <div class="commit">d7f061b &middot; refactor: extract useAsync hook to eliminate cancelled-flag boilerplate</div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card green">
+      <div class="value">-107</div>
+      <div class="label">Net Lines Removed</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="value">9</div>
+      <div class="label">Files Changed</div>
+    </div>
+    <div class="stat-card red">
+      <div class="value">8</div>
+      <div class="label">Cancelled-Flag Patterns Eliminated</div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="value">29</div>
+      <div class="label">useAsync Hook (lines)</div>
+    </div>
+  </div>
+
+  <!-- The Hook -->
+  <div class="section">
+    <div class="section-title">New: <code>src/hooks/useAsync.js</code></div>
+    <div class="pattern-box">
+      <h3>Core Hook</h3>
+<pre><span class="line-ctx">import { useState, useEffect, useCallback } from 'react';</span>
+<span class="line-ctx"></span>
+<span class="line-add">export function useAsync(fn, deps = []) {</span>
+<span class="line-add">  const [loading, setLoading] = useState(true);</span>
+<span class="line-add">  const [error, setError] = useState(null);</span>
+<span class="line-ctx"></span>
+<span class="line-add">  const execute = useCallback(() =&gt; {</span>
+<span class="line-add">    let cancelled = false;</span>
+<span class="line-add">    (async () =&gt; {</span>
+<span class="line-add">      setLoading(true);</span>
+<span class="line-add">      setError(null);</span>
+<span class="line-add">      try {</span>
+<span class="line-add">        await fn();</span>
+<span class="line-add">      } catch (err) {</span>
+<span class="line-add">        if (!cancelled) setError(err.message);</span>
+<span class="line-add">      } finally {</span>
+<span class="line-add">        if (!cancelled) setLoading(false);</span>
+<span class="line-add">      }</span>
+<span class="line-add">    })();</span>
+<span class="line-add">    return () =&gt; { cancelled = true; };</span>
+<span class="line-add">  }, deps);</span>
+<span class="line-ctx"></span>
+<span class="line-add">  useEffect(() =&gt; {</span>
+<span class="line-add">    const cancel = execute();</span>
+<span class="line-add">    return cancel;</span>
+<span class="line-add">  }, [execute]);</span>
+<span class="line-ctx"></span>
+<span class="line-add">  return { loading, error, refetch: execute };</span>
+<span class="line-add">}</span></pre>
+      <p style="margin-top:0.75rem;color:var(--text-dim);font-size:0.85rem;">Usage: <code style="color:var(--green)">const { loading, error, refetch } = useAsync(async () => { ... }, [dep])</code></p>
+    </div>
+  </div>
+
+  <!-- Per-file diffs -->
+  <div class="section">
+    <div class="section-title">Per-File Changes</div>
+
+    <!-- useLeaderboard -->
+    <div class="file-card">
+      <div class="file-header">
+        <span class="filename">src/hooks/useLeaderboard.js</span>
+        <span class="badge modified">Modified</span>
+      </div>
+      <div class="diff-grid">
+        <div class="diff-panel before">
+          <div class="diff-panel-header">Before</div>
+<pre><span class="line-del">import { useState, useEffect } from 'react';</span>
+<span class="line-ctx">import { supabase } from '../services/supabase';</span>
+<span class="line-ctx"></span>
+<span class="line-ctx">export function useLeaderboard() {</span>
+<span class="line-ctx">  const [rankings, setRankings] = useState([]);</span>
+<span class="line-del">  const [loading, setLoading] = useState(true);</span>
+<span class="line-ctx"></span>
+<span class="line-del">  useEffect(() =&gt; {</span>
+<span class="line-del">    let cancelled = false;</span>
+<span class="line-del">    (async () =&gt; {</span>
+<span class="line-del">      try {</span>
+<span class="line-del">        const { data, error } = await supabase</span>
+<span class="line-del">          .from('leaderboard_ranking')</span>
+<span class="line-del">          .select(...)</span>
+<span class="line-del">          .limit(50);</span>
+<span class="line-del">        if (cancelled) return;</span>
+<span class="line-del">        if (error) throw error;</span>
+<span class="line-del">        setRankings((data || []).map(...));</span>
+<span class="line-del">      } catch (err) {</span>
+<span class="line-del">        console.error(...);</span>
+<span class="line-del">      } finally {</span>
+<span class="line-del">        if (!cancelled) setLoading(false);</span>
+<span class="line-del">      }</span>
+<span class="line-del">    })();</span>
+<span class="line-del">    return () =&gt; { cancelled = true; };</span>
+<span class="line-ctx">  }, []);</span>
+<span class="line-ctx">  return { rankings, loading };</span>
+<span class="line-ctx">}</span></pre>
+        </div>
+        <div class="diff-panel after">
+          <div class="diff-panel-header">After</div>
+<pre><span class="line-add">import { useState } from 'react';</span>
+<span class="line-ctx">import { supabase } from '../services/supabase';</span>
+<span class="line-add">import { useAsync } from './useAsync';</span>
+<span class="line-ctx"></span>
+<span class="line-ctx">export function useLeaderboard() {</span>
+<span class="line-ctx">  const [rankings, setRankings] = useState([]);</span>
+<span class="line-ctx"></span>
+<span class="line-add">  const { loading } = useAsync(async () =&gt; {</span>
+<span class="line-add">    const { data, error } = await supabase</span>
+<span class="line-add">      .from('leaderboard_ranking')</span>
+<span class="line-add">      .select(...)</span>
+<span class="line-add">      .limit(50);</span>
+<span class="line-add">    if (error) throw error;</span>
+<span class="line-add">    setRankings((data || []).map(...));</span>
+<span class="line-add">  }, []);</span>
+<span class="line-ctx"></span>
+<span class="line-ctx">  return { rankings, loading };</span>
+<span class="line-ctx">}</span></pre>
+        </div>
+      </div>
+      <div class="impact-bar">
+        <span class="saved">-17 lines</span> &middot; Eliminated useEffect + cancelled flag + try/catch/finally boilerplate
+      </div>
+    </div>
+
+    <!-- useAdmin -->
+    <div class="file-card">
+      <div class="file-header">
+        <span class="filename">src/hooks/useAdmin.js</span>
+        <span class="badge modified">Modified</span>
+      </div>
+      <div class="diff-grid">
+        <div class="diff-panel before">
+          <div class="diff-panel-header">Before</div>
+<pre><span class="line-del">import { useState, useEffect } from 'react';</span>
+<span class="line-ctx">import { getProfileRole } from '../services/users';</span>
+<span class="line-ctx">import { useAuth } from '../contexts/AuthContext';</span>
+<span class="line-ctx"></span>
+<span class="line-ctx">export function useAdmin() {</span>
+<span class="line-ctx">  const { user } = useAuth();</span>
+<span class="line-ctx">  const [isAdmin, setIsAdmin] = useState(false);</span>
+<span class="line-del">  const [checking, setChecking] = useState(true);</span>
+<span class="line-ctx"></span>
+<span class="line-del">  useEffect(() =&gt; {</span>
+<span class="line-del">    if (!user) {</span>
+<span class="line-del">      setIsAdmin(false); setChecking(false); return;</span>
+<span class="line-del">    }</span>
+<span class="line-del">    let cancelled = false;</span>
+<span class="line-del">    (async () =&gt; {</span>
+<span class="line-del">      try {</span>
+<span class="line-del">        const role = await getProfileRole(user.id);</span>
+<span class="line-del">        if (!cancelled) setIsAdmin(role === 'admin');</span>
+<span class="line-del">      } catch {</span>
+<span class="line-del">        if (!cancelled) setIsAdmin(false);</span>
+<span class="line-del">      } finally {</span>
+<span class="line-del">        if (!cancelled) setChecking(false);</span>
+<span class="line-del">      }</span>
+<span class="line-del">    })();</span>
+<span class="line-del">    return () =&gt; { cancelled = true; };</span>
+<span class="line-ctx">  }, [user]);</span>
+<span class="line-ctx">  return { isAdmin, checking };</span>
+<span class="line-ctx">}</span></pre>
+        </div>
+        <div class="diff-panel after">
+          <div class="diff-panel-header">After</div>
+<pre><span class="line-add">import { useState } from 'react';</span>
+<span class="line-ctx">import { getProfileRole } from '../services/users';</span>
+<span class="line-ctx">import { useAuth } from '../contexts/AuthContext';</span>
+<span class="line-add">import { useAsync } from './useAsync';</span>
+<span class="line-ctx"></span>
+<span class="line-ctx">export function useAdmin() {</span>
+<span class="line-ctx">  const { user } = useAuth();</span>
+<span class="line-ctx">  const [isAdmin, setIsAdmin] = useState(false);</span>
+<span class="line-ctx"></span>
+<span class="line-add">  const { loading: checking } = useAsync(async () =&gt; {</span>
+<span class="line-add">    if (!user) { setIsAdmin(false); return; }</span>
+<span class="line-add">    const role = await getProfileRole(user.id);</span>
+<span class="line-add">    setIsAdmin(role === 'admin');</span>
+<span class="line-add">  }, [user]);</span>
+<span class="line-ctx"></span>
+<span class="line-ctx">  return { isAdmin, checking };</span>
+<span class="line-ctx">}</span></pre>
+        </div>
+      </div>
+      <div class="impact-bar">
+        <span class="saved">-12 lines</span> &middot; Merged loading/error into useAsync, removed separate checking state
+      </div>
+    </div>
+
+    <!-- useCategories -->
+    <div class="file-card">
+      <div class="file-header">
+        <span class="filename">src/hooks/useCategories.js</span>
+        <span class="badge modified">Modified</span>
+      </div>
+      <div class="diff-grid">
+        <div class="diff-panel before">
+          <div class="diff-panel-header">Before (38 lines)</div>
+<pre><span class="line-del">import { useState, useEffect, useCallback } from 'react';</span>
+<span class="line-ctx">import { getCategories } from '../services/categories';</span>
+<span class="line-ctx">...</span>
+<span class="line-ctx">export function useCategories() {</span>
+<span class="line-ctx">  const [categories, setCategories] = useState(...);</span>
+<span class="line-del">  const [loading, setLoading] = useState(!getCached());</span>
+<span class="line-del">  const [error, setError] = useState(null);</span>
+<span class="line-ctx"></span>
+<span class="line-del">  const refetch = useCallback(async () =&gt; {</span>
+<span class="line-del">    setLoading(true);</span>
+<span class="line-del">    try { ... } catch (err) { ... } finally { ... }</span>
+<span class="line-del">  }, []);</span>
+<span class="line-ctx"></span>
+<span class="line-del">  useEffect(() =&gt; {</span>
+<span class="line-del">    if (getCached()) return;</span>
+<span class="line-del">    let cancelled = false;</span>
+<span class="line-del">    (async () =&gt; { ... })();</span>
+<span class="line-del">    return () =&gt; { cancelled = true; };</span>
+<span class="line-ctx">  }, []);</span>
+<span class="line-ctx">  return { categories, loading, error, refetch };</span>
+<span class="line-ctx">}</span></pre>
+        </div>
+        <div class="diff-panel after">
+          <div class="diff-panel-header">After (30 lines)</div>
+<pre><span class="line-add">import { useState } from 'react';</span>
+<span class="line-ctx">import { getCategories } from '../services/categories';</span>
+<span class="line-add">import { useAsync } from './useAsync';</span>
+<span class="line-ctx">...</span>
+<span class="line-ctx">export function useCategories() {</span>
+<span class="line-ctx">  const [categories, setCategories] = useState(...);</span>
+<span class="line-ctx"></span>
+<span class="line-add">  const { loading, error, refetch } = useAsync(async () =&gt; {</span>
+<span class="line-add">    const cached = getCached();</span>
+<span class="line-add">    if (cached) return;</span>
+<span class="line-add">    const data = await getCategories();</span>
+<span class="line-add">    setCache(data);</span>
+<span class="line-add">    setCategories(data);</span>
+<span class="line-add">  }, []);</span>
+<span class="line-ctx"></span>
+<span class="line-ctx">  return { categories, loading, error, refetch };</span>
+<span class="line-ctx">}</span></pre>
+        </div>
+      </div>
+      <div class="impact-bar">
+        <span class="saved">-8 lines</span> &middot; Replaced dual loading states + useEffect + useCallback with single useAsync. sessionStorage cache logic preserved.
+      </div>
+    </div>
+
+    <!-- useProgress -->
+    <div class="file-card">
+      <div class="file-header">
+        <span class="filename">src/hooks/useProgress.js</span>
+        <span class="badge modified">Modified</span>
+      </div>
+      <div class="diff-grid">
+        <div class="diff-panel before">
+          <div class="diff-panel-header">Before (92 lines)</div>
+<pre><span class="line-del">import { useState, useEffect } from 'react';</span>
+<span class="line-ctx">import { supabase } from '../services/supabase';</span>
+<span class="line-ctx">import { useAuth } from '../contexts/AuthContext';</span>
+<span class="line-ctx"></span>
+<span class="line-ctx">export function useProgress() {</span>
+<span class="line-ctx">  const { user } = useAuth();</span>
+<span class="line-ctx">  const [stats, setStats] = useState({...});</span>
+<span class="line-ctx">  const [scoreByCategory, setScoreByCategory] = useState([]);</span>
+<span class="line-ctx">  const [chartData, setChartData] = useState([]);</span>
+<span class="line-del">  const [loading, setLoading] = useState(true);</span>
+<span class="line-ctx"></span>
+<span class="line-del">  useEffect(() =&gt; {</span>
+<span class="line-del">    if (!user) return;</span>
+<span class="line-del">    let cancelled = false;</span>
+<span class="line-del">    (async () =&gt; {</span>
+<span class="line-del">      try {</span>
+<span class="line-del">        const [attemptsRes, streakRes] = await Promise.all([...]);</span>
+<span class="line-del">        if (cancelled) return;</span>
+<span class="line-del">        ... (40 lines of data processing) ...</span>
+<span class="line-del">      } catch (err) { ... }</span>
+<span class="line-del">      finally { if (!cancelled) setLoading(false); }</span>
+<span class="line-del">    })();</span>
+<span class="line-del">    return () =&gt; { cancelled = true; };</span>
+<span class="line-ctx">  }, [user]);</span>
+<span class="line-ctx">  return { stats, scoreByCategory, chartData, loading };</span>
+<span class="line-ctx">}</span></pre>
+        </div>
+        <div class="diff-panel after">
+          <div class="diff-panel-header">After (79 lines)</div>
+<pre><span class="line-add">import { useState } from 'react';</span>
+<span class="line-ctx">import { supabase } from '../services/supabase';</span>
+<span class="line-ctx">import { useAuth } from '../contexts/AuthContext';</span>
+<span class="line-add">import { useAsync } from './useAsync';</span>
+<span class="line-ctx"></span>
+<span class="line-ctx">export function useProgress() {</span>
+<span class="line-ctx">  const { user } = useAuth();</span>
+<span class="line-ctx">  const [stats, setStats] = useState({...});</span>
+<span class="line-ctx">  const [scoreByCategory, setScoreByCategory] = useState([]);</span>
+<span class="line-ctx">  const [chartData, setChartData] = useState([]);</span>
+<span class="line-ctx"></span>
+<span class="line-add">  const { loading } = useAsync(async () =&gt; {</span>
+<span class="line-add">    if (!user) return;</span>
+<span class="line-add">    const [attemptsRes, streakRes] = await Promise.all([...]);</span>
+<span class="line-add">    ... (40 lines of data processing, same logic) ...</span>
+<span class="line-add">  }, [user]);</span>
+<span class="line-ctx"></span>
+<span class="line-ctx">  return { stats, scoreByCategory, chartData, loading };</span>
+<span class="line-ctx">}</span></pre>
+        </div>
+      </div>
+      <div class="impact-bar">
+        <span class="saved">-13 lines</span> &middot; Most complex file. Removed cancelled-flag shell around 40+ lines of data processing logic.
+      </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="file-card">
+      <div class="file-header">
+        <span class="filename">src/pages/admin/Dashboard.jsx</span>
+        <span class="badge modified">Modified</span>
+      </div>
+      <div class="diff-grid">
+        <div class="diff-panel before">
+          <div class="diff-panel-header">Before</div>
+<pre><span class="line-del">import { useState, useEffect } from 'react';</span>
+<span class="line-ctx">...</span>
+<span class="line-ctx">export default function AdminDashboard() {</span>
+<span class="line-ctx">  const [stats, setStats] = useState(null);</span>
+<span class="line-del">  const [loading, setLoading] = useState(true);</span>
+<span class="line-ctx"></span>
+<span class="line-del">  useEffect(() =&gt; {</span>
+<span class="line-del">    let cancelled = false;</span>
+<span class="line-del">    (async () =&gt; {</span>
+<span class="line-del">      try {</span>
+<span class="line-del">        const data = await getStatsCounts();</span>
+<span class="line-del">        if (!cancelled) setStats(data);</span>
+<span class="line-del">      } catch {</span>
+<span class="line-del">        if (!cancelled) {</span>
+<span class="line-del">          toast.error('Gagal memuat statistik.');</span>
+<span class="line-del">          setStats({ users: 0, questions: 0, categories: 0, attempts: 0 });</span>
+<span class="line-del">        }</span>
+<span class="line-del">      } finally {</span>
+<span class="line-del">        if (!cancelled) setLoading(false);</span>
+<span class="line-del">      }</span>
+<span class="line-del">    })();</span>
+<span class="line-del">    return () =&gt; { cancelled = true; };</span>
+<span class="line-ctx">  }, []);</span></pre>
+        </div>
+        <div class="diff-panel after">
+          <div class="diff-panel-header">After</div>
+<pre><span class="line-add">import { useState } from 'react';</span>
+<span class="line-ctx">...</span>
+<span class="line-ctx">export default function AdminDashboard() {</span>
+<span class="line-ctx">  const [stats, setStats] = useState(null);</span>
+<span class="line-ctx"></span>
+<span class="line-add">  const { loading } = useAsync(async () =&gt; {</span>
+<span class="line-add">    try {</span>
+<span class="line-add">      const data = await getStatsCounts();</span>
+<span class="line-add">      setStats(data);</span>
+<span class="line-add">    } catch {</span>
+<span class="line-add">      toast.error('Gagal memuat statistik.');</span>
+<span class="line-add">      setStats({ users: 0, questions: 0, categories: 0, attempts: 0 });</span>
+<span class="line-add">    }</span>
+<span class="line-add">  }, []);</span></pre>
+        </div>
+      </div>
+      <div class="impact-bar">
+        <span class="saved">-8 lines</span> &middot; Removed useEffect + cancelled flag + if-guard wrapping
+      </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="file-card">
+      <div class="file-header">
+        <span class="filename">src/pages/admin/Categories.jsx</span>
+        <span class="badge modified">Modified</span>
+      </div>
+      <div class="diff-grid">
+        <div class="diff-panel before">
+          <div class="diff-panel-header">Before</div>
+<pre><span class="line-del">import { useState, useEffect } from 'react';</span>
+<span class="line-ctx">...</span>
+<span class="line-ctx">export default function AdminCategories() {</span>
+<span class="line-ctx">  const [categories, setCategories] = useState([]);</span>
+<span class="line-del">  const [loading, setLoading] = useState(true);</span>
+<span class="line-ctx"></span>
+<span class="line-del">  const fetchCategories = async () =&gt; {</span>
+<span class="line-del">    try { setCategories(await getCategories()); }</span>
+<span class="line-del">    catch { toast.error('Gagal memuat kategori.'); }</span>
+<span class="line-del">    finally { setLoading(false); }</span>
+<span class="line-del">  };</span>
+<span class="line-ctx"></span>
+<span class="line-del">  useEffect(() =&gt; {</span>
+<span class="line-del">    let cancelled = false;</span>
+<span class="line-del">    (async () =&gt; {</span>
+<span class="line-del">      try { const cats = await getCategories(); ... }</span>
+<span class="line-del">      catch { ... } finally { ... }</span>
+<span class="line-del">    })();</span>
+<span class="line-del">    return () =&gt; { cancelled = true; };</span>
+<span class="line-ctx">  }, []);</span>
+<span class="line-ctx"></span>
+<span class="line-ctx">  handleCreate: await fetchCategories();</span>
+<span class="line-ctx">  handleUpdate: await fetchCategories();</span>
+<span class="line-ctx">  handleDelete: await fetchCategories();</span></pre>
+        </div>
+        <div class="diff-panel after">
+          <div class="diff-panel-header">After</div>
+<pre><span class="line-add">import { useState } from 'react';</span>
+<span class="line-ctx">...</span>
+<span class="line-add">import { useAsync } from '../../hooks/useAsync';</span>
+<span class="line-ctx"></span>
+<span class="line-ctx">export default function AdminCategories() {</span>
+<span class="line-ctx">  const [categories, setCategories] = useState([]);</span>
+<span class="line-ctx"></span>
+<span class="line-add">  const { loading, refetch } = useAsync(async () =&gt; {</span>
+<span class="line-add">    const cats = await getCategories();</span>
+<span class="line-add">    setCategories(cats);</span>
+<span class="line-add">  }, []);</span>
+<span class="line-ctx"></span>
+<span class="line-ctx">  handleCreate: await refetch();</span>
+<span class="line-ctx">  handleUpdate: await refetch();</span>
+<span class="line-ctx">  handleDelete: await refetch();</span></pre>
+        </div>
+      </div>
+      <div class="impact-bar">
+        <span class="saved">-5 lines</span> &middot; Removed separate fetchCategories + useEffect. CRUD handlers use refetch() directly.
+      </div>
+    </div>
+
+    <!-- Questions -->
+    <div class="file-card">
+      <div class="file-header">
+        <span class="filename">src/pages/admin/Questions.jsx</span>
+        <span class="badge modified">Modified</span>
+      </div>
+      <div class="diff-grid">
+        <div class="diff-panel before">
+          <div class="diff-panel-header">Before</div>
+<pre><span class="line-del">import { useState, useEffect } from 'react';</span>
+<span class="line-ctx">...</span>
+<span class="line-ctx">export default function AdminQuestions() {</span>
+<span class="line-ctx">  const [questions, setQuestions] = useState([]);</span>
+<span class="line-ctx">  const [categories, setCategories] = useState([]);</span>
+<span class="line-del">  const [loading, setLoading] = useState(true);</span>
+<span class="line-ctx"></span>
+<span class="line-del">  useEffect(() =&gt; {</span>
+<span class="line-del">    let cancelled = false;</span>
+<span class="line-del">    (async () =&gt; {</span>
+<span class="line-del">      try { const cats = ...; if (!cancelled) setCategories(cats);</span>
+<span class="line-del">             const qs = ...; if (!cancelled) setQuestions(qs); }</span>
+<span class="line-del">      catch { if (!cancelled) toast.error('Gagal memuat data.'); }</span>
+<span class="line-del">      finally { if (!cancelled) setLoading(false); }</span>
+<span class="line-del">    })();</span>
+<span class="line-del">    return () =&gt; { cancelled = true; };</span>
+<span class="line-ctx">  }, []);</span>
+<span class="line-ctx"></span>
+<span class="line-del">  const fetchAll = async () =&gt; setQuestions(await getAllQuestions());</span></pre>
+        </div>
+        <div class="diff-panel after">
+          <div class="diff-panel-header">After</div>
+<pre><span class="line-add">import { useState } from 'react';</span>
+<span class="line-ctx">...</span>
+<span class="line-add">import { useAsync } from '../../hooks/useAsync';</span>
+<span class="line-ctx"></span>
+<span class="line-ctx">export default function AdminQuestions() {</span>
+<span class="line-ctx">  const [questions, setQuestions] = useState([]);</span>
+<span class="line-ctx">  const [categories, setCategories] = useState([]);</span>
+<span class="line-ctx"></span>
+<span class="line-add">  const { loading, refetch } = useAsync(async () =&gt; {</span>
+<span class="line-add">    const cats = await getCategorySummary();</span>
+<span class="line-add">    setCategories(cats);</span>
+<span class="line-add">    const qs = await getAllQuestions();</span>
+<span class="line-add">    setQuestions(qs);</span>
+<span class="line-add">  }, []);</span></pre>
+        </div>
+      </div>
+      <div class="impact-bar">
+        <span class="saved">-12 lines</span> &middot; Removed useEffect, cancelled flags, and separate fetchAll function
+      </div>
+    </div>
+
+    <!-- QuizResult -->
+    <div class="file-card">
+      <div class="file-header">
+        <span class="filename">src/pages/QuizResult.jsx</span>
+        <span class="badge modified">Modified</span>
+      </div>
+      <div class="diff-grid">
+        <div class="diff-panel before">
+          <div class="diff-panel-header">Before</div>
+<pre><span class="line-del">import { useEffect, useState, useRef } from 'react';</span>
+<span class="line-ctx">...</span>
+<span class="line-ctx">export default function QuizResult() {</span>
+<span class="line-ctx">  ...</span>
+<span class="line-ctx">  const [data, setData] = useState(result || null);</span>
+<span class="line-del">  const [loading, setLoading] = useState(!result);</span>
+<span class="line-ctx">  const [answers, setAnswers] = useState([]);</span>
+<span class="line-ctx">  const [exporting, setExporting] = useState(false);</span>
+<span class="line-ctx"></span>
+<span class="line-ctx">  const handleExportPDF = async () =&gt; { ... };</span>
+<span class="line-ctx"></span>
+<span class="line-del">  useEffect(() =&gt; {</span>
+<span class="line-del">    if (data) return;</span>
+<span class="line-del">    let cancelled = false;</span>
+<span class="line-del">    (async () =&gt; {</span>
+<span class="line-del">      try {</span>
+<span class="line-del">        const { data: attempt } = await supabase...</span>
+<span class="line-del">        if (cancelled) return;</span>
+<span class="line-del">        if (attempt) { setData(...); setAnswers(...); }</span>
+<span class="line-del">      } catch {</span>
+<span class="line-del">        if (!cancelled) toast.error('Gagal memuat hasil quiz.');</span>
+<span class="line-del">      } finally {</span>
+<span class="line-del">        if (!cancelled) setLoading(false);</span>
+<span class="line-del">      }</span>
+<span class="line-del">    })();</span>
+<span class="line-del">    return () =&gt; { cancelled = true; };</span>
+<span class="line-ctx">  }, [attemptId]);</span></pre>
+        </div>
+        <div class="diff-panel after">
+          <div class="diff-panel-header">After</div>
+<pre><span class="line-add">import { useState, useRef } from 'react';</span>
+<span class="line-ctx">...</span>
+<span class="line-add">import { useAsync } from '../hooks/useAsync';</span>
+<span class="line-ctx"></span>
+<span class="line-ctx">export default function QuizResult() {</span>
+<span class="line-ctx">  ...</span>
+<span class="line-ctx">  const [data, setData] = useState(result || null);</span>
+<span class="line-ctx">  const [answers, setAnswers] = useState([]);</span>
+<span class="line-ctx">  const [exporting, setExporting] = useState(false);</span>
+<span class="line-ctx"></span>
+<span class="line-add">  const { loading } = useAsync(async () =&gt; {</span>
+<span class="line-add">    if (data) return;</span>
+<span class="line-add">    const { data: attempt } = await supabase...</span>
+<span class="line-add">    if (attempt) { setData(...); setAnswers(...); }</span>
+<span class="line-add">  }, [attemptId]);</span>
+<span class="line-ctx"></span>
+<span class="line-ctx">  const handleExportPDF = async () =&gt; { ... };</span></pre>
+        </div>
+      </div>
+      <div class="impact-bar">
+        <span class="saved">-10 lines</span> &middot; Also removed eslint-disable-line comment (no longer needed)
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Table -->
+  <div class="section">
+    <div class="section-title">Summary</div>
+    <div class="file-card">
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>File</th>
+            <th>Lines Before</th>
+            <th>Lines After</th>
+            <th>Change</th>
+            <th>Boilerplate Removed</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>src/hooks/useAsync.js</code></td>
+            <td>0</td>
+            <td>29</td>
+            <td class="plus">+29 (new)</td>
+            <td>&mdash;</td>
+          </tr>
+          <tr>
+            <td><code>src/hooks/useLeaderboard.js</code></td>
+            <td>37</td>
+            <td>20</td>
+            <td class="minus">-17</td>
+            <td>useEffect + cancelled + try/catch/finally</td>
+          </tr>
+          <tr>
+            <td><code>src/hooks/useAdmin.js</code></td>
+            <td>31</td>
+            <td>19</td>
+            <td class="minus">-12</td>
+            <td>useEffect + cancelled + try/catch/finally</td>
+          </tr>
+          <tr>
+            <td><code>src/hooks/useCategories.js</code></td>
+            <td>56</td>
+            <td>33</td>
+            <td class="minus">-23</td>
+            <td>useEffect + cancelled + useCallback + manual loading</td>
+          </tr>
+          <tr>
+            <td><code>src/hooks/useProgress.js</code></td>
+            <td>92</td>
+            <td>79</td>
+            <td class="minus">-13</td>
+            <td>useEffect + cancelled flag shell</td>
+          </tr>
+          <tr>
+            <td><code>src/pages/admin/Dashboard.jsx</code></td>
+            <td>70</td>
+            <td>62</td>
+            <td class="minus">-8</td>
+            <td>useEffect + cancelled + if-guard</td>
+          </tr>
+          <tr>
+            <td><code>src/pages/admin/Categories.jsx</code></td>
+            <td>112</td>
+            <td>92</td>
+            <td class="minus">-20</td>
+            <td>useEffect + cancelled + fetchCategories wrapper</td>
+          </tr>
+          <tr>
+            <td><code>src/pages/admin/Questions.jsx</code></td>
+            <td>183</td>
+            <td>171</td>
+            <td class="minus">-12</td>
+            <td>useEffect + cancelled + fetchAll wrapper</td>
+          </tr>
+          <tr>
+            <td><code>src/pages/QuizResult.jsx</code></td>
+            <td>176</td>
+            <td>165</td>
+            <td class="minus">-11</td>
+            <td>useEffect + cancelled + eslint-disable</td>
+          </tr>
+          <tr style="font-weight:700;border-top:2px solid var(--border)">
+            <td>Total</td>
+            <td>757</td>
+            <td>670</td>
+            <td class="minus">-107 net</td>
+            <td>8 patterns eliminated</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Verification -->
+  <div class="section">
+    <div class="section-title">Verification</div>
+    <div class="file-card" style="padding:1.5rem;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+          <strong style="color:var(--green);">&#10003; Build</strong><br>
+          <span style="color:var(--text-dim);font-size:0.85rem;">4943 modules &middot; no errors &middot; 1m 12s</span>
+        </div>
+        <div>
+          <strong style="color:var(--green);">&#10003; Lint</strong><br>
+          <span style="color:var(--text-dim);font-size:0.85rem;">0 errors &middot; 1 pre-existing warning (AuthContext.jsx)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
