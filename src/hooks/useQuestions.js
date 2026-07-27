@@ -21,22 +21,8 @@ export function useQuestions(categoryId, difficulty) {
   }, [categoryId, difficulty]);
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      if (!categoryId || !difficulty) return;
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await getQuestions(categoryId, difficulty);
-        if (!cancelled) setQuestions(data);
-      } catch (err) {
-        if (!cancelled) setError(err.message);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [categoryId, difficulty]);
+    fetchQuestions();
+  }, [fetchQuestions]);
 
   return { questions, loading, error, refetch: fetchQuestions };
 }
