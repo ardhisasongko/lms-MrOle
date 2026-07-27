@@ -1,9 +1,10 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { CheckCircle, XCircle, ArrowLeft, House, FileArrowDown } from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
 import Button from '../components/common/Button';
 import { supabase } from '../services/supabase';
+import { useAsync } from '../hooks/useAsync';
 import Skeleton from '../components/common/Skeleton';
 import { sanitize } from '../utils/sanitize';
 import toast from 'react-hot-toast';
@@ -15,10 +16,32 @@ export default function QuizResult() {
   const result = location.state;
 
   const [data, setData] = useState(result || null);
-  const [loading, setLoading] = useState(!result);
   const [answers, setAnswers] = useState([]);
   const [exporting, setExporting] = useState(false);
   const resultRef = useRef(null);
+
+  const { loading } = useAsync(async () => {
+    if (data) return;
+    const { data: attempt } = await supabase
+      .from('quiz_attempts')
+      .select('*, quiz_answers(*, questions(*))')
+      .eq('id', attemptId)
+      .single();
+    if (attempt) {
+      setData({
+        score: attempt.score,
+        correct: attempt.correct_answers,
+        total: attempt.total_questions,
+      });
+      setAnswers(attempt.quiz_answers.filter((a) => a.questions).map((a) => ({
+        question: a.questions.question,
+        userAnswer: a.user_answer,
+        correctAnswer: a.questions.correct_answer,
+        explanation: a.questions.explanation,
+        isCorrect: a.is_correct,
+      })));
+    }
+  }, [attemptId]);
 
   const handleExportPDF = async () => {
     if (!resultRef.current) return;
@@ -55,40 +78,6 @@ export default function QuizResult() {
       setExporting(false);
     }
   };
-
-  useEffect(() => {
-    if (data) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const { data: attempt } = await supabase
-          .from('quiz_attempts')
-          .select('*, quiz_answers(*, questions(*))')
-          .eq('id', attemptId)
-          .single();
-        if (cancelled) return;
-        if (attempt) {
-          setData({
-            score: attempt.score,
-            correct: attempt.correct_answers,
-            total: attempt.total_questions,
-          });
-          setAnswers(attempt.quiz_answers.filter((a) => a.questions).map((a) => ({
-            question: a.questions.question,
-            userAnswer: a.user_answer,
-            correctAnswer: a.questions.correct_answer,
-            explanation: a.questions.explanation,
-            isCorrect: a.is_correct,
-          })));
-        }
-      } catch {
-        if (!cancelled) toast.error('Gagal memuat hasil quiz.');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [attemptId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
     return (

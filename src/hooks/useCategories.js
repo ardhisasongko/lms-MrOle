@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { getCategories } from '../services/categories';
+import { useAsync } from './useAsync';
 
 const CACHE_KEY = 'lms_categories';
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
@@ -20,36 +21,13 @@ function setCache(data) {
 
 export function useCategories() {
   const [categories, setCategories] = useState(() => getCached() || []);
-  const [loading, setLoading] = useState(!getCached());
-  const [error, setError] = useState(null);
 
-  const refetch = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await getCategories();
-      setCache(data);
-      setCategories(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (getCached()) return; // skip fetch if cache hit
-    let cancelled = false;
-    (async () => {
-      try {
-        const data = await getCategories();
-        if (!cancelled) { setCache(data); setCategories(data); }
-      } catch (err) {
-        if (!cancelled) setError(err.message);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
+  const { loading, error, refetch } = useAsync(async () => {
+    const cached = getCached();
+    if (cached) return;
+    const data = await getCategories();
+    setCache(data);
+    setCategories(data);
   }, []);
 
   return { categories, loading, error, refetch };

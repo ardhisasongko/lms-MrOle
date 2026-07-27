@@ -1,30 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Users, BookOpen, TreeStructure, ChartBar } from '@phosphor-icons/react';
 import Card, { CardContent } from '../../components/common/Card';
 import Skeleton from '../../components/common/Skeleton';
 import { getStatsCounts } from '../../services/users';
+import { useAsync } from '../../hooks/useAsync';
 import toast from 'react-hot-toast';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const data = await getStatsCounts();
-        if (!cancelled) setStats(data);
-      } catch {
-        if (!cancelled) {
-          toast.error('Gagal memuat statistik.');
-          setStats({ users: 0, questions: 0, categories: 0, attempts: 0 });
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
+  const { loading } = useAsync(async () => {
+    try {
+      const data = await getStatsCounts();
+      setStats(data);
+    } catch {
+      toast.error('Gagal memuat statistik.');
+      setStats({ users: 0, questions: 0, categories: 0, attempts: 0 });
+    }
   }, []);
 
   const items = [

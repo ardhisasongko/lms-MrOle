@@ -1,30 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { getProfileRole } from '../services/users';
 import { useAuth } from '../contexts/AuthContext';
+import { useAsync } from './useAsync';
 
 export function useAdmin() {
   const { user } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
-  const [checking, setChecking] = useState(true);
 
-  useEffect(() => {
+  const { loading: checking } = useAsync(async () => {
     if (!user) {
       setIsAdmin(false);
-      setChecking(false);
       return;
     }
-    let cancelled = false;
-    (async () => {
-      try {
-        const role = await getProfileRole(user.id);
-        if (!cancelled) setIsAdmin(role === 'admin');
-      } catch {
-        if (!cancelled) setIsAdmin(false);
-      } finally {
-        if (!cancelled) setChecking(false);
-      }
-    })();
-    return () => { cancelled = true; };
+    const role = await getProfileRole(user.id);
+    setIsAdmin(role === 'admin');
   }, [user]);
 
   return { isAdmin, checking };

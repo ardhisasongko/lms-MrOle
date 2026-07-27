@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { TreeStructure } from '@phosphor-icons/react';
 import CrudTable from '../../components/common/CrudTable';
 import { getCategories, createCategory, updateCategory, deleteCategory } from '../../services/categories';
+import { useAsync } from '../../hooks/useAsync';
 import { logAdmin } from '../../utils/logAdmin';
 import toast from 'react-hot-toast';
 
@@ -10,52 +11,31 @@ const labelCls = 'block text-sm font-medium text-gray-700 dark:text-gray-300';
 
 export default function AdminCategories() {
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  const fetchCategories = async () => {
-    try {
-      setCategories(await getCategories());
-    } catch {
-      toast.error('Gagal memuat kategori.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const cats = await getCategories();
-        if (!cancelled) setCategories(cats);
-      } catch {
-        if (!cancelled) toast.error('Gagal memuat kategori.');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
+  const { loading, refetch } = useAsync(async () => {
+    const cats = await getCategories();
+    setCategories(cats);
   }, []);
 
   const handleCreate = async (form) => {
     const inserted = await createCategory(form);
     if (inserted) logAdmin('insert', 'categories', inserted.id, { name: form.name });
     toast.success('Kategori ditambahkan');
-    await fetchCategories();
+    await refetch();
   };
 
   const handleUpdate = async (id, form) => {
     await updateCategory(id, form);
     logAdmin('update', 'categories', id, { name: form.name });
     toast.success('Kategori diperbarui');
-    await fetchCategories();
+    await refetch();
   };
 
   const handleDelete = async (id) => {
     await deleteCategory(id);
     logAdmin('delete', 'categories', id);
     toast.success('Kategori dihapus');
-    await fetchCategories();
+    await refetch();
   };
 
   return (

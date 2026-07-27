@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { BookOpen } from '@phosphor-icons/react';
 import Badge from '../../components/common/Badge';
 import CrudTable from '../../components/common/CrudTable';
 import { getAllQuestions, createQuestion, updateQuestion, deleteQuestion } from '../../services/questions';
 import { getCategorySummary } from '../../services/categories';
+import { useAsync } from '../../hooks/useAsync';
 import { logAdmin } from '../../utils/logAdmin';
 import { DIFFICULTY_LABEL } from '../../utils/constants';
 import { sanitize } from '../../utils/sanitize';
@@ -25,26 +26,13 @@ function renderOptions(options) {
 export default function AdminQuestions() {
   const [questions, setQuestions] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const cats = await getCategorySummary();
-        if (!cancelled) setCategories(cats);
-        const qs = await getAllQuestions();
-        if (!cancelled) setQuestions(qs);
-      } catch {
-        if (!cancelled) toast.error('Gagal memuat data.');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
+  const { loading, refetch } = useAsync(async () => {
+    const cats = await getCategorySummary();
+    setCategories(cats);
+    const qs = await getAllQuestions();
+    setQuestions(qs);
   }, []);
-
-  const fetchAll = async () => setQuestions(await getAllQuestions());
 
   const handleCreate = async (form) => {
     let options = null;
@@ -64,7 +52,7 @@ export default function AdminQuestions() {
     const inserted = await createQuestion({ ...form, options });
     if (inserted) logAdmin('insert', 'questions', inserted.id, { question: form.question });
     toast.success('Soal ditambahkan');
-    await fetchAll();
+    await refetch();
   };
 
   const handleUpdate = async (id, form) => {
@@ -85,7 +73,7 @@ export default function AdminQuestions() {
     await updateQuestion(id, { ...form, options });
     logAdmin('update', 'questions', id, { question: form.question });
     toast.success('Soal diperbarui');
-    await fetchAll();
+    await refetch();
   };
 
   const handleDelete = async (id) => {
