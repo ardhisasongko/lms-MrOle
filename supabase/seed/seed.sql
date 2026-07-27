@@ -3,12 +3,12 @@
 -- Categories (skip if already exist)
 INSERT INTO categories (name, slug, description, icon, display_order)
 SELECT * FROM (VALUES
-  ('Grammar', 'grammar', 'Tata bahasa Inggris', 'BookOpen', 1),
-  ('Vocabulary', 'vocabulary', 'Kosakata bahasa Inggris', 'Book', 2),
-  ('Reading', 'reading', 'Pemahaman bacaan', 'FileText', 3),
-  ('Listening', 'listening', 'Pemahaman listening', 'Headphones', 4),
-  ('Speaking', 'speaking', 'Praktik berbicara', 'Mic', 5),
-  ('Writing', 'writing', 'Praktik menulis', 'PenTool', 6)
+  ('Grammar', 'grammar', 'English grammar rules and structures', 'BookOpen', 1),
+  ('Vocabulary', 'vocabulary', 'English words and their meanings', 'Book', 2),
+  ('Reading', 'reading', 'Reading comprehension skills', 'FileText', 3),
+  ('Listening', 'listening', 'Listening comprehension skills', 'Headphones', 4),
+  ('Speaking', 'speaking', 'Speaking and communication skills', 'Mic', 5),
+  ('Writing', 'writing', 'Writing skills and composition', 'PenTool', 6)
 ) AS v(name, slug, description, icon, display_order)
 WHERE NOT EXISTS (SELECT 1 FROM categories WHERE categories.slug = v.slug);
 
