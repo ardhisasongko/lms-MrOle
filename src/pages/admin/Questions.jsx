@@ -28,17 +28,20 @@ export default function AdminQuestions() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
     (async () => {
       try {
         const cats = await getCategorySummary();
-        setCategories(cats);
-        setQuestions(await getAllQuestions());
+        if (!cancelled) setCategories(cats);
+        const qs = await getAllQuestions();
+        if (!cancelled) setQuestions(qs);
       } catch {
-        toast.error('Gagal memuat data.');
+        if (!cancelled) toast.error('Gagal memuat data.');
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     })();
+    return () => { cancelled = true; };
   }, []);
 
   const fetchAll = async () => setQuestions(await getAllQuestions());

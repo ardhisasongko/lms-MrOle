@@ -22,7 +22,20 @@ export default function AdminCategories() {
     }
   };
 
-  useEffect(() => { fetchCategories(); }, []);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const cats = await getCategories();
+        if (!cancelled) setCategories(cats);
+      } catch {
+        if (!cancelled) toast.error('Gagal memuat kategori.');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const handleCreate = async (form) => {
     const inserted = await createCategory(form);

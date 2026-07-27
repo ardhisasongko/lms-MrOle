@@ -25,6 +25,7 @@ export default function Profile() {
       setFetching(false);
       return;
     }
+    let cancelled = false;
     (async () => {
       try {
         const { data, error } = await supabase
@@ -32,6 +33,7 @@ export default function Profile() {
           .select('full_name, avatar_url')
           .eq('id', user.id)
           .single();
+        if (cancelled) return;
         if (error && error.code !== 'PGRST116') throw error;
         if (data) {
           setForm({ fullName: data.full_name || '', avatarUrl: data.avatar_url || '' });
@@ -39,12 +41,14 @@ export default function Profile() {
           setForm({ fullName: user.user_metadata?.full_name || user.email?.split('@')[0] || '', avatarUrl: '' });
         }
       } catch (err) {
+        if (cancelled) return;
         console.error('Profile fetch error:', err);
         setForm({ fullName: user.user_metadata?.full_name || user.email?.split('@')[0] || '', avatarUrl: '' });
       } finally {
-        setFetching(false);
+        if (!cancelled) setFetching(false);
       }
     })();
+    return () => { cancelled = true; };
   }, [user]);
 
   const handleUpload = async (e) => {

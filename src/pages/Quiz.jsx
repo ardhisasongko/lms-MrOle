@@ -73,7 +73,7 @@ export default function Quiz() {
 
   if (error) return <ErrorState message={error} />;
 
-  if (questions.length === 0) {
+  if (questions.length === 0 || !current) {
     return (
       <EmptyState
         title="Tidak Ada Soal"

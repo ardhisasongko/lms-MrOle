@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': 'https://lmsmrole.ardhisasongko69.workers.dev',
+      '/api': 'https://lms-mrole.pages.dev',
     },
   },
   resolve: {

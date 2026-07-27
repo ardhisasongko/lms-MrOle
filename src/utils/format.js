@@ -3,10 +3,14 @@ export function getLocale() {
 }
 
 export function formatDate(date) {
-  return new Intl.DateTimeFormat(getLocale(), {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(date));
+  try {
+    return new Intl.DateTimeFormat(getLocale(), {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(new Date(date));
+  } catch {
+    return 'Invalid date';
+  }
 }
 
 

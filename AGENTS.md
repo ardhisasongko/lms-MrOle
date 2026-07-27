@@ -109,3 +109,28 @@ npm run lint           # Lint check
 npm test               # Run tests
 npm run test:coverage  # Coverage report
 ```
+
+## Known Issues
+
+### Librarian Agent Model Error (2026-07-27)
+
+**Error:**
+```
+ProviderModelNotFoundError: Model not found: opencode/gpt-5-nano
+Did you mean: gpt-5-nano, gpt-5.4-nano?
+```
+
+**Root Cause:** The built-in `librarian` agent is configured to use `opencode/gpt-5-nano` which doesn't exist. Correct model ID is `gpt-5-nano`.
+
+**Fix Applied:** Added agent override in `opencode.json`:
+```json
+"agent": {
+  "librarian": {
+    "model": "gpt-5-nano"
+  }
+}
+```
+
+**⚠️ IMPORTANT:** Config changes require **restart opencode** to take effect. Running sessions keep using old config.
+
+**Workaround:** Use `websearch` directly instead of delegating to librarian agent.

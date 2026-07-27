@@ -67,8 +67,7 @@ export default function AdminUsers() {
   };
 
   const filteredUsers = users.filter((u) =>
-    u.full_name?.toLowerCase().includes(search.toLowerCase()) ||
-    u.id?.toLowerCase().includes(search.toLowerCase())
+    u.full_name?.toLowerCase().includes(search.toLowerCase())
   );
 
   const formatDate = (date) => {
@@ -93,7 +92,7 @@ export default function AdminUsers() {
             <MagnifyingGlass className="w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder="Cari nama atau ID user..."
+              placeholder="Cari nama user..."
               className="flex-1 bg-transparent text-sm focus:outline-none text-gray-900 dark:text-gray-100 placeholder-gray-400"
               value={search}
               onChange={(e) => setSearch(e.target.value)}

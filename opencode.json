@@ -3,5 +3,10 @@
   "plugin": [
     "@dietrichgebert/ponytail",
     "~/.config/opencode/node_modules/superpowers"
-  ]
+  ],
+  "agent": {
+    "librarian": {
+      "model": "gpt-5-nano"
+    }
+  }
 }
