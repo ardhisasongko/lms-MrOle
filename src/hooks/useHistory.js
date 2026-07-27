@@ -20,7 +20,7 @@ export function useHistory() {
     try {
       let query = supabase
         .from('quiz_attempts')
-        .select('*, categories(name)', { count: 'exact' })
+        .select('id, score, total_questions, correct_answers, difficulty, completed_at, category_id, categories(name)', { count: 'exact' })
         .eq('user_id', user.id)
         .order('completed_at', { ascending: false })
         .range(pageNum * PAGE_SIZE, (pageNum + 1) * PAGE_SIZE - 1);

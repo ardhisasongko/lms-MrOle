@@ -3,7 +3,7 @@ import { supabase } from './supabase';
 export async function getQuestions(categoryId, difficulty) {
   const { data, error } = await supabase
     .from('questions')
-    .select('*')
+    .select('id, category_id, difficulty, type, question, options, correct_answer, explanation')
     .eq('category_id', categoryId)
     .eq('difficulty', difficulty);
   if (error) throw error;
@@ -13,7 +13,7 @@ export async function getQuestions(categoryId, difficulty) {
 export async function getAllQuestions() {
   const { data, error } = await supabase
     .from('questions')
-    .select('*, categories(name)')
+    .select('id, category_id, difficulty, type, question, options, correct_answer, explanation, created_at, categories(name)')
     .order('created_at', { ascending: false });
   if (error) throw error;
   return data || [];

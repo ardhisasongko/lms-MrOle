@@ -11,7 +11,7 @@ export function useLeaderboard() {
       try {
         const { data, error } = await supabase
           .from('leaderboard_ranking')
-          .select('*')
+          .select('user_id, full_name, avatar_url, avg_score, sessions, total_questions')
           .limit(50);
         if (cancelled) return;
         if (error) throw error;

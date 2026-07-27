@@ -3,7 +3,7 @@ import { supabase } from './supabase';
 export async function getProfiles() {
   const { data, error } = await supabase
     .from('profiles')
-    .select('*')
+    .select('id, full_name, avatar_url, role, created_at')
     .order('created_at', { ascending: false });
   if (error) throw error;
   return data || [];
