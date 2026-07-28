@@ -1,7 +1,7 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useState, useRef, useMemo } from 'react';
 import {
-  CheckCircle, XCircle, ArrowLeft, ArrowRight, House, FileArrowDown,
+  CheckCircle, XCircle, Circle, ArrowLeft, ArrowRight, House, FileArrowDown,
   Trophy, TrendUp, Smiley, Clock,
 } from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
@@ -67,6 +67,8 @@ export default function QuizResult() {
       });
       setAnswers(attempt.quiz_answers.filter((a) => a.questions).map((a) => ({
         question: a.questions.question,
+        options: a.questions.options,
+        type: a.questions.type,
         userAnswer: a.user_answer,
         correctAnswer: a.questions.correct_answer,
         explanation: a.questions.explanation,
@@ -261,44 +263,102 @@ export default function QuizResult() {
           </div>
 
           <Card key={`${filter}-${currentIndex}`}>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-5">
+              {/* Soal */}
               <p className="text-[1.0625rem] font-medium text-gray-900 dark:text-gray-100 leading-relaxed">
                 {sanitize(current.question)}
               </p>
 
-              <div className="space-y-2">
-                <div className={`
-                  flex items-start gap-2 px-4 py-3 rounded-xl border text-sm
-                  ${current.isCorrect
-                    ? 'border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-900/10'
-                    : 'border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-900/10'
-                  }
-                `.trim()}>
-                  {current.isCorrect
-                    ? <CheckCircle className="w-4 h-4 mt-0.5 shrink-0 text-green-600 dark:text-green-400" weight="fill" />
-                    : <XCircle className="w-4 h-4 mt-0.5 shrink-0 text-red-500 dark:text-red-400" weight="fill" />
-                  }
-                  <div>
-                    <span className="font-medium text-gray-500 dark:text-gray-400 text-[0.8125rem]">Jawabanmu</span>
-                    <p className="text-gray-900 dark:text-gray-100">{current.userAnswer}</p>
-                  </div>
-                </div>
+              {/* Opsi Pilihan (khusus multiple_choice) */}
+              {current.type === 'multiple_choice' && Array.isArray(current.options) && (
+                <div className="space-y-2">
+                  {current.options.map((opt) => {
+                    const isUserAnswer = current.userAnswer === opt.label;
+                    const isCorrectAnswer = current.correctAnswer === opt.label;
+                    const isWrongSelection = isUserAnswer && !current.isCorrect;
 
-                {!current.isCorrect && current.correctAnswer && (
-                  <div className="flex items-start gap-2 px-4 py-3 rounded-xl border border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-900/10 text-sm">
-                    <CheckCircle className="w-4 h-4 mt-0.5 shrink-0 text-green-600 dark:text-green-400" weight="fill" />
+                    let borderStyle = 'border-gray-100 dark:border-gray-700/50 bg-white dark:bg-gray-800/50';
+                    let labelStyle = 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400';
+                    let icon = null;
+
+                    if (isCorrectAnswer) {
+                      borderStyle = 'border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-900/10';
+                      labelStyle = 'bg-green-500 text-white';
+                      icon = <CheckCircle className="w-3.5 h-3.5 text-green-600 dark:text-green-400 shrink-0" weight="fill" />;
+                    }
+                    if (isWrongSelection) {
+                      borderStyle = 'border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-900/10';
+                      labelStyle = 'bg-red-500 text-white';
+                      icon = <XCircle className="w-3.5 h-3.5 text-red-500 dark:text-red-400 shrink-0" weight="fill" />;
+                    }
+
+                    return (
+                      <div
+                        key={opt.label}
+                        className={`
+                          flex items-center gap-3 px-4 py-3 rounded-xl border text-sm
+                          transition-all duration-200
+                          ${borderStyle}
+                        `.trim()}
+                      >
+                        <span className={`
+                          w-7 h-7 rounded-full flex items-center justify-center text-sm font-semibold shrink-0
+                          transition-all duration-200
+                          ${labelStyle}
+                        `.trim()}>
+                          {opt.label}
+                        </span>
+                        <span className="flex-1 text-gray-700 dark:text-gray-300">{opt.text}</span>
+                        {icon && (
+                          <span className="flex items-center">{icon}</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Jawaban User (untuk isian / ringkasan) */}
+              {current.type !== 'multiple_choice' && (
+                <div className="space-y-2">
+                  <div className={`
+                    flex items-start gap-2 px-4 py-3 rounded-xl border text-sm
+                    ${current.isCorrect
+                      ? 'border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-900/10'
+                      : 'border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-900/10'
+                    }
+                  `.trim()}>
+                    {current.isCorrect
+                      ? <CheckCircle className="w-4 h-4 mt-0.5 shrink-0 text-green-600 dark:text-green-400" weight="fill" />
+                      : <XCircle className="w-4 h-4 mt-0.5 shrink-0 text-red-500 dark:text-red-400" weight="fill" />
+                    }
                     <div>
-                      <span className="font-medium text-gray-500 dark:text-gray-400 text-[0.8125rem]">Jawaban benar</span>
-                      <p className="text-green-700 dark:text-green-300 font-medium">{current.correctAnswer}</p>
+                      <span className="font-medium text-gray-500 dark:text-gray-400 text-[0.8125rem]">Jawabanmu</span>
+                      <p className="text-gray-900 dark:text-gray-100">{current.userAnswer}</p>
                     </div>
                   </div>
-                )}
-              </div>
 
+                  {!current.isCorrect && current.correctAnswer && (
+                    <div className="flex items-start gap-2 px-4 py-3 rounded-xl border border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-900/10 text-sm">
+                      <CheckCircle className="w-4 h-4 mt-0.5 shrink-0 text-green-600 dark:text-green-400" weight="fill" />
+                      <div>
+                        <span className="font-medium text-gray-500 dark:text-gray-400 text-[0.8125rem]">Jawaban benar</span>
+                        <p className="text-green-700 dark:text-green-300 font-medium">{current.correctAnswer}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Pembahasan */}
               {current.explanation && (
-                <div className="text-[0.8125rem] text-gray-500 dark:text-gray-400 bg-gray-50/70 dark:bg-gray-800/50 px-4 py-3 rounded-xl border border-gray-100 dark:border-gray-700/50 leading-relaxed">
-                  <span className="font-medium text-gray-600 dark:text-gray-300 block mb-0.5">Penjelasan</span>
-                  {current.explanation}
+                <div className="bg-amber-50/70 dark:bg-amber-900/10 border border-amber-200/60 dark:border-amber-700/30 px-4 py-3.5 rounded-xl leading-relaxed">
+                  <span className="font-semibold text-amber-700 dark:text-amber-400 text-[0.8125rem] uppercase tracking-[0.04em] block mb-1.5">
+                    Pembahasan
+                  </span>
+                  <p className="text-[0.875rem] text-gray-600 dark:text-gray-300">
+                    {current.explanation}
+                  </p>
                 </div>
               )}
             </CardContent>
