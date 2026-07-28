@@ -1,5 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { PaperPlaneTilt, Robot, User, Sparkle, BookOpen, WarningCircle, ArrowsClockwise } from '@phosphor-icons/react';
+import {
+  PaperPlaneTilt, Robot, User, Sparkle, BookOpen,
+  WarningCircle, ArrowsClockwise, Clock, Copy, Check,
+} from '@phosphor-icons/react';
 import { sendChatMessage } from '../services/chat';
 import { sanitize } from '../utils/sanitize';
 import { createRateLimit } from '../utils/rateLimit';
@@ -13,12 +16,72 @@ const modes = [
   { id: 'grammar', label: 'Koreksi Grammar', icon: BookOpen, desc: 'Kirim kalimat untuk dikoreksi' },
 ];
 
+function formatTime(date) {
+  return new Date(date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+}
+
+function MessageBubble({ msg, onCopy }) {
+  const [copied, setCopied] = useState(false);
+  const isUser = msg.role === 'user';
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(msg.content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className={`flex gap-3 ${isUser ? 'justify-end' : ''}`}>
+      {!isUser && (
+        <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shrink-0 mt-1 shadow-sm">
+          <Robot className="w-4.5 h-4.5 text-white" weight="fill" />
+        </div>
+      )}
+      <div className={`max-w-[80%] ${isUser ? 'order-1' : ''}`}>
+        <div
+          className={`rounded-2xl px-4 py-3 text-[0.9375rem] leading-relaxed ${
+            isUser
+              ? 'bg-primary-600 text-white rounded-br-md shadow-sm'
+              : 'bg-gray-100 dark:bg-gray-700/80 text-gray-900 dark:text-gray-100 rounded-bl-md'
+          }`}
+        >
+          <p className="whitespace-pre-wrap">{msg.content}</p>
+        </div>
+        <div className={`flex items-center gap-2 mt-1 ${isUser ? 'justify-end' : ''}`}>
+          <span className="text-[0.6875rem] text-gray-400 dark:text-gray-500 flex items-center gap-1">
+            <Clock className="w-3 h-3" />
+            {formatTime(msg.timestamp)}
+          </span>
+          {!isUser && (
+            <button
+              onClick={handleCopy}
+              className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              title="Salin pesan"
+            >
+              {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
+            </button>
+          )}
+        </div>
+      </div>
+      {isUser && (
+        <div className="w-9 h-9 rounded-2xl bg-gray-200 dark:bg-gray-600 flex items-center justify-center shrink-0 mt-1 order-2">
+          <User className="w-4.5 h-4.5 text-gray-600 dark:text-gray-300" />
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Chat() {
   const [mode, setMode] = useState('chat');
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: mode === 'chat'
-      ? 'Halo! Aku Mr Ole. Tanya apa saja tentang bahasa Inggris ya!'
-      : 'Halo! Kirim kalimat bahasa Inggrismu, aku akan periksa grammar-nya.' },
+    {
+      role: 'assistant',
+      content: mode === 'chat'
+        ? 'Halo! Aku Mr Ole. Tanya apa saja tentang bahasa Inggris ya!'
+        : 'Halo! Kirim kalimat bahasa Inggrismu, aku akan periksa grammar-nya.',
+      timestamp: new Date(),
+    },
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -34,9 +97,13 @@ export default function Chat() {
     if (newMode === mode) return;
     setMode(newMode);
     setMessages([
-      { role: 'assistant', content: newMode === 'chat'
-        ? 'Halo! Aku Mr Ole. Tanya apa saja tentang bahasa Inggris ya!'
-        : 'Halo! Kirim kalimat bahasa Inggrismu, aku akan periksa grammar-nya.' },
+      {
+        role: 'assistant',
+        content: newMode === 'chat'
+          ? 'Halo! Aku Mr Ole. Tanya apa saja tentang bahasa Inggris ya!'
+          : 'Halo! Kirim kalimat bahasa Inggrismu, aku akan periksa grammar-nya.',
+        timestamp: new Date(),
+      },
     ]);
     setError(null);
     setFailedMessage(null);
@@ -59,7 +126,7 @@ export default function Chat() {
       return;
     }
 
-    const userMsg = { role: 'user', content: text };
+    const userMsg = { role: 'user', content: text, timestamp: new Date() };
     const updated = [...messages, userMsg];
     setMessages(updated);
     setInput('');
@@ -70,12 +137,12 @@ export default function Chat() {
     try {
       const history = updated.slice(-10).map((m) => ({ role: m.role, content: m.content }));
       const reply = await sendChatMessage(text, mode, history);
-      setMessages((prev) => [...prev, { role: 'assistant', content: sanitize(reply) }]);
+      setMessages((prev) => [...prev, { role: 'assistant', content: sanitize(reply), timestamp: new Date() }]);
     } catch (err) {
       const hint = getErrorHint(err.message);
       setError(hint);
       setFailedMessage(text);
-      setMessages((prev) => [...prev, { role: 'assistant', content: 'Maaf, ' + hint.toLowerCase() }]);
+      setMessages((prev) => [...prev, { role: 'assistant', content: 'Maaf, ' + hint.toLowerCase(), timestamp: new Date() }]);
     } finally {
       setLoading(false);
     }
@@ -92,9 +159,13 @@ export default function Chat() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">AI Chat</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">Tanya soal bahasa Inggris atau koreksi grammar.</p>
+      <div className="space-y-1">
+        <h1 className="text-[1.75rem] font-semibold text-gray-900 dark:text-gray-100 tracking-tight">
+          AI Chat
+        </h1>
+        <p className="text-[0.9375rem] text-gray-500 dark:text-gray-400 leading-relaxed">
+          Tanya soal bahasa Inggris atau koreksi grammar.
+        </p>
       </div>
 
       <div className="flex gap-2">
@@ -105,10 +176,10 @@ export default function Chat() {
             <button
               key={m.id}
               onClick={() => switchMode(m.id)}
-              className={`flex-1 flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all min-h-[44px] ${
+              className={`flex-1 flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 min-h-[48px] ${
                 active
-                  ? 'bg-primary-600 text-white shadow-md'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  ? 'bg-primary-500 text-white shadow-clay scale-[1.02]'
+                  : 'bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -118,40 +189,20 @@ export default function Chat() {
         })}
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
         <CardContent className="p-0">
-          <div className="max-h-[400px] h-[50vh] overflow-y-auto p-4 space-y-4">
+          <div className="max-h-[450px] h-[50vh] overflow-y-auto p-4 space-y-4">
             {messages.map((msg, i) => (
-              <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
-                {msg.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center shrink-0 mt-1">
-                    <Robot className="w-4 h-4 text-primary-600" />
-                  </div>
-                )}
-                <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                    msg.role === 'user'
-                      ? 'bg-primary-600 text-white rounded-br-md'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-bl-md'
-                  }`}
-                >
-                  <p className="whitespace-pre-wrap">{msg.content}</p>
-                </div>
-                {msg.role === 'user' && (
-                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center shrink-0 mt-1">
-                    <User className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-                  </div>
-                )}
-              </div>
+              <MessageBubble key={i} msg={msg} />
             ))}
 
             {loading && (
               <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center shrink-0">
-                  <Robot className="w-4 h-4 text-primary-600" />
+                <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shrink-0 shadow-sm">
+                  <Robot className="w-4.5 h-4.5 text-white" weight="fill" />
                 </div>
-                <div className="bg-gray-100 dark:bg-gray-700 rounded-2xl rounded-bl-md px-4 py-3">
-                  <div className="flex gap-1">
+                <div className="bg-gray-100 dark:bg-gray-700/80 rounded-2xl rounded-bl-md px-4 py-3">
+                  <div className="flex gap-1.5">
                     <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0ms]" />
                     <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:150ms]" />
                     <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:300ms]" />
@@ -161,7 +212,7 @@ export default function Chat() {
             )}
 
             {error && (
-              <div className="flex items-center justify-between gap-2 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 text-sm">
+              <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm">
                 <div className="flex items-center gap-2">
                   <WarningCircle className="w-4 h-4 shrink-0" />
                   <span>{error}</span>
@@ -169,7 +220,7 @@ export default function Chat() {
                 {failedMessage && (
                   <button
                     onClick={() => handleSend(failedMessage)}
-                    className="flex items-center gap-1 px-2 py-1 rounded bg-red-100 dark:bg-red-800/40 hover:bg-red-200 dark:hover:bg-red-800/60 transition-colors text-xs font-medium shrink-0"
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-red-100 dark:bg-red-800/40 hover:bg-red-200 dark:hover:bg-red-800/60 transition-colors text-xs font-medium shrink-0"
                   >
                     <ArrowsClockwise className="w-3 h-3" /> Coba Lagi
                   </button>
@@ -180,7 +231,7 @@ export default function Chat() {
             <div ref={bottomRef} />
           </div>
 
-          <div className="border-t border-gray-200 dark:border-gray-700 p-4">
+          <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-gray-50/50 dark:bg-gray-800/50">
             <div className="flex gap-2">
               <input
                 type="text"
@@ -189,12 +240,20 @@ export default function Chat() {
                 onKeyDown={handleKeyDown}
                 placeholder={mode === 'grammar' ? 'Ketik kalimat bahasa Inggris...' : 'Tanya sesuatu...'}
                 disabled={loading}
-                className="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 disabled:opacity-50"
+                className="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-primary-400 focus:ring-2 focus:ring-primary-200/50 disabled:opacity-50 transition-all duration-200"
               />
-              <Button onClick={handleSendClick} disabled={loading || !input.trim()} aria-label="Kirim pesan">
-                <PaperPlaneTilt className="w-4 h-4" />
+              <Button
+                onClick={handleSendClick}
+                disabled={loading || !input.trim()}
+                className="px-4 py-3 rounded-xl"
+                aria-label="Kirim pesan"
+              >
+                <PaperPlaneTilt className="w-4 h-4" weight="fill" />
               </Button>
             </div>
+            <p className="mt-2 text-[0.6875rem] text-gray-400 dark:text-gray-500 text-center">
+              Tekan Enter untuk mengirim
+            </p>
           </div>
         </CardContent>
       </Card>
