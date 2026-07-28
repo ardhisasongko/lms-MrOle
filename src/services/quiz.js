@@ -1,5 +1,21 @@
 import { supabase } from './supabase';
 
+export async function getLastScores(userId) {
+  const { data, error } = await supabase
+    .from('quiz_attempts')
+    .select('category_id, difficulty, score, completed_at')
+    .eq('user_id', userId)
+    .order('completed_at', { ascending: false });
+  if (error) throw error;
+  // Only the latest attempt per category+difficulty
+  const latest = {};
+  for (const a of data || []) {
+    const key = `${a.category_id}:${a.difficulty}`;
+    if (!latest[key]) latest[key] = { score: a.score, completedAt: a.completed_at };
+  }
+  return latest;
+}
+
 export async function submitQuiz({ userId, categoryId, difficulty, questions, answers }) {
   const pAnswers = questions.map((q) => ({
     question_id: q.id,

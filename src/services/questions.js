@@ -29,6 +29,20 @@ export async function createQuestion(payload) {
   return data;
 }
 
+export async function getQuestionCountsByCategory() {
+  const { data, error } = await supabase
+    .from('questions')
+    .select('category_id, difficulty');
+  if (error) throw error;
+  // Aggregate client-side into { "uuid:easy": 7, "uuid:medium": 7, ... }
+  const counts = {};
+  for (const q of data || []) {
+    const key = `${q.category_id}:${q.difficulty}`;
+    counts[key] = (counts[key] || 0) + 1;
+  }
+  return counts;
+}
+
 export async function updateQuestion(id, payload) {
   const { error } = await supabase
     .from('questions')
