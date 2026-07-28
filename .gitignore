@@ -12,3 +12,9 @@ dist
 skills-lock.json
 audit/
 *SESSION-NOTES*
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
