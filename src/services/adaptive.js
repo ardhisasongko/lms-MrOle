@@ -75,9 +75,8 @@ export async function getAdaptiveOverview(userId) {
     .eq('user_id', userId)
     .order('completed_at', { ascending: false });
   if (error) throw error;
-
   const categoryMap = {};
-  for (const a of data || []) {
+  for (const a of data) {
     const catName = a.categories?.name || 'Unknown';
     if (!categoryMap[catName]) categoryMap[catName] = {};
     if (!categoryMap[catName][a.difficulty]) categoryMap[catName][a.difficulty] = [];

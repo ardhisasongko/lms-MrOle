@@ -59,6 +59,9 @@ export async function getStatsCounts() {
     supabase.from('categories').select('*', { count: 'exact', head: true }),
     supabase.from('quiz_attempts').select('*', { count: 'exact', head: true }),
   ]);
+  for (const res of [usersRes, questionsRes, categoriesRes, attemptsRes]) {
+    if (res.error) throw res.error;
+  }
   return {
     users: usersRes.count || 0,
     questions: questionsRes.count || 0,
