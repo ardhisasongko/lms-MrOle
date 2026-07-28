@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate, Navigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, CheckCircle, DotsThree } from '@phosphor-icons/react';
+import {
+  ArrowLeft, ArrowRight, CheckCircle, Clock, GridFour,
+} from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
 import Button from '../components/common/Button';
 import { useQuestions } from '../hooks/useQuestions';
@@ -9,6 +11,12 @@ import Skeleton from '../components/common/Skeleton';
 import ErrorState from '../components/feedback/ErrorState';
 import EmptyState from '../components/feedback/EmptyState';
 import toast from 'react-hot-toast';
+
+function formatTimer(seconds) {
+  const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+  const s = String(seconds % 60).padStart(2, '0');
+  return `${m}:${s}`;
+}
 
 export default function Quiz() {
   const { categoryId } = useParams();
@@ -20,6 +28,51 @@ export default function Quiz() {
   const { submitQuiz, submitting } = useQuiz();
   const [answers, setAnswers] = useState({});
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [elapsed, setElapsed] = useState(0);
+  const [showNavigator, setShowNavigator] = useState(false);
+  const [confirmSubmit, setConfirmSubmit] = useState(false);
+  const timerRef = useRef(null);
+  const quizStartRef = useRef(Date.now());
+
+  // Timer
+  useEffect(() => {
+    timerRef.current = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - quizStartRef.current) / 1000));
+    }, 1000);
+    return () => clearInterval(timerRef.current);
+  }, []);
+
+  const stopTimer = useCallback(() => {
+    clearInterval(timerRef.current);
+  }, []);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.target.tagName === 'INPUT') return;
+      const q = questions[currentIndex];
+      if (!q) return;
+
+      // 1/2/3/4 for multiple choice
+      if (q.type === 'multiple_choice' && q.options) {
+        const opts = Array.isArray(q.options) ? q.options : q.options.options;
+        const num = parseInt(e.key);
+        if (num >= 1 && num <= opts.length) {
+          e.preventDefault();
+          handleAnswer(q.id, opts[num - 1].label);
+          return;
+        }
+      }
+
+      // Enter to continue (if answer exists)
+      if (e.key === 'Enter' && answers[q.id]) {
+        e.preventDefault();
+        handleNext();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [currentIndex, questions, answers]);
 
   if (!difficulty) return <Navigate to="/practice" replace />;
 
@@ -40,6 +93,7 @@ export default function Quiz() {
 
   const goToQuestion = (idx) => {
     setCurrentIndex(idx);
+    setShowNavigator(false);
   };
 
   const handleNext = () => {
@@ -48,7 +102,7 @@ export default function Quiz() {
       return;
     }
     if (isLast) {
-      handleSubmit();
+      setConfirmSubmit(true);
     } else {
       setCurrentIndex((i) => i + 1);
     }
@@ -63,8 +117,10 @@ export default function Quiz() {
     const unanswered = questions.filter((q) => !answers[q.id]);
     if (unanswered.length > 0) {
       toast.error(`Masih ada ${unanswered.length} soal belum dijawab`);
+      setConfirmSubmit(false);
       return;
     }
+    stopTimer();
     try {
       const result = await submitQuiz({
         categoryId,
@@ -75,6 +131,8 @@ export default function Quiz() {
       navigate(`/practice/${result.attemptId}/result`, { state: result });
     } catch (err) {
       toast.error(err.message || 'Gagal mengirim jawaban');
+    } finally {
+      setConfirmSubmit(false);
     }
   };
 
@@ -109,6 +167,7 @@ export default function Quiz() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-5">
+      {/* Header: Progress + Timer + Navigator */}
       <div className="space-y-2">
         <div className="relative w-full h-2.5 bg-primary-100/60 dark:bg-gray-700/50 rounded-full overflow-hidden">
           <div
@@ -121,16 +180,72 @@ export default function Quiz() {
             Soal {currentIndex + 1}
             <span className="text-gray-300 dark:text-gray-600"> dari {questions.length}</span>
           </span>
-          <span className="text-gray-400 dark:text-gray-500 tabular-nums">
-            {answeredCount}/{questions.length} terjawab
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center gap-1 text-gray-400 dark:text-gray-500 tabular-nums">
+              <Clock className="w-3.5 h-3.5" weight="regular" />
+              {formatTimer(elapsed)}
+            </span>
+            <span className="text-gray-400 dark:text-gray-500 tabular-nums">
+              {answeredCount}/{questions.length}
+            </span>
+            <button
+              onClick={() => setShowNavigator((v) => !v)}
+              className="p-1 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+              aria-label="Daftar Soal"
+            >
+              <GridFour className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
+      {/* Navigator Grid */}
       <div
-        className="transition-all duration-400 ease-spring"
-        key={current.id}
+        className={`
+          grid transition-all duration-300 ease-spring overflow-hidden
+          ${showNavigator ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}
+        `.trim()}
       >
+        <div className="overflow-hidden min-h-0">
+          <Card hover={false}>
+            <CardContent className="py-4">
+              <div className="flex flex-wrap gap-2">
+                {questions.map((q, idx) => {
+                  const isCurrent = idx === currentIndex;
+                  const isAnswered = !!answers[q.id];
+                  return (
+                    <button
+                      key={q.id}
+                      onClick={() => goToQuestion(idx)}
+                      className={`
+                        w-9 h-9 rounded-lg text-sm font-medium
+                        transition-all duration-200 ease-spring
+                        ${isCurrent
+                          ? 'bg-primary-500 text-white shadow-clay scale-110 ring-2 ring-primary-300'
+                          : isAnswered
+                            ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                        }
+                      `.trim()}
+                      aria-label={`Lompat ke soal ${idx + 1}`}
+                    >
+                      {idx + 1}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-2.5 text-[0.75rem] text-gray-400 dark:text-gray-500">
+                <span className="inline-block w-3 h-3 rounded bg-primary-500 align-middle mr-1" /> Sekarang &middot;
+                <span className="inline-block w-3 h-3 rounded bg-primary-100 dark:bg-primary-900/30 align-middle mx-1" /> Terjawab &middot;
+                <span className="inline-block w-3 h-3 rounded bg-gray-100 dark:bg-gray-700 align-middle mx-1" /> Belum
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Question Card */}
+      <div className="transition-all duration-400 ease-spring" key={current.id}>
         <Card hover={false}>
           <CardContent className="space-y-6">
             <div className="flex items-center justify-between">
@@ -148,7 +263,7 @@ export default function Quiz() {
 
             {current.type === 'multiple_choice' && options ? (
               <div className="space-y-2.5">
-                {options.map((opt) => {
+                {options.map((opt, oi) => {
                   const isSelected = answers[current.id] === opt.label;
                   return (
                     <button
@@ -175,8 +290,15 @@ export default function Quiz() {
                         `.trim()}>
                           {opt.label}
                         </span>
-                        <span className={isSelected ? 'font-medium' : ''}>{opt.text}</span>
+                        <span className={isSelected ? 'font-medium' : ''}>
+                          {opt.text}
+                        </span>
                       </span>
+                      {oi < 9 && (
+                        <span className="ml-2 text-[0.6875rem] text-gray-300 dark:text-gray-600 italic">
+                          ({oi + 1})
+                        </span>
+                      )}
                     </button>
                   );
                 })}
@@ -201,41 +323,11 @@ export default function Quiz() {
               </div>
             )}
 
+            {/* Navigation */}
             <div className="flex items-center justify-between pt-2">
-              <Button
-                variant="ghost"
-                onClick={handlePrev}
-                disabled={isFirst}
-                size="sm"
-              >
+              <Button variant="ghost" onClick={handlePrev} disabled={isFirst} size="sm">
                 <ArrowLeft className="w-4 h-4 mr-1" /> Sebelumnya
               </Button>
-
-              {questions.length > 1 && questions.length <= 12 && (
-                <div className="hidden sm:flex items-center gap-1.5">
-                  {questions.slice(0, 9).map((q, idx) => (
-                    <button
-                      key={q.id}
-                      onClick={() => goToQuestion(idx)}
-                      className={`
-                        w-2.5 h-2.5 rounded-full transition-all duration-300 ease-spring
-                        ${idx === currentIndex
-                          ? 'bg-primary-500 scale-125'
-                          : answers[q.id]
-                            ? 'bg-primary-300 dark:bg-primary-600'
-                            : 'bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500'
-                        }
-                      `.trim()}
-                      aria-label={`Soal ${idx + 1}`}
-                    />
-                  ))}
-                  {questions.length > 9 && (
-                    <span className="text-gray-300 dark:text-gray-600 ml-0.5">
-                      <DotsThree className="w-4 h-4" />
-                    </span>
-                  )}
-                </div>
-              )}
 
               <Button onClick={handleNext} loading={submitting && isLast} size="sm">
                 {isLast ? (
@@ -248,6 +340,33 @@ export default function Quiz() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Confirm Submit Overlay */}
+      {confirmSubmit && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 dark:bg-black/40 backdrop-blur-sm">
+          <Card className="max-w-sm w-full mx-4">
+            <CardContent className="text-center space-y-4 py-6">
+              <div className="w-12 h-12 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mx-auto">
+                <CheckCircle className="w-6 h-6 text-primary-600 dark:text-primary-300" weight="fill" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Selesai Mengerjakan?</h3>
+                <p className="text-sm text-gray-400 dark:text-gray-500">
+                  {answeredCount}/{questions.length} soal terjawab &middot; Waktu: {formatTimer(elapsed)}
+                </p>
+              </div>
+              <div className="flex gap-3 justify-center">
+                <Button variant="outline" onClick={() => setConfirmSubmit(false)}>
+                  Lanjutkan
+                </Button>
+                <Button onClick={handleSubmit} loading={submitting}>
+                  Ya, Kumpulkan
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
