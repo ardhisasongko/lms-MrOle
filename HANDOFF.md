@@ -3,130 +3,106 @@
 ## Status Terakhir
 - Branch: main (up to date with origin)
 - Build: ✅ passes
-- Tests: ✅ 3/3 pass
-- Lint: ✅ 0 errors
-- Commit terakhir: `5035f4b` (quiz crash fix)
+- Working tree: clean
 
-## Yang Sudah Dikerjakan
+## Ringkasan Sesi — 28 Juli 2026
 
-### 1. Codebase Audit
-- Build check, test check, lint check - semua pass
-- Verifikasi 61 source file, semua import resolved
+Redesign total bagian **Practice → Quiz → QuizResult** dengan design system soft structuralism, spring easing, dan 17+ fitur tambahan.
 
-### 2. Bug Fixes
-- Font mismatch: `tailwind.config.js` Geist → Inter
-- CSP blocking Google Fonts di `index.html`
-- ESLint warning: `QuizResult.jsx` useEffect dependency
-- Unused imports dihapus dari `History.jsx` dan `admin/Users.jsx`
-- Dead exports dihapus dari `useQuestions.js` dan `useCategories.js`
+### Commit Terbaru (3 baru dari sesi ini)
 
-### 3. AI Chat Fix
-- Commit `1b37c09`: Hapus unused code
-- Commit `c2da63a`: Restore API path `/api/chat`
-- Commit `9b451d1`: Relative path + Vite proxy untuk localhost
-- Chat verified working (online + localhost)
+```
+6e59193 feat: add auto-save, bookmark, randomize, fullscreen, review, retry, share, analytics
+52940b3 feat: add search filter, question count badges, and last score to Practice
+0062161 feat: add getQuestionCountsByCategory() and getLastScores() services
+```
 
-### 4. Git Cleanup
-- Commit `2eb4f61`: Update .gitignore
-- Commit `ec04da0`: Untrack .omo/ dan session files
-- .gitignore sekarang exclude: `.omo/`, `.agents/`, `.claude/`, `.playwright-mcp/`, `audit/`, `skills-lock.json`
+Sebelumnya (sesi lalu):
+```
+a0ceb38 feat: show all MCQ options and structured pembahasan in QuizResult
+264200f feat: add timer, question navigator, confirm dialog, keyboard shortcuts to Quiz
+5197cfd fix: polish Practice card expand and QuizResult filter/pagination
+365cae5 redesign: upgrade practice section UI with design tokens, spring motion, and improved states
+```
 
-### 5. PRD School Management System
-- File: `PRD-SCHOOL-MANAGEMENT.md`
-- Spec lengkap: DB schema, exam architecture, anti-cheat, scalability
-- MVP scope: 21-30 hari
-- User pilih: TypeScript fresh start (bukan migrate dari LMS)
+### Status Halaman
 
-### 6. Mobile Responsive Fixes
-- Commit `d7326b6`
-- Fix 5 issues:
-  - `Landing.jsx`: CTA button padding responsive
-  - `Landing.jsx`: Hero padding responsive
-  - `CrudTable.jsx`: Header flex wrap on mobile
-  - `History.jsx`: Card flex wrap on mobile
-  - `Chat.jsx`: Touch target min-h-[44px]
+#### ✅ Practice.jsx — `src/pages/Practice.jsx`
+- [x] Grid kategori dengan ikon
+- [x] Card Expand — difficulty buttons di dalam card terpilih (grid-rows transition)
+- [x] Search bar filter kategori (client-side)
+- [x] Jumlah soal per difficulty
+- [x] Nilai terakhir per kategori (⭐ amber badge)
+- [x] Spring easing + stagger delay grid
+- [x] Loading/Error/Empty states
 
-### 7. 9 Audit Bugs Fix
-- Commit `828ec15`
-- Leaderboard, Quiz, format, useEffect cleanup, Users search
+#### ✅ Quiz.jsx — `src/pages/Quiz.jsx`
+- [x] Progress bar (design tokens)
+- [x] Timer (setInterval, MM:SS)
+- [x] Navigator Grid (toggleable, color-coded)
+- [x] **Auto-save localStorage** — restore on mount, clear on submit
+- [x] **Bookmark/flag** — toggle, mini icon di navigator
+- [x] **Randomize opsi MCQ** — Fisher-Yates shuffle, stable per question
+- [x] **Fullscreen toggle** — Fullscreen API (ArrowsOut/ArrowsIn)
+- [x] **Review sebelum submit** — scrollable list semua soal + status
+- [x] Confirm submit dialog (modal overlay)
+- [x] Keyboard shortcuts (1/2/3/4, Enter)
+- [x] MCQ option buttons + label shortcut
+- [x] Isian/essay input
+- [x] **Dukungan retry mode** — load dari location.state
+- [x] Loading/Error/Empty states
 
-### 8. React 19 Simplification
-- Commit `5e7b0f5`
-- Remove redundant cancelled flag in `useQuestions.js`
+#### ✅ QuizResult.jsx — `src/pages/QuizResult.jsx`
+- [x] SVG score ring + grade icon (Trophy/TrendUp/Smiley)
+- [x] Mini stats bar (correct/wrong + timer)
+- [x] **Analitik per tipe soal** (Pilihan Ganda / Isian)
+- [x] Filter tabs [Semua/Benar/Salah]
+- [x] Pagination 1-per-1 (prev/next + dots)
+- [x] Semua opsi MCQ + highlight (hijau=benar, merah=salah)
+- [x] **Pembahasan** panel amber
+- [x] Status badges
+- [x] **Coba ulang soal salah** → navigate ke `/practice/retry`
+- [x] **Bagikan hasil** — Web Share API + clipboard fallback
+- [x] PDF export (html2canvas + jsPDF)
+- [x] Empty filter state, loading state
 
-### 9. 126 English Quiz Questions
-- Commit `967829d`
-- Full seed: `supabase/seed/english-questions.sql`
-- Fixed UUID type mismatch, English category descriptions
+#### ✅ Services
+- `getQuestionCountsByCategory()` — `src/services/questions.js`
+- `getLastScores(userId)` — `src/services/quiz.js`
 
-### 10. Quiz Crash Fix
-- Commit `5035f4b`
-- **Bug**: Seed SQL stored options as `{"options": [...]}` (wrapped object), but Quiz.jsx expected `[...]` (direct array)
-- **Fix 1**: Quiz.jsx normalized options defensively (handles both formats)
-- **Fix 2**: Seed SQL corrected to direct array format
-- **Fix 3**: Migration created for existing DB data
+### Arsitektur Route
+```
+/practice                              → Practice.jsx
+/practice/:categoryId?difficulty=X     → Quiz.jsx (normal)
+/practice/retry                        → Quiz.jsx (retry from location.state)
+/practice/:attemptId/result            → QuizResult.jsx
+```
 
-## Keputusan yang Dibuat
+### Retry Flow
+1. QuizResult → klik "Coba Lagi Soal Salah"
+2. Navigate ke `/practice/retry` dengan `{ retryQuestions, retryMeta }`
+3. Quiz.jsx skip fetching, langsung tampilkan soal retry
+4. Submit pakai categoryId/difficulty dari retryMeta
 
-1. **LMS tetap JavaScript** - ini versi 1
-2. **School Management System (SMS)** - akan dibuat baru di TypeScript
-3. **Stack**: React 19, Tailwind 3.4, Supabase, Cloudflare Pages
-4. **Mobile-first design** dengan responsive breakpoints
-5. **Ponytail mode**: full (YAGNI, stdlib-first, minimal code)
+### Design System
+- **Style**: Soft structuralism, clay shadows, spring easing
+- **Warna**: Primary=pink, CTA=green, Secondary=blue (Tailwind)
+- **Font**: Inter (sengaja dipertahankan)
+- **Komponen**: Card (double-bezel), Button (5 varian), Skeleton, ErrorState, EmptyState
 
-## File Penting
+### Technical Notes
+- **Subagent gagal**: `opencode/gpt-5-nano` tidak tersedia. Override model di `opencode.json` perlu restart opencode.
+- **CRLF warnings**: LF→CRLF conversion, tidak pengaruh fungsi.
+- **No TypeScript**: File `.jsx`, user declined LSP ts-server.
 
-| File | Keterangan |
-|------|------------|
-| `PRD-SCHOOL-MANAGEMENT.md` | PRD lengkap untuk SMS |
-| `src/pages/Landing.jsx` | Landing page |
-| `src/pages/Chat.jsx` | AI chat dengan grammar mode |
-| `src/pages/Dashboard.jsx` | Dashboard user |
-| `src/pages/Practice.jsx` | Pilih kategori dan difficulty |
-| `src/pages/Quiz.jsx` | Interface mengerjakan quiz (**updated** - options normalization) |
-| `src/pages/QuizResult.jsx` | Hasil quiz setelah submit |
-| `src/pages/History.jsx` | Riwayat latihan |
-| `src/components/common/CrudTable.jsx` | Komponen CRUD reusable |
-| `src/components/layout/DashboardLayout.jsx` | Layout sidebar + mobile header |
-| `src/components/navigation/Navbar.jsx` | Navigasi atas |
-| `src/hooks/useQuiz.js` | Quiz submission hook |
-| `src/hooks/useQuestions.js` | Fetch questions hook |
-| `src/services/quiz.js` | Quiz API service |
-| `supabase/FULL_SCHEMA.sql` | Full DB schema + submit_quiz function |
-| `supabase/seed/english-questions.sql` | 126 English questions (**updated** - fixed options format) |
-| `supabase/migrations/20250727_fix_options_format.sql` | DB migration to fix options format |
+### Belum Dieksekusi (butuh backend/desain)
+- Streak harian
+- Kesulitan adaptif
+- Leaderboard polish (halaman sudah ada)
+- Halaman kumpulan bookmark
 
-## Environment
-
-- Dev server: `http://localhost:5173/`
-- Vite proxy: `/api` → `https://lmsmrole.ardhisasongko69.workers.dev`
-- Cloudflare Pages: auto-deploy on push
-- Git remote: `https://github.com/ardhisasongko/lms-MrOle.git`
-- Supabase URL: `https://agtchlndnwircawmdaom.supabase.co`
-- Admin account: `ardhisasongko71@gmail.com`
-
-## Known Issues
-
-### Librarian Agent Model Error
-- Error: `ProviderModelNotFoundError: Model not found: opencode/gpt-5-nano`
-- Fix: Added agent override in `opencode.json`
-- **IMPORTANT**: Config changes require **restart opencode** to take effect
-
-## Pending Tasks
-
-1. **Run DB Migration**: Execute `supabase/migrations/20250727_fix_options_format.sql` in Supabase SQL Editor to fix existing 126 questions with wrapped options format
-2. **SMS Build**: User decided to build School Management System separately in TypeScript
-
-## Cara Melanjutkan
-
-1. Buka terminal baru
-2. Navigate ke project: `cd "C:\Users\Lenovo\OneDrive\Desktop\lms-MrOle"`
-3. Copy paste isi HANDOFF.md ini sebagai context
-4. Minta agent: "Continue from this context. [task yang mau dikerjakan]"
-
-## User Preferences
-
-- Komunikasi: Bahasa Indonesia, singkat
-- Response: langsung ke inti, tidak bertele-tele
-- Commit: hanya atas permintaan user explicit
-- SMS: user pilih "nanti saja" untuk mulai build
+### Todo Sesi Depan
+1. Halaman review bookmark
+2. Adaptive difficulty
+3. Streak tracking
+4. Perbaiki bagian lain (Chat, History, Dashboard, Admin)
