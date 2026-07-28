@@ -1,167 +1,86 @@
-# HANDOFF - LMS Mr Ole Project
+HANDOFF CONTEXT
+===============
 
-## Status Terakhir
-- Branch: main (11 ahead of origin/main — unpushe
-- Build: ✅ passes
-- Working tree: clean
+USER REQUESTS (AS-IS)
+---------------------
+- "mari kita mulai dari file bernama handoff"
+- "kita sudah membuat halaman dashboard untuk admin di lms mrole, tetapi belum ada history nya di admin. buatkan log aktivitas admin yang mencatat aktivitas admin semisal menghapus user , menambah soal , mengubah kategori , dan lain nya, dan muncul di dashboard admin"
+- "analisis architecture aplikasi lms mrole, cari celah untuk improvement, buatkan laporan visual html"
+- "lanjut ke candidate #2"
+- "sblm lanjut ke candidate #3, saya mau make sure selesai , kamu bilagn akses ke supabase langsung dari komponen , maksudnay gmana ?"
+- "iya, kalo bisa di rubah menjadi langssung, kalo btuh install ga apa2, supaya lebih otomatis"
+- "install supabase CLI"
+- "rangkum semua kerjaan kita skrang, agar bisa di lanjutkan di sesi berikutnya"
+- "apakah sudah di rangkum dan di tuli di file handoff"
 
-## Ringkasan Sesi 2 — 28 Juli 2026 (Lanjutan)
+GOAL
+----
+Connect Supabase CLI to the remote project and run migrations/seed, then proceed with Candidate #3 (Code Quality Patterns) and remaining architecture improvements.
 
-Implementasi 4 item pending dari HANDOFF sesi sebelumnya: **Bookmark Review Page**, **Adaptive Difficulty**, **Streak Tracking Frontend**, dan **Perbaikan UI (Dashboard, History, Chat, Admin Panel)**.
+WORK COMPLETED
+--------------
+- Created admin activity log system with RLS-protected admin_logs table (migration 007), Supabase trigger logging INSERT/UPDATE/DELETE on admin-managed tables, and display on admin dashboard
+- Ran full architecture review using /improve-codebase-architecture — identified 5 improvement candidates (Component Optimization, Data Access Layer, Code Quality Patterns, State Management, Performance)
+- Completed Candidate #2 (Data Access Layer) — created service seam between pages/hooks and Supabase
+- Created new service files: services/auth.js, services/streaks.js, services/storage.js
+- Extended existing services: services/users.js (added getProfile, upsertProfile, getLeaderboard, getAdminActivityLog), services/quiz.js (added getAttempts, getAttemptDetails, getRecentAttempts)
+- Refactored 5 pages to use services instead of direct supabase calls: Profile.jsx, ForgotPassword.jsx, ResetPassword.jsx, admin/Dashboard.jsx, QuizResult.jsx
+- Refactored 4 hooks to use services: useHistory.js, useStreak.js, useProgress.js, useLeaderboard.js
+- Added automated enforcement: ESLint no-restricted-imports rule for pages/hooks + build check script (scripts/check-service-seam.mjs) + build:check npm command
+- Installed Supabase CLI v2.110.0 globally, ran supabase init
+- Fixed seed paths in supabase/config.toml (from ./seed.sql to ./seed/seed.sql and ./seed/english-questions.sql)
+- Created auth token file at %APPDATA%\supabase\auth-token (empty, needs token)
 
-### Commit Terbaru (9 baru dari sesi ini)
+CURRENT STATE
+-------------
+- Working tree has uncommitted changes: all service refactoring + enforcement + supabase config
+- No commits made for this round of changes yet
+- Build passes clean
+- Zero direct supabase.from/rpc/auth calls in pages or hooks
+- ESLint reports 1 pre-existing error (conditional useMemo in Quiz.jsx) and 2 pre-existing warnings
+- Supabase CLI installed but NOT yet linked to the remote project
 
-```
-65e355f feat: enhance admin dashboard and users page
-f32dfda feat: enhance Chat UI with timestamps, copy button, and styling
-550b905 feat: enhance History page with search, filters, sort, and stats
-a3e10d0 feat: add adaptive difficulty mode to Practice page
-9430b32 feat: add StreakCard component and enhance Dashboard with stats
-7df9cec feat: add bookmark review page with route, nav, and i18n
-b60cf37 feat: add useBookmarks and useStreak hooks
-51b1a48 feat: add bookmark and adaptive difficulty services
-fe069a7 feat: add bookmarks table migration
-```
+PENDING TASKS
+-------------
+- Fill in Supabase access token in %APPDATA%\supabase\auth-token (get from https://supabase.com/dashboard/account/tokens)
+- Provide project ref from Supabase Dashboard > Settings > General > Project Ref
+- Run: supabase link --project-ref <ref> then supabase db push then supabase db seed
+- Commit all uncommitted changes
+- Proceed with Candidate #3 (Code Quality Patterns — consistent error handling, try/catch patterns)
+- Followed by Candidates #1, #4, #5 from architecture review
 
-Sebelumnya (sesi 1):
-```
-6e59193 feat: add auto-save, bookmark, randomize, fullscreen, review, retry, share, analytics
-52940b3 feat: add search filter, question count badges, and last score to Practice
-0062161 feat: add getQuestionCountsByCategory() and getLastScores() services
-a0ceb38 feat: show all MCQ options and structured pembahasan in QuizResult
-264200f feat: add timer, question navigator, confirm dialog, keyboard shortcuts to Quiz
-5197cfd fix: polish Practice card expand and QuizResult filter/pagination
-365cae5 redesign: upgrade practice section UI with design tokens, spring motion, and improved states
-```
+KEY FILES
+---------
+- src/services/users.js - User-related services (profile CRUD, leaderboard, admin activity, stats)
+- src/services/quiz.js - Quiz attempt services (getAttempts, getAttemptDetails, getRecentAttempts)
+- src/services/auth.js - Auth services (resetPassword, updatePassword)
+- src/services/storage.js - Storage service (avatar upload)
+- src/services/streaks.js - Streak service (getCurrentStreak, getStreakActivity)
+- eslint.config.js - ESLint config with service seam enforcement for pages/hooks
+- scripts/check-service-seam.mjs - Build-time check for direct supabase usage in pages/hooks
+- supabase/config.toml - Supabase CLI config (initialized, need project ref)
+- supabase/seed/seed.sql - Database seed data (categories, questions)
+- supabase/migrations/ - 8 migration files (001 to 008 + fix migration)
 
-### Status Halaman
+IMPORTANT DECISIONS
+-------------------
+- Data access layer pattern: all pages/hooks must go through services/ only, never directly use supabase client
+- Two-layer enforcement: ESLint (compile-time) + build script (CI-time) to prevent regression
+- Supabase CLI over custom script for DB management — official tool, less maintenance
+- Seed paths fixed in config.toml to point to actual seed files in supabase/seed/ directory
 
-#### ✅ BookmarkReview.jsx — `src/pages/BookmarkReview.jsx` (BARU
-- [x] Grid list semua soal yang dibookmark
-- [x] Filter by difficulty (Mudah/Sedang/Sulit)
-- [x] Search bar (cari soal/kategori)
-- [x] Expand card — lihat soal penuh + opsi + jawaban + pembahasan
-- [x] Remove bookmark (delete)
-- [x] Empty state, loading state, error state
-- [x] BookmarkSimple ikon konsisten dengan design system
+EXPLICIT CONSTRAINTS
+--------------------
+- Ponytail philosophy: minimal code, YAGNI, reuse, stdlib first
+- Service seam: pages and hooks must not import supabase or call supabase.from/rpc/auth directly
+- Type safety: no as any, no @ts-ignore, no @ts-expect-error
+- Bugfix rule: fix minimally, never refactor while fixing
+- Category-domain matching for task delegation
 
-#### ✅ Practice.jsx — `src/pages/Practice.jsx` (DIUPDATE)
-- [x] **Adaptive mode toggle** — MagicWand button
-- [x] Recommended difficulty per kategori (berdasarkan performa)
-- [x] Adaptive mode bypasses manual difficulty picker
-- [x] getRecommendedDifficulty() dipanggil per kategori
-
-#### ✅ Dashboard.jsx — `src/pages/Dashboard.jsx` (DIUPDATE)
-- [x] **StreakCard** — 7-day activity calendar, flame icon, daily status badge
-- [x] Bookmark count stat card
-- [x] Summary stats grid (Total Soal / Rata-rata / Streak / Bookmark)
-- [x] Link ke Practice dari empty state
-
-#### ✅ History.jsx — `src/pages/History.jsx` (DIUPDATE)
-- [x] Stats summary (Total Sesi, Rata-rata, Terbaik, Total Soal)
-- [x] Search bar filter kategori
-- [x] Difficulty filter buttons (Mudah/Sedang/Sulit)
-- [x] Sort toggle (Terbaru / Skor Tertinggi)
-- [x] Gradient score badges
-- [x] Calendar ikon + date
-
-#### ✅ Chat.jsx — `src/pages/Chat.jsx` (DIUPDATE)
-- [x] Message timestamps
-- [x] Copy button untuk pesan AI
-- [x] Gradient avatar bot
-- [x] Improved input area with hint text
-- [x] Animated typing dots
-
-#### ✅ Admin Dashboard — `src/pages/admin/Dashboard.jsx` (DIUPDATE)
-- [x] Quick actions navigation
-- [x] Recent activity log from admin_logs
-- [x] Clickable stat cards (navigasi ke halaman terkait)
-
-#### ✅ Admin Users — `src/pages/admin/Users.jsx` (DIUPDATE)
-- [x] Stats summary (Total / Admin / User)
-- [x] Improved card layout with avatar gradient
-- [x] Better search input styling
-
-#### ✅ DashboardLayout — `src/components/layout/DashboardLayout.jsx`
-- [x] Bookmark link (BookmarkSimple ikon) di sidebar
-
-#### ✅ Services — `src/services/` (BARU
-- `getBookmarksByUser()`, `addBookmark()`, `removeBookmark()`, `isBookmarked()`, `getBookmarkCount()` — `src/services/bookmarks.js`
-- `getRecommendedDifficulty()`, `getPerformanceStats()`, `getAdaptiveOverview()` — `src/services/adaptive.js`
-
-#### ✅ Hooks — `src/hooks/` (BARU
-- `useBookmarks()` — bookmark state management, toggle
-- `useStreak()` — current/longest streak, week activity, today status
-
-#### ✅ Components — `src/components/common/` (BARU
-- `StreakCard.jsx` — flame icon, 7-day grid, current streak, longest streak, total days
-
-### Arsitektur Route
-
-```
-/practice                              → Practice.jsx
-/practice/:categoryId?difficulty=X     → Quiz.jsx (normal)
-/practice/retry                        → Quiz.jsx (retry from location.state)
-/practice/:attemptId/result            → QuizResult.jsx
-/bookmarks                             → BookmarkReview.jsx (BARU
-```
-
-### Database Migration
-
-```sql
-supabase/migrations/008_bookmarks.sql
-- bookmarks table (id, user_id, question_id, created_at)
-- UNIQUE(user_id, question_id)
-- RLS: user CRUD own bookmarks, admin read all
-```
-
-### Retry Flow
-1. QuizResult → klik "Coba Lagi Soal Salah"
-2. Navigate ke `/practice/retry` dengan `{ retryQuestions, retryMeta }`
-3. Quiz.jsx skip fetching, langsung tampilkan soal retry
-4. Submit pakai categoryId/difficulty dari retryMeta
-
-### Adaptive Flow
-1. Practice → toggle Adaptive mode
-2. Service `getRecommendedDifficulty()` hitung berdasarkan avg score per kategori
-   - Avg ≥ 80% → naik level (easy→medium→hard)
-   - Avg < 50% → turun level (hard→medium→easy)
-3. Navigate ke `/practice/:categoryId?difficulty=X&adaptive=true`
-4. (Siap untuk dikembangkan lebih lanjut di Quiz.jsx)
-
-### Streak Tracking
-- **Backend sudah ada**: `learning_streaks` table, `calculate_streak()` function, `submit_quiz()` updates streaks
-- **Frontend baru**: `useStreak` hook + `StreakCard` component
-- Streak dihitung dari `learning_streaks` per user per date
-
-### Design System
-- **Style**: Soft structuralism, clay shadows, spring easing
-- **Warna**: Primary=pink, CTA=green, Secondary=blue (Tailwind)
-- **Font**: Inter
-- **Komponen**: Card, Button (5 varian), Skeleton, ErrorState, EmptyState, Badge, **StreakCard**
-
-### Technical Notes
-- **Subagent gagal**: `opencode/gpt-5-nano` tidak tersedia. Override model di `opencode.json` perlu restart opencode. Semua pengerjaan dilakukan manual.
-- **CRLF warnings**: LF→CRLF conversion, tidak pengaruh fungsi.
-- **No TypeScript**: File `.jsx`, user declined LSP ts-server.
-
-### Sudah Dieksekusi (Sesi 1 + Sesi 2)
-- ✅ Bookmark review page (full CRUD)
-- ✅ Adaptive difficulty (backend + UI toggle + recommendation)
-- ✅ Streak tracking frontend (hook + StreakCard + Dashboard)
-- ✅ Dashboard polish (stats, bookmark count, summary grid)
-- ✅ History polish (search, filters, sort, stats)
-- ✅ Chat polish (timestamps, copy, styling)
-- ✅ Admin panel polish (quick actions, activity log, user stats)
-
-### Belum Dieksekusi (butuh backend/desain/sesi lanjutan)
-- Leaderboard polish (halaman sudah ada)
-- Integrasi adaptive mode di Quiz.jsx (adaptive question selection)
-- Streak rewards / achievement badges
-- Halaman kumpulan bookmark (sudah ada page, bisa ditambah fitur)
-
-### Todo Sesi Depan
-1. Integrasi adaptive mode di Quiz.jsx — pilih soal berdasarkan adaptive difficulty
-2. Leaderboard polish — filter by category, personal rank
-3. Streak rewards / badges system
-4. Fitur hapus bookmark batch (select all → delete selected)
+CONTEXT FOR CONTINUATION
+------------------------
+- Architecture review HTML report was generated and opened in browser (temp file at %TEMP%/architecture-review-*.html) — contains the 5 candidates with screenshots analysis
+- The 5 candidates in priority order: #2 (Done) > #3 (Next) > #1 > #4 > #5
+- For #3: focus on consistent try/catch error handling across services, removing console.error in favor of structured error patterns
+- All new services follow the pattern: async function that takes params, calls supabase, handles error, returns data
+- To continue: fill auth token, provide project ref, run supabase CLI link/push/seed, commit, then start #3

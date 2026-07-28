@@ -1,9 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../services/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useCategories } from './useCategories';
-
-const PAGE_SIZE = 10;
+import { getAttempts, HISTORY_PAGE_SIZE } from '../services/quiz';
 
 export function useHistory() {
   const { user } = useAuth();
@@ -18,22 +16,9 @@ export function useHistory() {
     if (!user) return;
     setLoading(true);
     try {
-      let query = supabase
-        .from('quiz_attempts')
-        .select('id, score, total_questions, correct_answers, difficulty, completed_at, category_id, categories(name)', { count: 'exact' })
-        .eq('user_id', user.id)
-        .order('completed_at', { ascending: false })
-        .range(pageNum * PAGE_SIZE, (pageNum + 1) * PAGE_SIZE - 1);
-
-      if (catFilter) {
-        query = query.eq('category_id', catFilter);
-      }
-
-      const { data, error, count } = await query;
-      if (error) throw error;
-
-      setAttempts(data || []);
-      setHasMore(count > (pageNum + 1) * PAGE_SIZE);
+      const result = await getAttempts(user.id, { page: pageNum, categoryFilter: catFilter });
+      setAttempts(result.data);
+      setHasMore(result.hasMore);
     } catch (err) {
       console.error('Error fetching history:', err);
     } finally {

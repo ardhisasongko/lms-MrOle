@@ -38,3 +38,44 @@ export async function submitQuiz({ userId, categoryId, difficulty, questions, an
     total: data?.[0]?.total,
   };
 }
+
+export const HISTORY_PAGE_SIZE = 10;
+
+export async function getAttempts(userId, { page = 0, categoryFilter = '' } = {}) {
+  let query = supabase
+    .from('quiz_attempts')
+    .select('id, score, total_questions, correct_answers, difficulty, completed_at, category_id, categories(name)', { count: 'exact' })
+    .eq('user_id', userId)
+    .order('completed_at', { ascending: false })
+    .range(page * HISTORY_PAGE_SIZE, (page + 1) * HISTORY_PAGE_SIZE - 1);
+
+  if (categoryFilter) {
+    query = query.eq('category_id', categoryFilter);
+  }
+
+  const { data, error, count } = await query;
+  if (error) throw error;
+
+  return { data: data || [], count: count || 0, hasMore: count > (page + 1) * HISTORY_PAGE_SIZE };
+}
+
+export async function getAttemptDetails(attemptId) {
+  const { data, error } = await supabase
+    .from('quiz_attempts')
+    .select('*, quiz_answers(*, questions(*))')
+    .eq('id', attemptId)
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function getRecentAttempts(userId, limit = 100) {
+  const { data, error } = await supabase
+    .from('quiz_attempts')
+    .select('score, total_questions, completed_at, category_id, categories(name)')
+    .eq('user_id', userId)
+    .order('completed_at', { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return data || [];
+}

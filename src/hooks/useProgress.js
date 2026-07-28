@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { supabase } from '../services/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useAsync } from './useAsync';
+import { getRecentAttempts } from '../services/quiz';
+import { getCurrentStreak } from '../services/streaks';
 
 export function useProgress() {
   const { user } = useAuth();
@@ -17,18 +18,10 @@ export function useProgress() {
   const { loading } = useAsync(async () => {
     if (!user) return;
 
-    const [attemptsRes, streakRes] = await Promise.all([
-      supabase
-        .from('quiz_attempts')
-        .select('score, total_questions, completed_at, category_id, categories(name)')
-        .eq('user_id', user.id)
-        .order('completed_at', { ascending: false })
-        .limit(100),
-      supabase.rpc('calculate_streak', { p_user_id: user.id }),
+    const [attempts, streak] = await Promise.all([
+      getRecentAttempts(user.id),
+      getCurrentStreak(user.id),
     ]);
-
-    const attempts = attemptsRes.data || [];
-    const streak = streakRes.data || 0;
 
     const totalQuestions = attempts.reduce((sum, a) => sum + a.total_questions, 0);
     const avgScore = attempts.length > 0

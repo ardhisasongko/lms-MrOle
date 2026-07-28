@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, LockKey } from '@phosphor-icons/react';
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
-import { supabase } from '../services/supabase';
+import { resetPassword } from '../services/auth';
 import toast from 'react-hot-toast';
 
 export default function ForgotPassword() {
@@ -15,10 +15,7 @@ export default function ForgotPassword() {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-      if (error) throw error;
+      await resetPassword(email);
       setSent(true);
     } catch (err) {
       toast.error(err.message || 'Gagal mengirim email reset password');

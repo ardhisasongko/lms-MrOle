@@ -4,7 +4,8 @@ import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import Skeleton from '../components/common/Skeleton';
 import Card, { CardContent, CardHeader } from '../components/common/Card';
-import { supabase } from '../services/supabase';
+import { getProfile, upsertProfile } from '../services/users';
+import { uploadAvatar } from '../services/storage';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -28,21 +29,15 @@ export default function Profile() {
     let cancelled = false;
     (async () => {
       try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('full_name, avatar_url')
-          .eq('id', user.id)
-          .single();
+        const profile = await getProfile(user.id);
         if (cancelled) return;
-        if (error && error.code !== 'PGRST116') throw error;
-        if (data) {
-          setForm({ fullName: data.full_name || '', avatarUrl: data.avatar_url || '' });
+        if (profile) {
+          setForm({ fullName: profile.full_name || '', avatarUrl: profile.avatar_url || '' });
         } else {
           setForm({ fullName: user.user_metadata?.full_name || user.email?.split('@')[0] || '', avatarUrl: '' });
         }
       } catch (err) {
         if (cancelled) return;
-        console.error('Profile fetch error:', err);
         setForm({ fullName: user.user_metadata?.full_name || user.email?.split('@')[0] || '', avatarUrl: '' });
       } finally {
         if (!cancelled) setFetching(false);
@@ -64,15 +59,7 @@ export default function Profile() {
     }
     setUploading(true);
     try {
-      const ext = file.name.split('.').pop();
-      const filePath = `${user.id}/${Date.now()}.${ext}`;
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file, { upsert: true });
-      if (uploadError) throw uploadError;
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
+      const publicUrl = await uploadAvatar(user.id, file);
       setForm((prev) => ({ ...prev, avatarUrl: publicUrl }));
       toast.success('Foto profil diupload');
     } catch (err) {
@@ -90,13 +77,7 @@ export default function Profile() {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await supabase.from('profiles').upsert({
-        id: user.id,
-        full_name: form.fullName,
-        avatar_url: form.avatarUrl || null,
-        updated_at: new Date().toISOString(),
-      });
-      if (error) throw error;
+      await upsertProfile(user.id, { fullName: form.fullName, avatarUrl: form.avatarUrl });
       toast.success('Profil berhasil diperbarui');
     } catch (err) {
       toast.error(err.message || 'Gagal memperbarui profil');

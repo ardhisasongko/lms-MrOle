@@ -8,7 +8,7 @@ import Card, { CardContent, CardHeader } from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Skeleton from '../../components/common/Skeleton';
 import { getStatsCounts } from '../../services/users';
-import { supabase } from '../../services/supabase';
+import { getAdminActivityLog } from '../../services/users';
 import { useAsync } from '../../hooks/useAsync';
 import toast from 'react-hot-toast';
 
@@ -21,14 +21,10 @@ export default function AdminDashboard() {
     try {
       const [statsData, activityRes] = await Promise.all([
         getStatsCounts(),
-        supabase
-          .from('admin_logs')
-          .select('action, table_name, created_at, profiles(full_name)')
-          .order('created_at', { ascending: false })
-          .limit(10),
+        getAdminActivityLog(),
       ]);
       setStats(statsData);
-      setRecentActivity(activityRes.data || []);
+      setRecentActivity(activityRes);
     } catch {
       toast.error('Gagal memuat statistik.');
       setStats({ users: 0, questions: 0, categories: 0, attempts: 0 });

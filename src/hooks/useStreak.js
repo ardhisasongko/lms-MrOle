@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { supabase } from '../services/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useAsync } from './useAsync';
+import { getCurrentStreak, getStreakActivity } from '../services/streaks';
 
 export function useStreak() {
   const { user } = useAuth();
@@ -16,18 +16,10 @@ export function useStreak() {
   const { loading } = useAsync(async () => {
     if (!user) return;
 
-    const [streakRes, activityRes] = await Promise.all([
-      supabase.rpc('calculate_streak', { p_user_id: user.id }),
-      supabase
-        .from('learning_streaks')
-        .select('date, questions_done')
-        .eq('user_id', user.id)
-        .order('date', { ascending: false })
-        .limit(30),
+    const [currentStreak, activity] = await Promise.all([
+      getCurrentStreak(user.id),
+      getStreakActivity(user.id),
     ]);
-
-    const currentStreak = streakRes.data || 0;
-    const activity = activityRes.data || [];
 
     const today = new Date().toISOString().split('T')[0];
     const todayDone = activity.some((a) => a.date === today);

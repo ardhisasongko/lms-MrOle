@@ -25,4 +25,16 @@ export default [
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
   },
+  // Service seam enforcement: pages/hooks gak boleh akses supabase langsung
+  {
+    files: ['src/pages/**/*.{js,jsx}', 'src/hooks/**/*.{js,jsx}'],
+    rules: {
+      'no-restricted-imports': ['error', {
+        patterns: [{
+          group: ['**/supabase'],
+          message: 'Jangan import supabase langsung dari pages/hooks. Gunakan services layer (services/*).',
+        }],
+      }],
+    },
+  },
 ]

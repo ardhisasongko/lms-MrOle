@@ -9,7 +9,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "lint:service-seam": "node scripts/check-service-seam.mjs",
+    "preview": "vite preview",
+    "build:check": "npm run lint:service-seam && vite build"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

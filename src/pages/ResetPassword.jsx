@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeSlash, CheckCircle, LockKey } from '@phosphor-icons/react';
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
-import { supabase } from '../services/supabase';
+import { updatePassword } from '../services/auth';
 import toast from 'react-hot-toast';
 
 export default function ResetPassword() {
@@ -29,8 +29,7 @@ export default function ResetPassword() {
     }
     setLoading(true);
     try {
-      const { error } = await supabase.auth.updateUser({ password: form.password });
-      if (error) throw error;
+      await updatePassword(form.password);
       setSuccess(true);
       setTimeout(() => navigate('/login'), 3000);
     } catch (err) {

@@ -6,7 +6,7 @@ import {
 } from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
 import Button from '../components/common/Button';
-import { supabase } from '../services/supabase';
+import { getAttemptDetails } from '../services/quiz';
 import { useAsync } from '../hooks/useAsync';
 import Skeleton from '../components/common/Skeleton';
 import { sanitize } from '../utils/sanitize';
@@ -52,11 +52,7 @@ export default function QuizResult() {
 
   const { loading } = useAsync(async () => {
     if (data) return;
-    const { data: attempt } = await supabase
-      .from('quiz_attempts')
-      .select('*, quiz_answers(*, questions(*))')
-      .eq('id', attemptId)
-      .single();
+    const attempt = await getAttemptDetails(attemptId);
     if (attempt) {
       setData({
         score: attempt.score,
