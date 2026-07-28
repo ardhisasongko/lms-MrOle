@@ -2,7 +2,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useState, useRef, useMemo } from 'react';
 import {
   CheckCircle, XCircle, Circle, ArrowLeft, ArrowRight, House, FileArrowDown,
-  Trophy, TrendUp, Smiley, Clock,
+  Trophy, TrendUp, Smiley, Clock, ArrowsClockwise, ShareNetwork,
 } from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
 import Button from '../components/common/Button';
@@ -64,8 +64,11 @@ export default function QuizResult() {
         total: attempt.total_questions,
         startedAt: attempt.started_at || attempt.created_at,
         completedAt: attempt.completed_at,
+        categoryId: attempt.category_id,
+        difficulty: attempt.difficulty,
       });
       setAnswers(attempt.quiz_answers.filter((a) => a.questions).map((a) => ({
+        id: a.questions.id,
         question: a.questions.question,
         options: a.questions.options,
         type: a.questions.type,
@@ -127,6 +130,52 @@ export default function QuizResult() {
     : null;
 
   const goTo = (idx) => setCurrentIndex(idx);
+
+  const typeStats = useMemo(() => {
+    const stats = {};
+    for (const a of answers) {
+      const t = a.type || 'multiple_choice';
+      if (!stats[t]) stats[t] = { total: 0, correct: 0 };
+      stats[t].total++;
+      if (a.isCorrect) stats[t].correct++;
+    }
+    return stats;
+  }, [answers]);
+
+  const typeLabel = { multiple_choice: 'Pilihan Ganda', isian: 'Isian' };
+
+  const handleRetryWrong = () => {
+    const retryQuestions = answers
+      .filter((a) => !a.isCorrect)
+      .map((a) => ({
+        id: a.id,
+        type: a.type || 'multiple_choice',
+        question: a.question,
+        options: a.options,
+        correct_answer: a.correctAnswer,
+        explanation: a.explanation || '',
+      }));
+    navigate('/practice/retry', {
+      state: {
+        retryQuestions,
+        retryMeta: { categoryId: data?.categoryId, difficulty: data?.difficulty },
+      },
+    });
+  };
+
+  const handleShare = async () => {
+    const text = `Dapatkan nilai ${Math.round(data.score)} di latihan bahasa Inggris Mr. Ole!`;
+    if (navigator.share) {
+      try { await navigator.share({ title: 'Hasil Latihan Mr. Ole', text }); } catch {}
+    } else {
+      try {
+        await navigator.clipboard.writeText(text);
+        toast.success('Hasil disalin ke clipboard');
+      } catch {
+        toast.error('Gagal membagikan hasil');
+      }
+    }
+  };
 
   if (loading) {
     return (
@@ -211,6 +260,43 @@ export default function QuizResult() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Analytics by type */}
+      {Object.keys(typeStats).length > 0 && (
+        <Card hover={false}>
+          <CardContent className="py-4 space-y-3">
+            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-[0.06em]">
+              Analisis per Tipe Soal
+            </h3>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {Object.entries(typeStats).map(([type, st]) => {
+                const pct = st.total > 0 ? Math.round((st.correct / st.total) * 100) : 0;
+                return (
+                  <div key={type} className="space-y-1.5">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-700 dark:text-gray-300 font-medium">
+                        {typeLabel[type] || type}
+                      </span>
+                      <span className="text-gray-400 dark:text-gray-500 tabular-nums">
+                        {st.correct}/{st.total}
+                      </span>
+                    </div>
+                    <div className="flex h-1.5 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700">
+                      <div
+                        className="bg-green-500 rounded-full transition-all duration-500"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <p className="text-[0.75rem] text-gray-400 dark:text-gray-500 tabular-nums">
+                      {pct}% benar
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Filter Tabs */}
       {answers.length > 0 && (
@@ -410,6 +496,14 @@ export default function QuizResult() {
       <div className="flex gap-3 justify-center flex-wrap pt-2">
         <Button variant="outline" onClick={() => navigate('/practice')}>
           <ArrowLeft className="w-4 h-4 mr-1" /> Latihan Lagi
+        </Button>
+        {wrongCount > 0 && (
+          <Button variant="outline" onClick={handleRetryWrong}>
+            <ArrowsClockwise className="w-4 h-4 mr-1" /> Coba Lagi Soal Salah
+          </Button>
+        )}
+        <Button variant="ghost" onClick={handleShare}>
+          <ShareNetwork className="w-4 h-4 mr-1" /> Bagikan Hasil
         </Button>
         <Button variant="ghost" onClick={handleExportPDF} loading={exporting}>
           <FileArrowDown className="w-4 h-4 mr-1" /> Download PDF
