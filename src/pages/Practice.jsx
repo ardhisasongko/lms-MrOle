@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   BookOpen, Book, FileText, Headphones, Microphone, PenNib,
-  CaretRight, GraduationCap, MagnifyingGlass, Star,
+  CaretRight, GraduationCap, MagnifyingGlass, Star, MagicWand,
 } from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
 import Button from '../components/common/Button';
@@ -10,6 +10,7 @@ import { useCategories } from '../hooks/useCategories';
 import { useAuth } from '../contexts/AuthContext';
 import { getQuestionCountsByCategory } from '../services/questions';
 import { getLastScores } from '../services/quiz';
+import { getRecommendedDifficulty } from '../services/adaptive';
 import { DIFFICULTY_LABEL } from '../utils/constants';
 import Skeleton from '../components/common/Skeleton';
 import ErrorState from '../components/feedback/ErrorState';
@@ -37,6 +38,8 @@ export default function Practice() {
   const [search, setSearch] = useState('');
   const [questionCounts, setQuestionCounts] = useState({});
   const [lastScores, setLastScores] = useState({});
+  const [adaptiveScores, setAdaptiveScores] = useState({});
+  const [useAdaptive, setUseAdaptive] = useState(false);
 
   const fetchExtras = useCallback(async () => {
     try {
@@ -46,10 +49,21 @@ export default function Practice() {
       ]);
       setQuestionCounts(counts);
       setLastScores(scores);
+
+      if (user?.id) {
+        const adaptiveResults = {};
+        for (const cat of categories || []) {
+          try {
+            const rec = await getRecommendedDifficulty(user.id, cat.id);
+            if (rec) adaptiveResults[cat.id] = rec;
+          } catch { }
+        }
+        setAdaptiveScores(adaptiveResults);
+      }
     } catch {
       // silent — counts/scores are optional enhancements
     }
-  }, [user?.id]);
+  }, [user?.id, categories]);
 
   useEffect(() => {
     fetchExtras();
@@ -66,11 +80,18 @@ export default function Practice() {
   };
 
   const handleStart = () => {
-    if (!selectedCategory || !selectedDifficulty) {
-      toast.error('Pilih kategori dan tingkat kesulitan');
+    if (!selectedCategory) {
+      toast.error('Pilih kategori');
       return;
     }
-    navigate(`/practice/${selectedCategory}?difficulty=${selectedDifficulty}`);
+    if (useAdaptive && adaptiveScores[selectedCategory]) {
+      navigate(`/practice/${selectedCategory}?difficulty=${adaptiveScores[selectedCategory]}&adaptive=true`);
+    } else if (!selectedDifficulty) {
+      toast.error('Pilih tingkat kesulitan');
+      return;
+    } else {
+      navigate(`/practice/${selectedCategory}?difficulty=${selectedDifficulty}`);
+    }
   };
 
   const filtered = search
@@ -102,6 +123,17 @@ export default function Practice() {
             className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800/50 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-primary-400 focus:ring-2 focus:ring-primary-200/50 dark:focus:ring-primary-800/30 transition-all duration-200"
           />
         </div>
+        <button
+          onClick={() => setUseAdaptive(!useAdaptive)}
+          className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+            useAdaptive
+              ? 'bg-cta-500 text-white shadow-clay'
+              : 'bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+          }`}
+        >
+          <MagicWand className="w-4 h-4" />
+          Adaptive
+        </button>
       </div>
 
       {loading ? (
@@ -176,6 +208,12 @@ export default function Practice() {
                           </span>
                         );
                       })()}
+                      {useAdaptive && adaptiveScores[cat.id] && (
+                        <span className="inline-flex items-center gap-1 mt-1 text-[0.6875rem] text-cta-600 dark:text-cta-400">
+                          <MagicWand className="w-3 h-3" weight="fill" />
+                          Rekomendasi: {DIFFICULTY_LABEL[adaptiveScores[cat.id]]}
+                        </span>
+                      )}
                     </div>
                   </CardContent>
                 </div>
@@ -188,37 +226,47 @@ export default function Practice() {
                   <div className="overflow-hidden min-h-0">
                     <div className="border-t border-black/[0.04] dark:border-white/[0.06] mx-5 sm:mx-6" />
                     <div className="px-5 sm:px-6 py-4 space-y-4">
-                      <div className="flex flex-wrap gap-2">
-                        {difficulties.map((d) => {
-                          const DiffIcon = difficultyMeta[d].icon;
-                          const isActive = selectedDifficulty === d;
-                          const count = questionCounts[scoreKey(d)];
-                          return (
-                            <button
-                              key={d}
-                              onClick={(e) => { e.stopPropagation(); setSelectedDifficulty(d); }}
-                              className={`
-                                inline-flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm
-                                transition-all duration-300 ease-spring
-                                active:scale-[0.97]
-                                ${isActive
-                                  ? 'bg-primary-500 text-white shadow-clay-lg scale-[1.02]'
-                                  : 'bg-primary-50/60 dark:bg-gray-700/40 text-gray-600 dark:text-gray-300 hover:bg-primary-100/60 dark:hover:bg-gray-600/40 hover:text-gray-800 dark:hover:text-gray-100'
-                                }
-                              `.trim()}
-                            >
-                              <DiffIcon className="w-4 h-4" weight={isActive ? 'fill' : 'regular'} />
-                              {DIFFICULTY_LABEL[d]}
-                              {count !== undefined && (
-                                <span className="text-[0.6875rem] opacity-60">{count} soal</span>
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
+                      {!useAdaptive && (
+                        <div className="flex flex-wrap gap-2">
+                          {difficulties.map((d) => {
+                            const DiffIcon = difficultyMeta[d].icon;
+                            const isActive = selectedDifficulty === d;
+                            const count = questionCounts[scoreKey(d)];
+                            return (
+                              <button
+                                key={d}
+                                onClick={(e) => { e.stopPropagation(); setSelectedDifficulty(d); }}
+                                className={`
+                                  inline-flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm
+                                  transition-all duration-300 ease-spring
+                                  active:scale-[0.97]
+                                  ${isActive
+                                    ? 'bg-primary-500 text-white shadow-clay-lg scale-[1.02]'
+                                    : 'bg-primary-50/60 dark:bg-gray-700/40 text-gray-600 dark:text-gray-300 hover:bg-primary-100/60 dark:hover:bg-gray-600/40 hover:text-gray-800 dark:hover:text-gray-100'
+                                  }
+                                `.trim()}
+                              >
+                                <DiffIcon className="w-4 h-4" weight={isActive ? 'fill' : 'regular'} />
+                                {DIFFICULTY_LABEL[d]}
+                                {count !== undefined && (
+                                  <span className="text-[0.6875rem] opacity-60">{count} soal</span>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                      {useAdaptive && adaptiveScores[selectedCategory] && (
+                        <div className="flex items-center gap-2 p-3 rounded-xl bg-cta-50 dark:bg-cta-900/20 text-cta-700 dark:text-cta-300 text-sm">
+                          <MagicWand className="w-4 h-4" weight="fill" />
+                          <span>
+                            Kesulitan rekomendasi: <strong>{DIFFICULTY_LABEL[adaptiveScores[selectedCategory]]}</strong>
+                          </span>
+                        </div>
+                      )}
                       <Button
                         onClick={(e) => { e.stopPropagation(); handleStart(); }}
-                        disabled={!selectedDifficulty}
+                        disabled={!useAdaptive && !selectedDifficulty}
                         size="sm"
                         className="gap-2"
                       >
