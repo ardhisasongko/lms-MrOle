@@ -13,7 +13,7 @@ import ErrorState from '../components/feedback/ErrorState';
 import EmptyState from '../components/feedback/EmptyState';
 import toast from 'react-hot-toast';
 
-const STORAGE_KEY = (catId, diff) => `quiz_progress_${catId}_${diff}`;
+const STORAGE_KEY = (catId, diff, isAdaptive) => `quiz_progress_${catId}_${diff}${isAdaptive ? '_adaptive' : ''}`;
 
 function formatTimer(seconds) {
   const m = String(Math.floor(seconds / 60)).padStart(2, '0');
@@ -34,6 +34,7 @@ export default function Quiz() {
   const { categoryId } = useParams();
   const [searchParams] = useSearchParams();
   const difficulty = searchParams.get('difficulty');
+  const isAdaptive = searchParams.get('adaptive') === 'true';
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -62,7 +63,7 @@ export default function Quiz() {
   useEffect(() => {
     if (retryQuestions || !categoryId || !difficulty) return;
     try {
-      const saved = localStorage.getItem(STORAGE_KEY(categoryId, difficulty));
+      const saved = localStorage.getItem(STORAGE_KEY(categoryId, difficulty, isAdaptive));
       if (saved) {
         const { answers: savedAnswers, bookmarked: savedBookmarked } = JSON.parse(saved);
         if (savedAnswers && Object.keys(savedAnswers).length > 0) {
@@ -71,18 +72,18 @@ export default function Quiz() {
         if (savedBookmarked) setBookmarked(savedBookmarked);
       }
     } catch { /* ignore corrupt storage */ }
-  }, [categoryId, difficulty, retryQuestions]);
+  }, [categoryId, difficulty, isAdaptive, retryQuestions]);
 
   // Auto-save answers + bookmarked to localStorage (skip for retry mode)
   useEffect(() => {
     if (retryQuestions || !categoryId || !difficulty || questions.length === 0) return;
     try {
       localStorage.setItem(
-        STORAGE_KEY(categoryId, difficulty),
+        STORAGE_KEY(categoryId, difficulty, isAdaptive),
         JSON.stringify({ answers, bookmarked }),
       );
     } catch { /* storage full — silent */ }
-  }, [answers, bookmarked, categoryId, difficulty, questions.length, retryQuestions]);
+  }, [answers, bookmarked, categoryId, difficulty, isAdaptive, questions.length, retryQuestions]);
 
   // Timer
   useEffect(() => {
@@ -201,7 +202,7 @@ export default function Quiz() {
     }
     stopTimer();
     try {
-      if (!retryQuestions) localStorage.removeItem(STORAGE_KEY(categoryId, difficulty));
+      if (!retryQuestions) localStorage.removeItem(STORAGE_KEY(categoryId, difficulty, isAdaptive));
       const result = await submitQuiz({
         categoryId: effectiveCategoryId || categoryId,
         difficulty: effectiveDifficulty || difficulty,
@@ -210,7 +211,12 @@ export default function Quiz() {
       });
       if (!result?.attemptId) throw new Error('Gagal mendapatkan hasil');
       navigate(`/practice/${result.attemptId}/result`, {
-        state: { ...result, categoryId: effectiveCategoryId || categoryId, difficulty: effectiveDifficulty || difficulty },
+        state: {
+          ...result,
+          categoryId: effectiveCategoryId || categoryId,
+          difficulty: effectiveDifficulty || difficulty,
+          isAdaptive,
+        },
       });
     } catch (err) {
       const msg = typeof err === 'object' && err !== null ? (err.message || 'Gagal mengirim jawaban') : String(err);
@@ -260,9 +266,16 @@ export default function Quiz() {
           />
         </div>
         <div className="flex justify-between items-center text-sm">
-          <span className="text-gray-400 dark:text-gray-500 font-medium tabular-nums">
-            Soal {currentIndex + 1}
-            <span className="text-gray-300 dark:text-gray-600"> dari {questions.length}</span>
+          <span className="flex items-center gap-2">
+            <span className="text-gray-400 dark:text-gray-500 font-medium tabular-nums">
+              Soal {currentIndex + 1}
+              <span className="text-gray-300 dark:text-gray-600"> dari {questions.length}</span>
+            </span>
+            {isAdaptive && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.625rem] font-semibold uppercase tracking-wider bg-cta-100 dark:bg-cta-900/30 text-cta-700 dark:text-cta-300">
+                Adaptive
+              </span>
+            )}
           </span>
           <div className="flex items-center gap-3">
             <span className="inline-flex items-center gap-1 text-gray-400 dark:text-gray-500 tabular-nums">
