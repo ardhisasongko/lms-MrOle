@@ -1,23 +1,32 @@
-import { BookOpen, TrendUp, Medal, Clock } from '@phosphor-icons/react';
+import { BookOpen, TrendUp, Medal, Clock, BookmarkSimple, Target } from '@phosphor-icons/react';
 import Card, { CardContent, CardHeader } from '../components/common/Card';
 import EmptyState from '../components/feedback/EmptyState';
 import Skeleton from '../components/common/Skeleton';
+import StreakCard from '../components/common/StreakCard';
 import { useProgress } from '../hooks/useProgress';
+import { useStreak } from '../hooks/useStreak';
+import { useAuth } from '../contexts/AuthContext';
+import { getBookmarkCount } from '../services/bookmarks';
 import { formatDate, getLocale } from '../utils/format';
+import { useState, useEffect } from 'react';
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const { stats, scoreByCategory, chartData, loading } = useProgress();
+  const streakData = useStreak();
+  const [bookmarkCount, setBookmarkCount] = useState(0);
+
+  useEffect(() => {
+    if (user?.id) {
+      getBookmarkCount(user.id).then(setBookmarkCount).catch(() => {});
+    }
+  }, [user?.id]);
 
   const statCards = [
     { label: 'Total Soal', value: stats.totalQuestions, icon: BookOpen, color: 'text-primary-500 bg-primary-100 dark:bg-primary-900/30' },
     { label: 'Rata-rata Nilai', value: `${stats.averageScore}%`, icon: TrendUp, color: 'text-cta-500 bg-cta-100 dark:bg-cta-900/30' },
-    { label: 'Streak Belajar', value: `${stats.streak} hari`, icon: Medal, color: 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30' },
-    {
-      label: 'Sesi Terakhir',
-      value: stats.lastSession ? formatDate(stats.lastSession) : '-',
-      icon: Clock,
-      color: 'text-secondary-500 bg-secondary-100 dark:bg-secondary-900/30',
-    },
+    { label: 'Streak', value: `${streakData.currentStreak} hari`, icon: Medal, color: 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30' },
+    { label: 'Bookmark', value: bookmarkCount, icon: BookmarkSimple, color: 'text-secondary-500 bg-secondary-100 dark:bg-secondary-900/30' },
   ];
 
   return (
@@ -53,9 +62,11 @@ export default function Dashboard() {
       )}
 
       <div className="grid md:grid-cols-2 gap-6">
+        <StreakCard streakData={streakData} loading={loading} />
+
         <Card>
           <CardHeader>
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100">Grafik Perkembangan (7 Hari)</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100">Skor per Kategori</h3>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -131,7 +142,41 @@ export default function Dashboard() {
               icon={BookOpen}
               title="Belum Ada Aktivitas"
               description="Mulai latihan soal untuk melihat progres belajarmu."
+              action={
+                <a href="/practice" className="inline-flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-xl font-medium hover:bg-primary-600 transition-colors">
+                  <Target className="w-4 h-4" />
+                  Mulai Latihan
+                </a>
+              }
             />
+          </CardContent>
+        </Card>
+      )}
+
+      {!loading && stats.totalQuestions > 0 && (
+        <Card>
+          <CardHeader>
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100">Ringkasan</h3>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+              <div className="p-3 rounded-xl bg-primary-50/50 dark:bg-primary-900/20">
+                <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">{stats.totalQuestions}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Total Soal</p>
+              </div>
+              <div className="p-3 rounded-xl bg-cta-50/50 dark:bg-cta-900/20">
+                <p className="text-2xl font-bold text-cta-600 dark:text-cta-400">{stats.averageScore}%</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Rata-rata</p>
+              </div>
+              <div className="p-3 rounded-xl bg-yellow-50/50 dark:bg-yellow-900/20">
+                <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{streakData.currentStreak}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Streak Hari</p>
+              </div>
+              <div className="p-3 rounded-xl bg-secondary-50/50 dark:bg-secondary-900/20">
+                <p className="text-2xl font-bold text-secondary-600 dark:text-secondary-400">{bookmarkCount}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Bookmark</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       )}
