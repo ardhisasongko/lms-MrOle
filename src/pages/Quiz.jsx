@@ -196,6 +196,7 @@ export default function Quiz() {
     const unanswered = questions.filter((q) => !answers[q.id]);
     if (unanswered.length > 0) {
       toast.error(`Masih ada ${unanswered.length} soal belum dijawab`);
+      setConfirmSubmit(false);
       return;
     }
     stopTimer();
@@ -207,11 +208,13 @@ export default function Quiz() {
         questions,
         answers,
       });
+      if (!result?.attemptId) throw new Error('Gagal mendapatkan hasil');
       navigate(`/practice/${result.attemptId}/result`, {
         state: { ...result, categoryId: effectiveCategoryId || categoryId, difficulty: effectiveDifficulty || difficulty },
       });
     } catch (err) {
-      toast.error(err.message || 'Gagal mengirim jawaban');
+      const msg = typeof err === 'object' && err !== null ? (err.message || 'Gagal mengirim jawaban') : String(err);
+      toast.error(msg);
     } finally {
       setConfirmSubmit(false);
     }
