@@ -1,15 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   BookOpen, Book, FileText, Headphones, Microphone, PenNib,
-  CaretRight, GraduationCap,
+  CaretRight, GraduationCap, MagnifyingGlass, Star,
 } from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
 import Button from '../components/common/Button';
 import { useCategories } from '../hooks/useCategories';
+import { useAuth } from '../contexts/AuthContext';
+import { getQuestionCountsByCategory } from '../services/questions';
+import { getLastScores } from '../services/quiz';
 import { DIFFICULTY_LABEL } from '../utils/constants';
 import Skeleton from '../components/common/Skeleton';
 import ErrorState from '../components/feedback/ErrorState';
+import EmptyState from '../components/feedback/EmptyState';
 import toast from 'react-hot-toast';
 
 const iconMap = {
@@ -26,9 +30,30 @@ const difficultyMeta = {
 
 export default function Practice() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { categories, loading, error } = useCategories();
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedDifficulty, setSelectedDifficulty] = useState('');
+  const [search, setSearch] = useState('');
+  const [questionCounts, setQuestionCounts] = useState({});
+  const [lastScores, setLastScores] = useState({});
+
+  const fetchExtras = useCallback(async () => {
+    try {
+      const [counts, scores] = await Promise.all([
+        getQuestionCountsByCategory(),
+        user?.id ? getLastScores(user.id) : Promise.resolve({}),
+      ]);
+      setQuestionCounts(counts);
+      setLastScores(scores);
+    } catch {
+      // silent — counts/scores are optional enhancements
+    }
+  }, [user?.id]);
+
+  useEffect(() => {
+    fetchExtras();
+  }, [fetchExtras]);
 
   const handleSelectCategory = (id) => {
     if (selectedCategory === id) {
@@ -48,17 +73,35 @@ export default function Practice() {
     navigate(`/practice/${selectedCategory}?difficulty=${selectedDifficulty}`);
   };
 
+  const filtered = search
+    ? categories.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()))
+    : categories;
+
   if (error) return <ErrorState message={error} />;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <div className="space-y-1">
-        <h1 className="text-[1.75rem] font-semibold text-gray-900 dark:text-gray-100 tracking-tight">
-          Latihan Soal
-        </h1>
-        <p className="text-[0.9375rem] text-gray-500 dark:text-gray-400 leading-relaxed">
-          Pilih kategori dan tingkat kesulitan untuk memulai.
-        </p>
+      <div className="space-y-4">
+        <div className="space-y-1">
+          <h1 className="text-[1.75rem] font-semibold text-gray-900 dark:text-gray-100 tracking-tight">
+            Latihan Soal
+          </h1>
+          <p className="text-[0.9375rem] text-gray-500 dark:text-gray-400 leading-relaxed">
+            Pilih kategori dan tingkat kesulitan untuk memulai.
+          </p>
+        </div>
+
+        {/* Search */}
+        <div className="relative max-w-xs">
+          <MagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
+          <input
+            type="text"
+            placeholder="Cari kategori..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800/50 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-primary-400 focus:ring-2 focus:ring-primary-200/50 dark:focus:ring-primary-800/30 transition-all duration-200"
+          />
+        </div>
       </div>
 
       {loading ? (
@@ -67,11 +110,27 @@ export default function Practice() {
             <Skeleton key={i} className="h-28 rounded-2xl" />
           ))}
         </div>
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          title="Kategori Tidak Ditemukan"
+          description={`Tidak ada kategori dengan nama "${search}"`}
+          action={
+            search ? (
+              <Button variant="outline" onClick={() => setSearch('')}>
+                Hapus Pencarian
+              </Button>
+            ) : undefined
+          }
+        />
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {categories.map((cat, idx) => {
+          {filtered.map((cat, idx) => {
             const Icon = iconMap[cat.icon] || BookOpen;
             const isSelected = selectedCategory === cat.id;
+
+            const scoreKey = (d) => `${cat.id}:${d}`;
+            const lastScore = lastScores[scoreKey()];
+
             return (
               <Card
                 key={cat.id}
@@ -87,7 +146,7 @@ export default function Practice() {
                 <div onClick={() => handleSelectCategory(cat.id)}>
                   <CardContent className="flex items-center gap-3.5 py-[18px]">
                     <div className={`
-                      w-11 h-11 rounded-xl flex items-center justify-center
+                      w-11 h-11 rounded-xl flex items-center justify-center shrink-0
                       transition-all duration-300 ease-spring
                       ${isSelected
                         ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-600 scale-110'
@@ -96,13 +155,27 @@ export default function Practice() {
                     `.trim()}>
                       <Icon className="w-5.5 h-5.5" weight={isSelected ? 'fill' : 'regular'} />
                     </div>
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="font-semibold text-[0.9375rem] text-gray-900 dark:text-gray-100 truncate">
                         {cat.name}
                       </p>
                       <p className="text-[0.8125rem] text-gray-400 dark:text-gray-500 leading-snug line-clamp-2">
                         {cat.description}
                       </p>
+                      {/* Last score per category - any difficulty */}
+                      {(() => {
+                        const scores = difficulties
+                          .map((d) => lastScores[scoreKey(d)])
+                          .filter(Boolean);
+                        if (scores.length === 0) return null;
+                        const best = Math.max(...scores.map((s) => s.score));
+                        return (
+                          <span className="inline-flex items-center gap-1 mt-1 text-[0.6875rem] text-amber-600 dark:text-amber-400">
+                            <Star className="w-3 h-3" weight="fill" />
+                            Nilai terbaik: {Math.round(best)}
+                          </span>
+                        );
+                      })()}
                     </div>
                   </CardContent>
                 </div>
@@ -119,6 +192,7 @@ export default function Practice() {
                         {difficulties.map((d) => {
                           const DiffIcon = difficultyMeta[d].icon;
                           const isActive = selectedDifficulty === d;
+                          const count = questionCounts[scoreKey(d)];
                           return (
                             <button
                               key={d}
@@ -135,6 +209,9 @@ export default function Practice() {
                             >
                               <DiffIcon className="w-4 h-4" weight={isActive ? 'fill' : 'regular'} />
                               {DIFFICULTY_LABEL[d]}
+                              {count !== undefined && (
+                                <span className="text-[0.6875rem] opacity-60">{count} soal</span>
+                              )}
                             </button>
                           );
                         })}
