@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { GraduationCap, Shield, X, List, SquaresFour, NotePencil, ClockCounterClockwise, Trophy, ChatCircleDots, User, Gear, SignOut, BookmarkSimple } from '@phosphor-icons/react';
 import { cn } from '../../utils/cn';
 import { useAdmin } from '../../hooks/useAdmin';
+import { useAuth } from '../../contexts/AuthContext';
 
 const sidebarLinks = [
   { to: '/dashboard', key: 'nav.dashboard', icon: SquaresFour },
@@ -16,8 +17,9 @@ const sidebarLinks = [
   { to: '/settings', key: 'nav.settings', icon: Gear },
 ];
 
-export default function DashboardLayout({ user, onLogout }) {
+export default function DashboardLayout() {
   const { t } = useTranslation();
+  const { logout } = useAuth();
   const { isAdmin } = useAdmin();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -73,7 +75,7 @@ export default function DashboardLayout({ user, onLogout }) {
           </nav>
           <div className="p-3 border-t border-black/[0.04] dark:border-white/[0.06]">
             <button
-              onClick={onLogout}
+              onClick={logout}
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-black/[0.03] dark:hover:bg-white/[0.05] w-full transition-all duration-200 ease-spring"
             >
               <SignOut className="w-4 h-4" /> {t('nav.logout')}

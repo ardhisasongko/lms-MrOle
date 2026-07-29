@@ -83,11 +83,9 @@ function AdminRoute({ children }) {
 }
 
 function AppRoutes() {
-  const { user, logout } = useAuth();
-
   return (
     <Routes>
-      <Route element={<MainLayout user={user} onLogout={logout} />}>
+      <Route element={<MainLayout />}>
         <Route index element={<Landing />} />
         <Route element={<AuthLayout />}>
           <Route path="login" element={<PublicRoute><Login /></PublicRoute>} />
@@ -96,7 +94,7 @@ function AppRoutes() {
           <Route path="reset-password" element={<SuspenseWrapper><ResetPassword /></SuspenseWrapper>} />
           <Route path="verify" element={<SuspenseWrapper><Verify /></SuspenseWrapper>} />
         </Route>
-        <Route element={<ProtectedRoute><DashboardLayout user={user} onLogout={logout} /></ProtectedRoute>}>
+        <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
           <Route path="dashboard" element={<SuspenseWrapper><Dashboard /></SuspenseWrapper>} />
           <Route path="practice" element={<SuspenseWrapper><Practice /></SuspenseWrapper>} />
           <Route path="practice/:categoryId" element={<SuspenseWrapper><Quiz /></SuspenseWrapper>} />

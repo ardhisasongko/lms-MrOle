@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '../services/supabase';
+import { getProfileRole } from '../services/users';
 
 import { IS_DEMO } from '../utils/constants';
 
@@ -13,6 +14,8 @@ function getDemoUser() {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => IS_DEMO ? getDemoUser() : null);
   const [loading, setLoading] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [checkingAdmin, setCheckingAdmin] = useState(false);
 
   useEffect(() => {
     if (IS_DEMO) return;
@@ -78,8 +81,22 @@ export function AuthProvider({ children }) {
     if (error) throw error;
   }, []);
 
+  useEffect(() => {
+    if (!user || IS_DEMO) { setIsAdmin(false); return; }
+    let cancelled = false;
+    setCheckingAdmin(true);
+    getProfileRole(user.id).then((role) => {
+      if (!cancelled) setIsAdmin(role === 'admin');
+    }).catch(() => {
+      if (!cancelled) setIsAdmin(false);
+    }).finally(() => {
+      if (!cancelled) setCheckingAdmin(false);
+    });
+    return () => { cancelled = true; };
+  }, [user]);
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, isAdmin, checkingAdmin }}>
       {children}
     </AuthContext.Provider>
   );
