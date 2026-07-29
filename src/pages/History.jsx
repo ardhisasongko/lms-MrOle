@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ClockCounterClockwise as HistoryIcon, CaretLeft, CaretRight,
-  ArrowSquareOut, MagnifyingGlass, Calendar, Trophy, TrendUp,
+  ArrowSquareOut, MagnifyingGlass, Calendar,
   GraduationCap, BookOpen, PenNib,
 } from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
@@ -35,18 +35,18 @@ export default function History() {
     return 'danger';
   };
 
-  const filtered = attempts.filter((a) => {
+  const filtered = useMemo(() => attempts.filter((a) => {
     const matchesSearch = !search ||
       a.categories?.name?.toLowerCase().includes(search.toLowerCase());
     const matchesDifficulty = !difficultyFilter || a.difficulty === difficultyFilter;
     return matchesSearch && matchesDifficulty;
-  });
+  }), [attempts, search, difficultyFilter]);
 
-  const sorted = [...filtered].sort((a, b) => {
+  const sorted = useMemo(() => [...filtered].sort((a, b) => {
     if (sortBy === 'score') return b.score - a.score;
     if (sortBy === 'date') return new Date(b.completed_at) - new Date(a.completed_at);
     return 0;
-  });
+  }), [filtered, sortBy]);
 
   const currentPage = page + 1;
 

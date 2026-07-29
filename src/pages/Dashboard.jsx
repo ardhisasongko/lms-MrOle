@@ -1,4 +1,4 @@
-import { BookOpen, TrendUp, Medal, Clock, BookmarkSimple, Target } from '@phosphor-icons/react';
+import { BookOpen, TrendUp, Medal, BookmarkSimple, Target } from '@phosphor-icons/react';
 import Card, { CardContent, CardHeader } from '../components/common/Card';
 import EmptyState from '../components/feedback/EmptyState';
 import Skeleton from '../components/common/Skeleton';

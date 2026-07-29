@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { BookmarkSimple, MagnifyingGlass, Trash, CaretDown, CaretUp, GraduationCap, BookOpen, PenNib } from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
 import Button from '../components/common/Button';
@@ -28,7 +28,7 @@ export default function BookmarkReview() {
   const [filterDifficulty, setFilterDifficulty] = useState('');
   const [expandedId, setExpandedId] = useState(null);
 
-  const filtered = bookmarks.filter((b) => {
+  const filtered = useMemo(() => bookmarks.filter((b) => {
     const q = b.questions;
     if (!q) return false;
     const matchesSearch = !search ||
@@ -36,7 +36,7 @@ export default function BookmarkReview() {
       q.categories?.name?.toLowerCase().includes(search.toLowerCase());
     const matchesDifficulty = !filterDifficulty || q.difficulty === filterDifficulty;
     return matchesSearch && matchesDifficulty;
-  });
+  }), [bookmarks, search, filterDifficulty]);
 
   const handleRemove = async (questionId) => {
     try {

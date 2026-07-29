@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Users as UsersIcon, PencilSimple, Trash, MagnifyingGlass,
-  Shield, User, Calendar, Clock,
+  Shield, User, Calendar,
 } from '@phosphor-icons/react';
 import Card, { CardContent } from '../../components/common/Card';
 import Badge from '../../components/common/Badge';
@@ -68,9 +68,9 @@ export default function AdminUsers() {
     }
   };
 
-  const filteredUsers = users.filter((u) =>
+  const filteredUsers = useMemo(() => users.filter((u) =>
     u.full_name?.toLowerCase().includes(search.toLowerCase())
-  );
+  ), [users, search]);
 
   const formatDate = (date) => {
     if (!date) return '-';

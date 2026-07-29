@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useSearchParams, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import {
   ArrowLeft, ArrowRight, CheckCircle, Clock, GridFour,
-  Bookmark, ArrowsOut, ArrowsIn, XCircle, Circle,
+  Bookmark, ArrowsOut, ArrowsIn, Circle,
 } from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
 import Button from '../components/common/Button';

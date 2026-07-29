@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Users, BookOpen, TreeStructure, ChartBar, TrendUp,
-  Clock, ArrowRight, Plus, Gear,
+  Users, BookOpen, TreeStructure, ChartBar,
+  Clock, ArrowRight,
 } from '@phosphor-icons/react';
 import Card, { CardContent, CardHeader } from '../../components/common/Card';
 import Button from '../../components/common/Button';
