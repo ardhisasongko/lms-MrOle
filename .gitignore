@@ -12,3 +12,16 @@ dist
 skills-lock.json
 audit/
 *SESSION-NOTES*
+
+# Test / report artifacts
+playwright-report/
+test-results/
+.lighthouseci/
+lighthouse-report/
+fix-report/
+
+# Windows temp / Lighthouse Chrome profiles
+**/C:/
+**/C:\\*
+lighthouse.*/
+

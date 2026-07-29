@@ -44,6 +44,16 @@ WORK COMPLETED
 - Removed 6 unused icon imports
 - All commits pushed to GitHub via SSH
 
+=== Sesi 6 ===
+- Ran Playwright tests — 18/18 PASS (mobile 375px + desktop 1280px), zero console errors, zero horizontal scroll
+- Ran Lighthouse CI — fixed ALL errors:
+  - ✅ SEO 1.0: added meta-description, fixed favicon 404 (inline data URI)
+  - ✅ Best Practices 1.0: fixed console errors
+  - ✅ Accessibility 1.0: fixed color contrast (cta-500 #22c55e → #15803d, primary-500 #ED8476 → #D96B5E)
+  - ✅ Source maps: 'hidden' mode for production
+- Pending: performance 0.55 — render-blocking (Google Fonts) + speed-index, akan lebih baik di Cloudflare CDN
+- Committed all fixes
+
 === Sesi 5 ===
 - Project pindah dari Windows (/mnt/c/...) ke WSL native (~/projects/lms-MrOle) — npm install 2m
 - Installed Playwright v1.62.0 + browser chromium

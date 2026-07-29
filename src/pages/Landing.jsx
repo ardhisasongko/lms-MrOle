@@ -58,7 +58,7 @@ export default function Landing() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   to="/register"
-                  className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg text-white shadow-clay-lg hover:shadow-clay-xl transition-all duration-300 ease-spring active:scale-[0.98] w-full sm:w-auto bg-gradient-to-r from-cta-500 to-cta-600"
+                  className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg text-white shadow-clay-lg hover:shadow-clay-xl transition-all duration-300 ease-spring active:scale-[0.98] w-full sm:w-auto bg-gradient-to-r from-cta-500 to-cta-700"
                 >
                   Mulai Gratis <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" weight="bold" />
                 </Link>
@@ -270,7 +270,7 @@ export default function Landing() {
           </p>
           <Link
             to="/register"
-            className="group inline-flex items-center justify-center gap-2 px-6 sm:px-10 py-4 sm:py-5 rounded-2xl font-bold text-lg sm:text-xl text-white shadow-clay-lg hover:shadow-clay-xl transition-all duration-300 ease-spring active:scale-[0.98] bg-gradient-to-r from-cta-500 to-cta-600"
+            className="group inline-flex items-center justify-center gap-2 px-6 sm:px-10 py-4 sm:py-5 rounded-2xl font-bold text-lg sm:text-xl text-white shadow-clay-lg hover:shadow-clay-xl transition-all duration-300 ease-spring active:scale-[0.98] bg-gradient-to-r from-cta-500 to-cta-700"
           >
             Daftar Gratis <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" weight="bold" />
           </Link>
