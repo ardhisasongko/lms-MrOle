@@ -1,8 +1,9 @@
+import { memo } from 'react';
 import { Flame, Calendar, Trophy } from '@phosphor-icons/react';
 import Card, { CardContent } from './Card';
 import Skeleton from './Skeleton';
 
-export default function StreakCard({ streakData, loading }) {
+const StreakCard = memo(function StreakCard({ streakData, loading }) {
   if (loading) {
     return <Skeleton className="h-32 rounded-2xl" />;
   }
@@ -71,4 +72,6 @@ export default function StreakCard({ streakData, loading }) {
       </CardContent>
     </Card>
   );
-}
+});
+
+export default StreakCard;

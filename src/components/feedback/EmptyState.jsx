@@ -1,6 +1,7 @@
+import { memo } from 'react';
 import { cn } from '../../utils/cn';
 
-export default function EmptyState({ icon: Icon, title, description, action, className }) {
+const EmptyState = memo(function EmptyState({ icon: Icon, title, description, action, className }) {
   return (
     <div className={cn('flex flex-col items-center justify-center py-12 px-4 text-center', className)}>
       {Icon && (
@@ -15,4 +16,6 @@ export default function EmptyState({ icon: Icon, title, description, action, cla
       {action}
     </div>
   );
-}
+});
+
+export default EmptyState;

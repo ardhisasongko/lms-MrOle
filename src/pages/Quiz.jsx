@@ -153,14 +153,14 @@ export default function Quiz() {
 
   const options = shuffledOptions || rawOptions;
 
-  const handleAnswer = (questionId, value) => {
+  const handleAnswer = useCallback((questionId, value) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
-  };
+  }, []);
 
-  const toggleBookmark = () => {
+  const toggleBookmark = useCallback(() => {
     if (!current) return;
     setBookmarked((prev) => ({ ...prev, [current.id]: !prev[current.id] }));
-  };
+  }, [current]);
 
   const toggleFullscreen = async () => {
     try {
@@ -172,12 +172,12 @@ export default function Quiz() {
     } catch { /* fullscreen not supported */ }
   };
 
-  const goToQuestion = (idx) => {
+  const goToQuestion = useCallback((idx) => {
     setCurrentIndex(idx);
     setShowNavigator(false);
-  };
+  }, []);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (!answers[current?.id]) {
       toast.error('Jawab dulu soalnya');
       return;
@@ -187,12 +187,12 @@ export default function Quiz() {
     } else {
       setCurrentIndex((i) => i + 1);
     }
-  };
+  }, [answers, current, isLast]);
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     if (isFirst) return;
     setCurrentIndex((i) => i - 1);
-  };
+  }, [isFirst]);
 
   const handleSubmit = async () => {
     const unanswered = questions.filter((q) => !answers[q.id]);

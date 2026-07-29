@@ -1,7 +1,8 @@
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Translate } from '@phosphor-icons/react';
 
-export default function LanguageSwitcher({ isMobile }) {
+const LanguageSwitcher = memo(function LanguageSwitcher({ isMobile }) {
   const { i18n } = useTranslation();
 
   const toggle = () => {
@@ -27,4 +28,6 @@ export default function LanguageSwitcher({ isMobile }) {
       {i18n.language === 'id' ? 'EN' : 'ID'}
     </button>
   );
-}
+});
+
+export default LanguageSwitcher;

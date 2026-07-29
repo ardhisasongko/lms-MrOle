@@ -1,7 +1,8 @@
+import { memo } from 'react';
 import { WarningCircle, ArrowsClockwise } from '@phosphor-icons/react';
 import Button from '../common/Button';
 
-export default function ErrorState({ title = 'Terjadi Kesalahan', message = 'Silakan coba lagi.', onRetry }) {
+const ErrorState = memo(function ErrorState({ title = 'Terjadi Kesalahan', message = 'Silakan coba lagi.', onRetry }) {
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
       <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
@@ -17,4 +18,6 @@ export default function ErrorState({ title = 'Terjadi Kesalahan', message = 'Sil
       )}
     </div>
   );
-}
+});
+
+export default ErrorState;

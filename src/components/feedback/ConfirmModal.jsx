@@ -1,7 +1,8 @@
+import { memo } from 'react';
 import { Warning, X } from '@phosphor-icons/react';
 import Button from '../common/Button';
 
-export default function ConfirmModal({ open, title, message, confirmLabel = 'Hapus', cancelLabel = 'Batal', onConfirm, onCancel, loading }) {
+const ConfirmModal = memo(function ConfirmModal({ open, title, message, confirmLabel = 'Hapus', cancelLabel = 'Batal', onConfirm, onCancel, loading }) {
   if (!open) return null;
 
   return (
@@ -31,4 +32,6 @@ export default function ConfirmModal({ open, title, message, confirmLabel = 'Hap
       </div>
     </div>
   );
-}
+});
+
+export default ConfirmModal;

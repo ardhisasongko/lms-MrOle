@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { GraduationCap, SignOut, User, Moon, Sun, Shield, SquaresFour, NotePencil, ClockCounterClockwise, Trophy, ChatCircleDots, SignIn, UserPlus } from '@phosphor-icons/react';
 import { useState } from 'react';
@@ -6,7 +7,7 @@ import { useDarkMode } from '../../hooks/useDarkMode';
 import { useAdmin } from '../../hooks/useAdmin';
 import LanguageSwitcher from './LanguageSwitcher';
 
-export default function Navbar({ user, onLogout }) {
+const Navbar = memo(function Navbar({ user, onLogout }) {
   const [isOpen, setIsOpen] = useState(false);
   const { isDark, toggle } = useDarkMode();
   const { t } = useTranslation();
@@ -128,4 +129,6 @@ export default function Navbar({ user, onLogout }) {
       )}
     </nav>
   );
-}
+});
+
+export default Navbar;
