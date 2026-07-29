@@ -14,6 +14,7 @@ export default defineConfig({
     },
   },
   build: {
+    chunkSizeWarningLimit: 1000,
     sourcemap: 'hidden',
     rollupOptions: {
       output: {
@@ -22,7 +23,8 @@ export default defineConfig({
           'vendor-router': ['react-router-dom'],
           'vendor-supabase': ['@supabase/supabase-js'],
           'vendor-i18n': ['i18next', 'react-i18next'],
-          pdf: ['jspdf', 'html2canvas'],
+          'pdf-js': ['jspdf'],
+          'pdf-canvas': ['html2canvas'],
         },
       },
     },

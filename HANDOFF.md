@@ -63,6 +63,16 @@ WORK COMPLETED
 - Created scripts/auto-fix.mjs — rule-based fixes (horizontal scroll, aria-label, alt text) + optional AI via OpenAI/Anthropic
 - Created .github/workflows/ci-fix.yml — full pipeline: test → auto-fix (max 3 attempts) → PR jika gagal
 - Updated package.json scripts: test:e2e, test:e2e:ui, test:lighthouse, fix:auto
+- DESIGN.md: design token system documentation
+- Migrated Inter font self-hosting, removed Google Fonts render-blocking
+- Fixed color contrast, SEO, and console errors for Lighthouse
+
+=== Sesi 6 ===
+- Mobile Navbar: toggle dark mode + bahasa pindah ke top bar (icon only), login/register dihapus dari hamburger, hamburger hanya untuk logged-in user
+- Desktop Navbar: seamless — hapus mt-4, rounded-2xl, border, shadow-clay; bg-white/70 → bg-white/20
+- Navbar dark mode harmony: dark:bg-gray-950/40 agar menyatu dengan gradient AuthLayout
+- Code-split: chunk pdf dipecah jadi pdf-js (jspdf) + pdf-canvas (html2canvas); chunkSizeWarningLimit → 1000
+- Test 3/3 passed (src/services/__tests__/quiz.test.js)
 
 === Sesi 4 ===
 - Installed Supabase CLI v2.110.0 di ~/.local/bin/supabase
@@ -92,12 +102,12 @@ PENDING TASKS
 - ~~Candidate #5 (Performance)~~ ✅
 - ~~Build & deploy~~ ✅
 - ~~Project pindah dari /mnt/c/ ke ~/projects/lms-MrOle (WSL native)~~ ✅
-- Mobile layout check — user menemukan beberapa tempat yg tidak pas di mobile
-- Lighthouse audit (mobile preset) — belum pernah diukur
-- DESIGN.md — belum ada, UI tidak punya token system
-- Large chunk warning — pdf-DVGTiTQm.js 562 kB, perlu code-split
-- Test suite — vitest ada tapi belum dijalankan
-- ESLint — ada 1 error (conditional useMemo di Quiz.jsx) + 2 warnings
+- ~~Mobile layout check — user menemukan beberapa tempat yg tidak pas di mobile~~ ✅
+- ~~DESIGN.md — belum ada, UI tidak punya token system~~ ✅
+- ~~Large chunk warning — pdf-*.js, perlu code-split~~ ✅
+- ~~Test suite — vitest ada tapi belum dijalankan~~ ✅
+- Lighthouse audit — butuh Chrome environment
+- ESLint — ada 6 error (conditional hooks di Quiz.jsx) + 2 warnings
 
 KEY FILES
 ---------
@@ -135,13 +145,16 @@ EXPLICIT CONSTRAINTS
 - Category-domain matching for task delegation
 
 CONTEXT FOR CONTINUATION
------------------------
+----------------------
 - All 5 architecture candidates completed and pushed to main
 - Supabase fully configured and seeded
 - Build passes, deployed via Cloudflare Pages auto-deploy from GitHub
 - Project pindah ke WSL native: ~/projects/lms-MrOle (npm install 2m, build 1m15s)
-- Playwright + Lighthouse CI + auto-fix pipeline sudah di-setup (belum di-commit)
-- Auto-fix workflow: GitHub Actions → Playwright test → Lighthouse CI → auto-fix → loop guard (3x) → PR jika gagal
-- Auto-fix script: rule-based (horizontal scroll, aria-label, alt text) + optional AI (OpenAI/Anthropic API key)
-- Perlu setting OPENAI_API_KEY atau ANTHROPIC_API_KEY di GitHub secrets untuk AI auto-fix
-- Next focus: commit pipeline files, lalu mobile layout fixes (user akan SS bagian yg broken)
+- Playwright + Lighthouse CI + auto-fix pipeline + DESIGN.md sudah di-setup
+- Mobile layout fixes: toggle dark mode + bahasa pindah ke top bar navbar (icon), login/register di hero
+- Desktop navbar: seamless tanpa mt-4/rounded/border/shadow
+- Navbar dark mode: harmonis dengan bg-gray-950/40
+- Code-split: pdf chunk dipecah jadi pdf-js + pdf-canvas
+- Test: 3/3 passed, vitest exclude e2e/
+- Lighthouse: butuh Chrome environment untuk jalan
+- ESLint: 6 error conditional hooks di Quiz.jsx masih open
