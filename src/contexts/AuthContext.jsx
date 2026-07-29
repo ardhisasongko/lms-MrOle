@@ -13,7 +13,7 @@ function getDemoUser() {
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => IS_DEMO ? getDemoUser() : null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(() => IS_DEMO ? false : true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingAdmin, setCheckingAdmin] = useState(false);
 
