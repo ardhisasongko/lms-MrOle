@@ -37,7 +37,7 @@ export default function Landing() {
 
       {/* ─── HERO ─── */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary-300 via-secondary-300 to-lavender-400">
-        <div className="absolute inset-0 opacity-20">
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
           <div className="absolute -top-20 -left-20 w-80 h-80 bg-white rounded-full blur-3xl" />
           <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-white rounded-full blur-3xl" />
           <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-lavender-400 rounded-full blur-3xl" />
@@ -257,7 +257,7 @@ export default function Landing() {
 
       {/* ─── CTA ─── */}
       <section className="py-20 sm:py-28 relative overflow-hidden bg-gradient-to-br from-primary-300 via-secondary-300 to-lavender-400">
-        <div className="absolute inset-0 opacity-15">
+        <div className="absolute inset-0 opacity-15 pointer-events-none">
           <div className="absolute top-10 right-10 w-72 h-72 bg-white rounded-full blur-3xl" />
           <div className="absolute bottom-10 left-10 w-80 h-80 bg-white rounded-full blur-3xl" />
         </div>
