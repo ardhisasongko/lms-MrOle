@@ -1,5 +1,5 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import {
   CheckCircle, XCircle, Circle, ArrowLeft, ArrowRight, House, FileArrowDown,
   Trophy, TrendUp, Smiley, Clock, ArrowsClockwise, ShareNetwork,
@@ -48,7 +48,23 @@ export default function QuizResult() {
   const [exporting, setExporting] = useState(false);
   const [filter, setFilter] = useState('all');
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [animatedScore, setAnimatedScore] = useState(0);
   const resultRef = useRef(null);
+
+  useEffect(() => {
+    if (!data) return;
+    const target = Math.round(data.score);
+    const duration = 800;
+    const start = performance.now();
+    const frame = (now) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setAnimatedScore(Math.round(eased * target));
+      if (progress < 1) requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  }, [data]);
 
   const { loading } = useAsync(async () => {
     if (data) return;
@@ -228,12 +244,12 @@ export default function QuizResult() {
             <h1 className="text-[1.75rem] font-semibold text-gray-900 dark:text-gray-100 tracking-tight">
               {grade.label}
             </h1>
-            <p className="text-gray-400 dark:text-gray-500">
-              <span className="text-[1.25rem] font-bold tabular-nums text-gray-700 dark:text-gray-300">
-                {Math.round(data.score)}
-              </span>
-              <span className="text-gray-300 dark:text-gray-600"> poin</span>
-            </p>
+             <p className="text-gray-400 dark:text-gray-500">
+               <span className="text-[1.25rem] font-bold tabular-nums text-gray-700 dark:text-gray-300">
+                 {animatedScore}
+               </span>
+               <span className="text-gray-300 dark:text-gray-600"> poin</span>
+             </p>
           </div>
 
           {/* Stats mini bar */}

@@ -1,4 +1,4 @@
-import { BookOpen, TrendUp, Medal, BookmarkSimple, Target } from '@phosphor-icons/react';
+import { BookOpen, TrendUp, Medal, BookmarkSimple, Target, Star } from '@phosphor-icons/react';
 import Card, { CardContent, CardHeader } from '../components/common/Card';
 import EmptyState from '../components/feedback/EmptyState';
 import Skeleton from '../components/common/Skeleton';
@@ -8,7 +8,7 @@ import { useStreak } from '../hooks/useStreak';
 import { useAuth } from '../contexts/AuthContext';
 import { getBookmarkCount } from '../services/bookmarks';
 import { formatDate, getLocale } from '../utils/format';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -21,6 +21,18 @@ export default function Dashboard() {
       getBookmarkCount(user.id).then(setBookmarkCount).catch(() => {});
     }
   }, [user?.id]);
+
+  const { xp, level, nextLevelXp, prevLevelXp } = useMemo(() => {
+    if (stats.totalQuestions === 0) return { xp: 0, level: 1, nextLevelXp: 100, prevLevelXp: 0 };
+    const correctAnswers = Math.round(stats.totalQuestions * (stats.averageScore / 100));
+    const xp = correctAnswers * 10;
+    const level = Math.floor(Math.sqrt(xp / 100)) + 1;
+    const nextLevelXp = Math.pow(level, 2) * 100;
+    const prevLevelXp = Math.pow(level - 1, 2) * 100;
+    return { xp, level, nextLevelXp, prevLevelXp };
+  }, [stats]);
+
+  const levelProgress = nextLevelXp > prevLevelXp ? ((xp - prevLevelXp) / (nextLevelXp - prevLevelXp)) * 100 : 0;
 
   const statCards = [
     { label: 'Total Soal', value: stats.totalQuestions, icon: BookOpen, color: 'text-primary-500 bg-primary-100 dark:bg-primary-900/30' },
@@ -35,6 +47,33 @@ export default function Dashboard() {
         <h1 className="text-[1.875rem] font-semibold tracking-tight text-gray-900 dark:text-gray-100">Dashboard</h1>
         <p className="text-gray-500 dark:text-gray-400 mt-1.5">Pantau perkembangan belajarmu.</p>
       </div>
+
+      {!loading && stats.totalQuestions > 0 && (
+        <Card>
+          <CardContent className="py-5 px-6">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shrink-0 shadow-clay">
+                <Star className="w-7 h-7 text-white" weight="fill" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2">
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Level {level}</h2>
+                  <span className="text-sm text-gray-400 dark:text-gray-500 tabular-nums">{xp} XP</span>
+                </div>
+                <div className="mt-2 relative w-full h-2.5 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
+                  <div
+                    className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500 ease-spring"
+                    style={{ width: `${levelProgress}%` }}
+                  />
+                </div>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                  {xp}/{nextLevelXp} XP ke Level {level + 1}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {loading ? (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

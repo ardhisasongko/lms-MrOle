@@ -74,6 +74,12 @@ WORK COMPLETED
 - Code-split: chunk pdf dipecah jadi pdf-js (jspdf) + pdf-canvas (html2canvas); chunkSizeWarningLimit → 1000
 - Test 3/3 passed (src/services/__tests__/quiz.test.js)
 
+=== Sesi 7 ===
+- Quiz.jsx: instant feedback — setelah jawab soal, langsung tampil hijau (benar) / merah (salah) + jawaban benar, opsi disable
+- QuizResult.jsx: score count-up animation (ease-out cubic, 800ms)
+- Dashboard.jsx: Level & XP system — level dihitung dari total jawaban benar × 10, progress bar ke level berikutnya
+- AuthContext: fix refresh redirect — loading initialState diubah false → true agar tidak redirect ke /login sebelum session ter-load
+
 === Sesi 4 ===
 - Installed Supabase CLI v2.110.0 di ~/.local/bin/supabase
 - supabase link ke project ref: agtchlndnwircawmdaom
