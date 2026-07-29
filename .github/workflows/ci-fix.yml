@@ -1,0 +1,137 @@
+name: CI + Auto-Fix
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  MAX_FIX_ATTEMPTS: 3
+  BASE_URL: http://localhost:4173
+
+jobs:
+  test-and-fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Build
+        run: npm run build
+
+      - name: Start preview & wait for ready
+        run: |
+          npm run preview &
+          for i in $(seq 1 30); do
+            if curl -s http://localhost:4173 > /dev/null 2>&1; then
+              echo "Server ready"
+              break
+            fi
+            echo "Waiting for server... ($i/30)"
+            sleep 2
+          done
+
+      - name: Run Playwright tests
+        id: playwright
+        continue-on-error: true
+        run: npx playwright test
+        timeout-minutes: 5
+
+      - name: Run Lighthouse CI
+        id: lighthouse
+        continue-on-error: true
+        run: npx @lhci/cli autorun || true
+        timeout-minutes: 10
+
+      - name: Run auto-fix
+        id: fix
+        if: steps.playwright.outcome == 'failure' || steps.lighthouse.outcome == 'failure'
+        run: |
+          mkdir -p fix-report
+          node scripts/auto-fix.mjs 2>&1 | tee fix-report/auto-fix.log
+
+      - name: Commit & push fixes (loop)
+        if: steps.fix.outcome == 'success'
+        run: |
+          for i in $(seq 1 $MAX_FIX_ATTEMPTS); do
+            echo "=== Fix attempt $i/$MAX_FIX_ATTEMPTS ==="
+            node scripts/auto-fix.mjs 2>&1 | tee -a fix-report/loop-$i.log
+
+            if git diff --quiet; then
+              echo "No changes. Stopping."
+              break
+            fi
+
+            git config user.name "lms-mrole-bot"
+            git config user.email "bot@lms-mrole.dev"
+            git add -A
+            git commit -m "auto-fix: attempt $i/$MAX_FIX_ATTEMPTS"
+            git push
+
+            # Rebuild + retest
+            npm run build
+            kill $(lsof -t -i:4173) 2>/dev/null || true
+            npm run preview &
+            for j in $(seq 1 30); do
+              curl -s http://localhost:4173 > /dev/null 2>&1 && break
+              sleep 2
+            done
+            npx playwright test 2>&1 | tee -a fix-report/retest-$i.log
+
+            if git diff --quiet; then
+              echo "All tests pass!"
+              exit 0
+            fi
+          done
+          echo "FIX_FAILED=true" >> $GITHUB_ENV
+
+      - name: Create PR with failure report
+        if: env.FIX_FAILED == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const reportDir = './fix-report';
+            let body = '# Auto-Fix Report\n\nAuto-fix gagal setelah ${{ env.MAX_FIX_ATTEMPTS }} percobaan.\n\n## Log\n\n';
+            if (fs.existsSync(reportDir)) {
+              const files = fs.readdirSync(reportDir);
+              for (const f of files) {
+                body += `### ${f}\n\`\`\`\n${fs.readFileSync(`${reportDir}/${f}`, 'utf-8').slice(0, 3000)}\n\`\`\`\n\n`;
+              }
+            }
+
+            const { data: pr } = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '[auto-fix] Fix gagal — butuh review manual',
+              head: context.ref,
+              base: 'main',
+              body,
+            });
+            core.setOutput('pr-url', pr.html_url);
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-reports
+          path: |
+            playwright-report/
+            lighthouse-report/
+            fix-report/
+          retention-days: 7

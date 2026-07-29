@@ -11,7 +11,11 @@
     "lint": "eslint .",
     "lint:service-seam": "node scripts/check-service-seam.mjs",
     "preview": "vite preview",
-    "build:check": "npm run lint:service-seam && vite build"
+    "build:check": "npm run lint:service-seam && vite build",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:lighthouse": "lhci autorun",
+    "fix:auto": "node scripts/auto-fix.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
@@ -28,6 +32,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
+    "@playwright/test": "^1.62.0",
     "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/react": "^16.3.2",
     "@types/react": "^19.0.0",

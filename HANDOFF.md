@@ -12,72 +12,109 @@ USER REQUESTS (AS-IS)
 - "install supabase CLI"
 - "rangkum semua kerjaan kita skrang, agar bisa di lanjutkan di sesi berikutnya"
 - "apakah sudah di rangkum dan di tuli di file handoff"
+- "lanjut ke build dan deploy"
+- "catat temuan tersebut dalam file handoff"
 
 GOAL
 ----
-Connect Supabase CLI to the remote project and run migrations/seed, then proceed with Candidate #3 (Code Quality Patterns) and remaining architecture improvements.
+Semua 5 architecture candidate selesai. Database ter-migrate & ter-seed. Build & deploy ke Cloudflare Pages.
 
 WORK COMPLETED
 --------------
+=== Sesi 1 ===
 - Created admin activity log system with RLS-protected admin_logs table (migration 007), Supabase trigger logging INSERT/UPDATE/DELETE on admin-managed tables, and display on admin dashboard
 - Ran full architecture review using /improve-codebase-architecture — identified 5 improvement candidates (Component Optimization, Data Access Layer, Code Quality Patterns, State Management, Performance)
-- Completed Candidate #2 (Data Access Layer) — created service seam between pages/hooks and Supabase
-- Created new service files: services/auth.js, services/streaks.js, services/storage.js
-- Extended existing services: services/users.js (added getProfile, upsertProfile, getLeaderboard, getAdminActivityLog), services/quiz.js (added getAttempts, getAttemptDetails, getRecentAttempts)
-- Refactored 5 pages to use services instead of direct supabase calls: Profile.jsx, ForgotPassword.jsx, ResetPassword.jsx, admin/Dashboard.jsx, QuizResult.jsx
-- Refactored 4 hooks to use services: useHistory.js, useStreak.js, useProgress.js, useLeaderboard.js
-- Added automated enforcement: ESLint no-restricted-imports rule for pages/hooks + build check script (scripts/check-service-seam.mjs) + build:check npm command
-- Installed Supabase CLI v2.110.0 globally, ran supabase init
-- Fixed seed paths in supabase/config.toml (from ./seed.sql to ./seed/seed.sql and ./seed/english-questions.sql)
-- Created auth token file at %APPDATA%\supabase\auth-token (empty, needs token)
-- Completed Candidate #3 (Code Quality Patterns) — consistent error handling across the codebase
-- Created src/utils/errors.js — normalizeError() and handleError() for standardized error extraction and toast display
-- Removed passthrough try/catch in src/services/chat.js (zero-value wrapper)
-- Replaced console.error in useHistory.js with structured error state (error → page-level handleError)
-- Refactored 10+ catch blocks across pages to use handleError() instead of inline toast.error
-- Zero console.error calls remain in src/
-- Key files added: src/utils/errors.js
+
+=== Sesi 2 ===
+- Candidate #2 (Data Access Layer) — service seam between pages/hooks and Supabase
+- Created service files: services/auth.js, services/streaks.js, services/storage.js
+- Extended existing services: services/users.js (getProfile, upsertProfile, getLeaderboard, getAdminActivityLog), services/quiz.js (getAttempts, getAttemptDetails, getRecentAttempts)
+- Refactored 5 pages + 4 hooks to use services (no direct supabase calls)
+- ESLint no-restricted-imports + build check script (scripts/check-service-seam.mjs)
+- Fixed seed paths in supabase/config.toml
+- Candidate #3 (Code Quality Patterns) — src/utils/errors.js (normalizeError, handleError)
+- Refactored 10+ catch blocks, zero console.error in src/
+
+=== Sesi 3 ===
+- Candidate #1 (Component Optimization) — React.memo on Navbar, StreakCard, ConfirmModal, ErrorState, EmptyState, LanguageSwitcher
+- useCallback on 5 Quiz.jsx handlers
+- Candidate #4 (State Management) — auth role merged into AuthContext; prop drilling eliminated from MainLayout/DashboardLayout
+- useQuestions standardized on useAsync; useAdmin simplified
+- Candidate #5 (Performance) — useMemo on filter/sort arrays in History.jsx, BookmarkReview.jsx, admin/Users.jsx
+- Removed 6 unused icon imports
+- All commits pushed to GitHub via SSH
+
+=== Sesi 5 ===
+- Project pindah dari Windows (/mnt/c/...) ke WSL native (~/projects/lms-MrOle) — npm install 2m
+- Installed Playwright v1.62.0 + browser chromium
+- Created playwright.config.js — dual project: mobile (375px) + desktop (1280px)
+- Created e2e/pages.spec.js — smoke tests for all public pages, responsive layout checks, console error detection
+- Created .lighthouserc.js — Lighthouse CI config (performance ≥60, accessibility ≥80, best-practices ≥80, SEO ≥80)
+- Created scripts/auto-fix.mjs — rule-based fixes (horizontal scroll, aria-label, alt text) + optional AI via OpenAI/Anthropic
+- Created .github/workflows/ci-fix.yml — full pipeline: test → auto-fix (max 3 attempts) → PR jika gagal
+- Updated package.json scripts: test:e2e, test:e2e:ui, test:lighthouse, fix:auto
+
+=== Sesi 4 ===
+- Installed Supabase CLI v2.110.0 di ~/.local/bin/supabase
+- supabase link ke project ref: agtchlndnwircawmdaom
+- Fix migration 007: added DROP POLICY IF EXISTS guards for idempotent retries
+- supabase migration repair — semua 9 migration ditandai applied & di-push
+- supabase db query --linked — seed data (seed.sql + english-questions.sql) ter-load
+- npm run build — sukses (4m 4s, npm slow di WSL)
+- git commit + push ke main
+- Cloudflare Pages auto-deploy (https://lms-mrole.pages.dev)
 
 CURRENT STATE
 -------------
-- Working tree has uncommitted changes: Candidate #3 (error handling patterns) + handoff update
-- No commits made for this session yet
-- Zero direct supabase.from/rpc/auth calls in pages or hooks
-- Zero console.error calls in src/
-- ESLint reports 1 pre-existing error (conditional useMemo in Quiz.jsx) and 2 pre-existing warnings
-- Supabase CLI installed but NOT yet linked to the remote project
+- Semua 5 architecture candidate SELESAI
+- 9/9 migration sync (local = remote)
+- Seed data ter-load (categories + english questions)
+- Build sukses, deploy live
+- Supabase CLI ter-install & ter-link
+- Token file di supabase-token.txt sudah dihapus
 
 PENDING TASKS
 -------------
-- Fill in Supabase access token in %APPDATA%\supabase\auth-token (get from https://supabase.com/dashboard/account/tokens)
-- Provide project ref from Supabase Dashboard > Settings > General > Project Ref
-- Run: supabase link --project-ref <ref> then supabase db push then supabase db seed
-- Commit all uncommitted changes
-- Proceed with Candidate #1 (Component Optimization — memoization, pure components)
-- Followed by Candidates #4, #5 from architecture review
+- ~~Fill in Supabase access token~~ ✅
+- ~~supabase link + push + seed~~ ✅
+- ~~Candidate #1 (Component Optimization)~~ ✅
+- ~~Candidate #4 (State Management)~~ ✅
+- ~~Candidate #5 (Performance)~~ ✅
+- ~~Build & deploy~~ ✅
+- ~~Project pindah dari /mnt/c/ ke ~/projects/lms-MrOle (WSL native)~~ ✅
+- Mobile layout check — user menemukan beberapa tempat yg tidak pas di mobile
+- Lighthouse audit (mobile preset) — belum pernah diukur
+- DESIGN.md — belum ada, UI tidak punya token system
+- Large chunk warning — pdf-DVGTiTQm.js 562 kB, perlu code-split
+- Test suite — vitest ada tapi belum dijalankan
+- ESLint — ada 1 error (conditional useMemo di Quiz.jsx) + 2 warnings
 
 KEY FILES
 ---------
-- src/services/users.js - User-related services (profile CRUD, leaderboard, admin activity, stats)
-- src/services/quiz.js - Quiz attempt services (getAttempts, getAttemptDetails, getRecentAttempts)
-- src/services/auth.js - Auth services (resetPassword, updatePassword)
-- src/services/storage.js - Storage service (avatar upload)
-- src/services/streaks.js - Streak service (getCurrentStreak, getStreakActivity)
-- src/utils/errors.js - Error handling utilities (normalizeError, handleError)
-- eslint.config.js - ESLint config with service seam enforcement for pages/hooks
-- scripts/check-service-seam.mjs - Build-time check for direct supabase usage in pages/hooks
-- supabase/config.toml - Supabase CLI config (initialized, need project ref)
-- supabase/seed/seed.sql - Database seed data (categories, questions)
-- supabase/migrations/ - 8 migration files (001 to 008 + fix migration)
+- src/services/ - Data access layer (users.js, quiz.js, auth.js, storage.js, streaks.js)
+- src/utils/errors.js - Error handling utilities
+- eslint.config.js - ESLint config + service seam enforcement
+- scripts/check-service-seam.mjs - Build-time service seam check
+- scripts/auto-fix.mjs - AI + rule-based auto-fixer for CI pipeline
+- playwright.config.js - Playwright config (mobile 375px + desktop 1280px)
+- e2e/pages.spec.js - E2E smoke tests for public pages + responsive checks
+- .lighthouserc.js - Lighthouse CI config for performance/accessibility/SEO
+- .github/workflows/ci-fix.yml - Full CI pipeline: test → auto-fix → loop guard → PR
+- supabase/config.toml - Supabase CLI config
+- supabase/seed/ - Seed data (seed.sql, english-questions.sql)
+- supabase/migrations/ - 9 migration files (001 to 008 + 20250727)
+- functions/api/chat.js - Cloudflare Pages Function for AI chat
 
 IMPORTANT DECISIONS
 -------------------
-- Data access layer pattern: all pages/hooks must go through services/ only, never directly use supabase client
-- Two-layer enforcement: ESLint (compile-time) + build script (CI-time) to prevent regression
-- Supabase CLI over custom script for DB management — official tool, less maintenance
-- Seed paths fixed in config.toml to point to actual seed files in supabase/seed/ directory
-- Error handling pattern: services throw → hooks capture error state → pages display via handleError()
-- Centralized errors.js: normalizeError() extracts message, handleError() shows toast
+- Data access layer: pages/hooks must go through services/ only
+- Two-layer enforcement: ESLint + build script
+- Supabase CLI over custom script for DB management
+- Error handling: services throw → hooks capture → pages display via handleError()
+- Ponytail philosophy: minimal code, YAGNI, reuse, stdlib first
+- Service seam: pages and hooks must not import supabase directly
+- Type safety: no as any, no @ts-ignore, no @ts-expect-error
+- Bugfix rule: fix minimally, never refactor while fixing
 
 EXPLICIT CONSTRAINTS
 --------------------
@@ -88,11 +125,13 @@ EXPLICIT CONSTRAINTS
 - Category-domain matching for task delegation
 
 CONTEXT FOR CONTINUATION
-------------------------
-- Architecture review HTML report was generated and opened in browser (temp file at %TEMP%/architecture-review-*.html) — contains the 5 candidates with screenshots analysis
-- The 5 candidates in priority order: #2 (Done) > #3 (Next) > #1 > #4 > #5
-- Candidate #3 done: all error handling now uses handleError() from src/utils/errors.js
-  - Services: throw errors naturally (no wrap, no catch passthrough)
-  - Hooks: capture error in state, expose to page
-  - Pages: handleError() for consistent toast + normalized messages
-- To continue: fill auth token, provide project ref, run supabase CLI link/push/seed, commit, then start Candidate #1
+-----------------------
+- All 5 architecture candidates completed and pushed to main
+- Supabase fully configured and seeded
+- Build passes, deployed via Cloudflare Pages auto-deploy from GitHub
+- Project pindah ke WSL native: ~/projects/lms-MrOle (npm install 2m, build 1m15s)
+- Playwright + Lighthouse CI + auto-fix pipeline sudah di-setup (belum di-commit)
+- Auto-fix workflow: GitHub Actions → Playwright test → Lighthouse CI → auto-fix → loop guard (3x) → PR jika gagal
+- Auto-fix script: rule-based (horizontal scroll, aria-label, alt text) + optional AI (OpenAI/Anthropic API key)
+- Perlu setting OPENAI_API_KEY atau ANTHROPIC_API_KEY di GitHub secrets untuk AI auto-fix
+- Next focus: commit pipeline files, lalu mobile layout fixes (user akan SS bagian yg broken)

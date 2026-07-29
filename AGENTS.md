@@ -89,9 +89,10 @@ lms-MrOle/
 │   ├── pages/          # Route pages
 │   ├── services/       # API service layer
 │   └── utils/          # Utility functions
+├── e2e/                # Playwright E2E tests
 ├── functions/          # Serverless functions
 ├── supabase/           # Database migrations
-└── tests/              # Test files
+└── scripts/            # Build & automation scripts
 ```
 
 ## Existing Patterns
@@ -106,8 +107,10 @@ lms-MrOle/
 ```bash
 npm run build          # Build check
 npm run lint           # Lint check
-npm test               # Run tests
-npm run test:coverage  # Coverage report
+npm test               # Run tests (vitest)
+npm run test:e2e       # Run Playwright E2E tests (mobile + desktop)
+npm run test:lighthouse # Run Lighthouse CI audit
+npm run fix:auto       # Run auto-fix script
 ```
 
 ## Known Issues
