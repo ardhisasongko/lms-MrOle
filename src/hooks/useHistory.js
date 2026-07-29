@@ -8,6 +8,7 @@ export function useHistory() {
   const { categories } = useCategories();
   const [attempts, setAttempts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState('');
@@ -20,7 +21,7 @@ export function useHistory() {
       setAttempts(result.data);
       setHasMore(result.hasMore);
     } catch (err) {
-      console.error('Error fetching history:', err);
+      setError(err);
     } finally {
       setLoading(false);
     }
@@ -41,5 +42,5 @@ export function useHistory() {
     setPage(0);
   };
 
-  return { attempts, loading, page, hasMore, categories, categoryFilter, goToPage, applyFilter };
+  return { attempts, loading, error, page, hasMore, categories, categoryFilter, goToPage, applyFilter };
 }

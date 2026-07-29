@@ -9,6 +9,7 @@ import { uploadAvatar } from '../services/storage';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
+import { handleError } from '../utils/errors';
 import { IS_DEMO } from '../utils/constants';
 
 export default function Profile() {
@@ -80,7 +81,7 @@ export default function Profile() {
       await upsertProfile(user.id, { fullName: form.fullName, avatarUrl: form.avatarUrl });
       toast.success('Profil berhasil diperbarui');
     } catch (err) {
-      toast.error(err.message || 'Gagal memperbarui profil');
+      handleError(err, 'Gagal memperbarui profil');
     } finally {
       setLoading(false);
     }

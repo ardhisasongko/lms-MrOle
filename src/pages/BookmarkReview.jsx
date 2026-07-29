@@ -8,6 +8,7 @@ import Skeleton from '../components/common/Skeleton';
 import { useBookmarks } from '../hooks/useBookmarks';
 import { DIFFICULTY_LABEL } from '../utils/constants';
 import toast from 'react-hot-toast';
+import { handleError } from '../utils/errors';
 
 const difficultyIcons = {
   easy: GraduationCap,
@@ -41,8 +42,8 @@ export default function BookmarkReview() {
     try {
       await toggleBookmark(questionId);
       toast.success('Bookmark dihapus');
-    } catch {
-      toast.error('Gagal menghapus bookmark');
+    } catch (err) {
+      handleError(err, 'Gagal menghapus bookmark');
     }
   };
 

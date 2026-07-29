@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import toast from 'react-hot-toast';
+import { handleError } from '../utils/errors';
 
 export default function Register() {
   const { register } = useAuth();
@@ -31,7 +32,7 @@ export default function Register() {
       await register(form.email, form.password, form.fullName);
       toast.success('Akun berhasil dibuat! Cek email untuk verifikasi.');
     } catch (err) {
-      toast.error(err.message || 'Gagal mendaftar.');
+      handleError(err, 'Gagal mendaftar.');
     } finally {
       setLoading(false);
     }

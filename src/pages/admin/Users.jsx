@@ -11,6 +11,7 @@ import ConfirmModal from '../../components/feedback/ConfirmModal';
 import { getProfiles, updateProfileRole, deleteUser } from '../../services/users';
 import { logAdmin } from '../../utils/logAdmin';
 import toast from 'react-hot-toast';
+import { handleError } from '../../utils/errors';
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -29,8 +30,8 @@ export default function AdminUsers() {
     try {
       const data = await getProfiles();
       setUsers(data);
-    } catch {
-      toast.error('Gagal memuat data user.');
+    } catch (err) {
+      handleError(err, 'Gagal memuat data user.');
     } finally {
       setLoading(false);
     }
@@ -45,7 +46,7 @@ export default function AdminUsers() {
       setUsers((prev) => prev.map((u) => u.id === userId ? { ...u, role: newRole } : u));
       setEditingUser(null);
     } catch (err) {
-      toast.error(err.message);
+      handleError(err);
     } finally {
       setUpdating(false);
     }
@@ -61,7 +62,7 @@ export default function AdminUsers() {
       setUsers((prev) => prev.filter((u) => u.id !== deleteTarget));
       setDeleteTarget(null);
     } catch (err) {
-      toast.error(err.message || 'Gagal menghapus user');
+      handleError(err, 'Gagal menghapus user');
     } finally {
       setDeleting(false);
     }

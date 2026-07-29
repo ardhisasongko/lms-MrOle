@@ -4,7 +4,7 @@ import { ArrowLeft, CheckCircle, LockKey } from '@phosphor-icons/react';
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import { resetPassword } from '../services/auth';
-import toast from 'react-hot-toast';
+import { handleError } from '../utils/errors';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -18,7 +18,7 @@ export default function ForgotPassword() {
       await resetPassword(email);
       setSent(true);
     } catch (err) {
-      toast.error(err.message || 'Gagal mengirim email reset password');
+      handleError(err, 'Gagal mengirim email reset password');
     } finally {
       setLoading(false);
     }

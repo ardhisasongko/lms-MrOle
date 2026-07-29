@@ -30,13 +30,20 @@ WORK COMPLETED
 - Installed Supabase CLI v2.110.0 globally, ran supabase init
 - Fixed seed paths in supabase/config.toml (from ./seed.sql to ./seed/seed.sql and ./seed/english-questions.sql)
 - Created auth token file at %APPDATA%\supabase\auth-token (empty, needs token)
+- Completed Candidate #3 (Code Quality Patterns) — consistent error handling across the codebase
+- Created src/utils/errors.js — normalizeError() and handleError() for standardized error extraction and toast display
+- Removed passthrough try/catch in src/services/chat.js (zero-value wrapper)
+- Replaced console.error in useHistory.js with structured error state (error → page-level handleError)
+- Refactored 10+ catch blocks across pages to use handleError() instead of inline toast.error
+- Zero console.error calls remain in src/
+- Key files added: src/utils/errors.js
 
 CURRENT STATE
 -------------
-- Working tree has uncommitted changes: all service refactoring + enforcement + supabase config
-- No commits made for this round of changes yet
-- Build passes clean
+- Working tree has uncommitted changes: Candidate #3 (error handling patterns) + handoff update
+- No commits made for this session yet
 - Zero direct supabase.from/rpc/auth calls in pages or hooks
+- Zero console.error calls in src/
 - ESLint reports 1 pre-existing error (conditional useMemo in Quiz.jsx) and 2 pre-existing warnings
 - Supabase CLI installed but NOT yet linked to the remote project
 
@@ -46,8 +53,8 @@ PENDING TASKS
 - Provide project ref from Supabase Dashboard > Settings > General > Project Ref
 - Run: supabase link --project-ref <ref> then supabase db push then supabase db seed
 - Commit all uncommitted changes
-- Proceed with Candidate #3 (Code Quality Patterns — consistent error handling, try/catch patterns)
-- Followed by Candidates #1, #4, #5 from architecture review
+- Proceed with Candidate #1 (Component Optimization — memoization, pure components)
+- Followed by Candidates #4, #5 from architecture review
 
 KEY FILES
 ---------
@@ -56,6 +63,7 @@ KEY FILES
 - src/services/auth.js - Auth services (resetPassword, updatePassword)
 - src/services/storage.js - Storage service (avatar upload)
 - src/services/streaks.js - Streak service (getCurrentStreak, getStreakActivity)
+- src/utils/errors.js - Error handling utilities (normalizeError, handleError)
 - eslint.config.js - ESLint config with service seam enforcement for pages/hooks
 - scripts/check-service-seam.mjs - Build-time check for direct supabase usage in pages/hooks
 - supabase/config.toml - Supabase CLI config (initialized, need project ref)
@@ -68,6 +76,8 @@ IMPORTANT DECISIONS
 - Two-layer enforcement: ESLint (compile-time) + build script (CI-time) to prevent regression
 - Supabase CLI over custom script for DB management — official tool, less maintenance
 - Seed paths fixed in config.toml to point to actual seed files in supabase/seed/ directory
+- Error handling pattern: services throw → hooks capture error state → pages display via handleError()
+- Centralized errors.js: normalizeError() extracts message, handleError() shows toast
 
 EXPLICIT CONSTRAINTS
 --------------------
@@ -81,6 +91,8 @@ CONTEXT FOR CONTINUATION
 ------------------------
 - Architecture review HTML report was generated and opened in browser (temp file at %TEMP%/architecture-review-*.html) — contains the 5 candidates with screenshots analysis
 - The 5 candidates in priority order: #2 (Done) > #3 (Next) > #1 > #4 > #5
-- For #3: focus on consistent try/catch error handling across services, removing console.error in favor of structured error patterns
-- All new services follow the pattern: async function that takes params, calls supabase, handles error, returns data
-- To continue: fill auth token, provide project ref, run supabase CLI link/push/seed, commit, then start #3
+- Candidate #3 done: all error handling now uses handleError() from src/utils/errors.js
+  - Services: throw errors naturally (no wrap, no catch passthrough)
+  - Hooks: capture error in state, expose to page
+  - Pages: handleError() for consistent toast + normalized messages
+- To continue: fill auth token, provide project ref, run supabase CLI link/push/seed, commit, then start Candidate #1

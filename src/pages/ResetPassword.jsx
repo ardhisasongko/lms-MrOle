@@ -5,6 +5,7 @@ import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import { updatePassword } from '../services/auth';
 import toast from 'react-hot-toast';
+import { handleError } from '../utils/errors';
 
 export default function ResetPassword() {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ export default function ResetPassword() {
       setSuccess(true);
       setTimeout(() => navigate('/login'), 3000);
     } catch (err) {
-      toast.error(err.message || 'Gagal mereset password');
+      handleError(err, 'Gagal mereset password');
     } finally {
       setLoading(false);
     }

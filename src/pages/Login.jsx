@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import toast from 'react-hot-toast';
+import { handleError } from '../utils/errors';
 
 export default function Login() {
   const { login } = useAuth();
@@ -19,7 +20,7 @@ export default function Login() {
       await login(form.email, form.password);
       toast.success('Berhasil masuk!');
     } catch (err) {
-      toast.error(err.message || 'Gagal masuk. Periksa email dan password.');
+      handleError(err, 'Gagal masuk. Periksa email dan password.');
     } finally {
       setLoading(false);
     }

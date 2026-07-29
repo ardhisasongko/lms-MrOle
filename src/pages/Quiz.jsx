@@ -10,6 +10,7 @@ import { useQuestions } from '../hooks/useQuestions';
 import { useQuiz } from '../hooks/useQuiz';
 import Skeleton from '../components/common/Skeleton';
 import ErrorState from '../components/feedback/ErrorState';
+import { handleError } from '../utils/errors';
 import EmptyState from '../components/feedback/EmptyState';
 import toast from 'react-hot-toast';
 
@@ -219,8 +220,7 @@ export default function Quiz() {
         },
       });
     } catch (err) {
-      const msg = typeof err === 'object' && err !== null ? (err.message || 'Gagal mengirim jawaban') : String(err);
-      toast.error(msg);
+      handleError(err, 'Gagal mengirim jawaban');
     } finally {
       setConfirmSubmit(false);
     }

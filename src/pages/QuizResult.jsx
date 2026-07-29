@@ -105,8 +105,8 @@ export default function QuizResult() {
         heightLeft -= pdf.internal.pageSize.getHeight();
       }
       pdf.save(`quiz-result-${Math.round(data.score)}.pdf`);
-    } catch {
-      toast.error('Gagal mengexport PDF. Coba lagi.');
+    } catch (err) {
+      handleError(err, 'Gagal mengexport PDF. Coba lagi.');
     } finally {
       setExporting(false);
     }
@@ -167,8 +167,8 @@ export default function QuizResult() {
       try {
         await navigator.clipboard.writeText(text);
         toast.success('Hasil disalin ke clipboard');
-      } catch {
-        toast.error('Gagal membagikan hasil');
+      } catch (err) {
+        handleError(err, 'Gagal membagikan hasil');
       }
     }
   };

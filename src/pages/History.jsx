@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ClockCounterClockwise as HistoryIcon, CaretLeft, CaretRight,
@@ -12,6 +12,7 @@ import Skeleton from '../components/common/Skeleton';
 import { useHistory } from '../hooks/useHistory';
 import { DIFFICULTY_LABEL } from '../utils/constants';
 import { formatDate } from '../utils/format';
+import { handleError } from '../utils/errors';
 
 const difficultyIcons = {
   easy: GraduationCap,
@@ -21,8 +22,10 @@ const difficultyIcons = {
 
 export default function History() {
   const navigate = useNavigate();
-  const { attempts, loading, page, hasMore, categories, categoryFilter, goToPage, applyFilter } = useHistory();
+  const { attempts, loading, error, page, hasMore, categories, categoryFilter, goToPage, applyFilter } = useHistory();
   const [search, setSearch] = useState('');
+
+  useEffect(() => { if (error) handleError(error, 'Gagal memuat riwayat.'); }, [error]);
   const [difficultyFilter, setDifficultyFilter] = useState('');
   const [sortBy, setSortBy] = useState('date');
 
