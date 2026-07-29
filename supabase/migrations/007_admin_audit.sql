@@ -17,11 +17,11 @@ CREATE INDEX IF NOT EXISTS idx_admin_logs_created ON admin_logs(created_at DESC)
 
 ALTER TABLE admin_logs ENABLE ROW LEVEL SECURITY;
 
--- Only admins can read audit logs
+DROP POLICY IF EXISTS "admin_logs_select" ON admin_logs;
 CREATE POLICY "admin_logs_select" ON admin_logs
   FOR SELECT USING (public.is_admin());
 
--- Only admins can insert audit logs
+DROP POLICY IF EXISTS "admin_logs_insert" ON admin_logs;
 CREATE POLICY "admin_logs_insert" ON admin_logs
   FOR INSERT WITH CHECK (public.is_admin());
 
