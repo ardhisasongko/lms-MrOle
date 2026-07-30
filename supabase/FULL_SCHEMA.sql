@@ -497,6 +497,42 @@ $$;
 
 
 -- ============================================================
+-- MIGRATION 009: Cegah privilege escalation kolom role
+-- ============================================================
+-- RLS hanya membatasi baris, bukan kolom, jadi tanpa trigger ini user biasa bisa
+-- update({ role: 'admin' }) pada barisnya sendiri dan mendapat akses admin.
+
+CREATE OR REPLACE FUNCTION public.guard_profile_role()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+BEGIN
+  IF NEW.role IS DISTINCT FROM OLD.role
+     AND auth.uid() IS NOT NULL
+     AND NOT public.is_admin() THEN
+    RAISE EXCEPTION 'Hanya admin yang boleh mengubah role';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS profiles_guard_role ON profiles;
+CREATE TRIGGER profiles_guard_role
+  BEFORE UPDATE ON profiles
+  FOR EACH ROW EXECUTE FUNCTION public.guard_profile_role();
+
+DROP POLICY IF EXISTS "profiles_update_own" ON profiles;
+CREATE POLICY "profiles_update_own" ON profiles
+  FOR UPDATE USING (id = auth.uid()) WITH CHECK (id = auth.uid());
+
+ALTER FUNCTION public.is_admin() SET search_path = public, pg_temp;
+ALTER FUNCTION public.handle_new_user() SET search_path = public, pg_temp;
+ALTER FUNCTION public.log_admin_action(TEXT, TEXT, UUID, JSONB) SET search_path = public, pg_temp;
+ALTER FUNCTION public.submit_quiz(UUID, UUID, TEXT, JSONB) SET search_path = public, pg_temp;
+
+-- ============================================================
 -- SETUP SELESAI
 -- ============================================================
 -- Untuk set admin pertama, uncomment dan jalankan:

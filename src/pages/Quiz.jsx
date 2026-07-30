@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useSearchParams, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import {
-  ArrowLeft, ArrowRight, CheckCircle, Clock, GridFour,
+  ArrowLeft, ArrowRight, CheckCircle, XCircle, Clock, GridFour,
   Bookmark, ArrowsOut, ArrowsIn, Circle,
 } from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
@@ -98,40 +98,12 @@ export default function Quiz() {
     clearInterval(timerRef.current);
   }, []);
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handler = (e) => {
-      if (e.target.tagName === 'INPUT') return;
-      const q = questions[currentIndex];
-      if (!q) return;
-
-      if (q.type === 'multiple_choice' && q.options) {
-        const opts = Array.isArray(q.options) ? q.options : q.options.options;
-        const num = parseInt(e.key);
-        if (num >= 1 && num <= opts.length) {
-          e.preventDefault();
-          handleAnswer(q.id, opts[num - 1].label);
-          return;
-        }
-      }
-
-      if (e.key === 'Enter' && answers[q.id]) {
-        e.preventDefault();
-        handleNext();
-      }
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [currentIndex, questions, answers]);
-
   // Fullscreen change listener
   useEffect(() => {
     const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener('fullscreenchange', onFsChange);
     return () => document.removeEventListener('fullscreenchange', onFsChange);
   }, []);
-
-  if (!difficulty && !retryQuestions) return <Navigate to="/practice" replace />;
 
   const current = questions[currentIndex];
   const isLast = currentIndex === questions.length - 1;
@@ -196,6 +168,32 @@ export default function Quiz() {
     setCurrentIndex((i) => i - 1);
   }, [isFirst]);
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.target.tagName === 'INPUT') return;
+      const q = questions[currentIndex];
+      if (!q) return;
+
+      if (q.type === 'multiple_choice' && q.options) {
+        const opts = Array.isArray(q.options) ? q.options : q.options.options;
+        const num = parseInt(e.key);
+        if (num >= 1 && num <= opts.length) {
+          e.preventDefault();
+          handleAnswer(q.id, opts[num - 1].label);
+          return;
+        }
+      }
+
+      if (e.key === 'Enter' && answers[q.id]) {
+        e.preventDefault();
+        handleNext();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [currentIndex, questions, answers, handleAnswer, handleNext]);
+
   const handleSubmit = async () => {
     const unanswered = questions.filter((q) => !answers[q.id]);
     if (unanswered.length > 0) {
@@ -227,6 +225,8 @@ export default function Quiz() {
       setConfirmSubmit(false);
     }
   };
+
+  if (!difficulty && !retryQuestions) return <Navigate to="/practice" replace />;
 
   if (loading) {
     return (
