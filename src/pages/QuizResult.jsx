@@ -10,6 +10,7 @@ import { getAttemptDetails } from '../services/quiz';
 import { useAsync } from '../hooks/useAsync';
 import Skeleton from '../components/common/Skeleton';
 import { sanitize } from '../utils/sanitize';
+import { handleError } from '../utils/errors';
 import toast from 'react-hot-toast';
 
 const gradeConfig = {
