@@ -74,21 +74,6 @@ export default function QuizResult() {
     requestAnimationFrame(frame);
   }, [data]);
 
-  useEffect(() => {
-    if (!data) return;
-    const target = Math.round(data.score);
-    const duration = 800;
-    const start = performance.now();
-    const frame = (now) => {
-      const elapsed = now - start;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setAnimatedScore(Math.round(eased * target));
-      if (progress < 1) requestAnimationFrame(frame);
-    };
-    requestAnimationFrame(frame);
-  }, [data]);
-
   const { loading } = useAsync(async () => {
     if (data) return;
     const attempt = await getAttemptDetails(attemptId);
