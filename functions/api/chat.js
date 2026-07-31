@@ -11,15 +11,16 @@ function json(data, status = 200) {
   });
 }
 
-async function verifyAuth(request, env) {
+async function verifyAuth(request, supabaseUrl, supabaseAnonKey) {
   const authHeader = request.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ')) return null;
   const token = authHeader.slice(7);
-  const supabaseUrl = env.SUPABASE_URL || env.VITE_SUPABASE_URL;
-  if (!supabaseUrl) return null;
   try {
     const res = await fetch(`${supabaseUrl}/auth/v1/user`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        apikey: supabaseAnonKey,
+      },
     });
     if (!res.ok) return null;
     return await res.json();
@@ -41,7 +42,13 @@ export async function onRequest(context) {
     return json({ error: 'Workers AI not configured' }, 500);
   }
 
-  const user = await verifyAuth(request, env);
+  const supabaseUrl = env.SUPABASE_URL || env.VITE_SUPABASE_URL;
+  const supabaseAnonKey = env.SUPABASE_ANON_KEY || env.VITE_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return json({ error: 'Supabase server configuration is missing' }, 500);
+  }
+
+  const user = await verifyAuth(request, supabaseUrl, supabaseAnonKey);
   if (!user) {
     return json({ error: 'Unauthorized' }, 401);
   }

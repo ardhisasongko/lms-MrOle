@@ -20,7 +20,7 @@ function formatTime(date) {
   return new Date(date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 }
 
-function MessageBubble({ msg, onCopy }) {
+function MessageBubble({ msg }) {
   const [copied, setCopied] = useState(false);
   const isUser = msg.role === 'user';
 
@@ -135,7 +135,7 @@ export default function Chat() {
     setFailedMessage(null);
 
     try {
-      const history = updated.slice(-10).map((m) => ({ role: m.role, content: m.content }));
+      const history = messages.slice(-10).map((m) => ({ role: m.role, content: m.content }));
       const reply = await sendChatMessage(text, mode, history);
       setMessages((prev) => [...prev, { role: 'assistant', content: sanitize(reply), timestamp: new Date() }]);
     } catch (err) {
