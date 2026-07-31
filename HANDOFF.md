@@ -147,12 +147,30 @@ WORK COMPLETED
 - Workflow run #3 SUCCESS — auto-deploy aktif, https://lms-mrole.pages.dev HTTP 200
 - Sejak ini: TIDAK perlu wrangler manual lagi; setiap push ke main auto-build + auto-deploy
 
+=== Sesi 12 (Git Sync, Fix Build Produksi, Custom Email Templates, SMTP Brevo) ===
+- Git sync: local kalah 18 commit dari remote + 15 file modified + 6 untracked. Awalnya commit lalu merge (74f5178) tapi muncul 7 konflik → user memutuskan RESET HARD ke origin/main, hanya file non-gitignored yang dipertahankan (.opencode/opencode-vision.json di-backup & di-restore; Front Err/ + *.zip yang gitignored dihapus). Local kini persis remote (9ec3c4f)
+- Fix Build Produksi: error "VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY must be configured" di bundle produksi — root cause: .env gitignored, deploy.yml tidak menyuntik env vars di CI. Fix: tambah env VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY di step build deploy.yml (dari GitHub secrets), user sudah menambahkan 2 secrets. Commit 0cbcf7e. Produksi lms-mrole.pages.dev HTTP 200, error hilang
+- Email konfirmasi custom brand "Mr Ole": dibuat 5 template HTML di supabase/templates/ (confirm, reset-password, magic-link, invite, email-change) dengan warna brand (primary #D96B5E, cta hijau) + variabel {{ .ConfirmationURL }}/{{ .SiteURL }}
+- Supabase free tier (project baru sejak 3 Juni 2026) TIDAK bisa kustom template dengan default SMTP — harus pakai custom SMTP (berlaku di free tier juga)
+- Setup SMTP Resend pertama (onboarding@resend.dev) — berhasil tapi resend.dev hanya bisa kirim ke email akun sendiri (403 untuk email lain), butuh domain verified untuk produksi
+- User tidak punya uang → ganti ke Brevo (gratis, 300 email/hari, tanpa domain): host smtp-relay.brevo.com, port 587, user b3f62a001@smtp-brevo.com, pass SMTP key xkeysib-...
+- Fix error Brevo "Unauthorized IP address": IP AWS 54.254.203.116 (outbound Supabase) di-authorize di Brevo → Authorized IPs; SMTP keys IP blocking di-DEACTIVATE (IP Supabase dinamis, tidak bisa di-whitelist satu-satu)
+- URL Configuration Supabase di-update via Management API: site_url → https://lms-mrole.pages.dev, uri_allow_list = produksi + localhost (dev). config.toml lokal di-sync
+- Semua 5 template email (subject + HTML) di-pasang ke produksi via API PATCH config/auth — TERVERIFIKASI: user dapat email konfirmasi branded Mr Ole di Gmail (subject "Konfirmasi email kamu — Mr Ole", header coral, tombol hijau)
+- Sender aktif: Mr Ole <ardhisasongko71@gmail.com> (email sender terverifikasi di Brevo)
+- Fix node_modules korupsi (OneDrive tidak sync file): file .mjs hilang (dompurify, @supabase/postgrest-js) → build error "Failed to resolve entry". Hapus + reinstall dompurify & @supabase/supabase-js → build pass (1m30s). Root cause khas OneDrive: kalau error resolve entry lagi, reinstall paket tsb
+- Commit Sesi 12: 0cbcf7e (deploy.yml env vars), 817bf60 (template email + site_url config.toml), 9310d6f (reinstall paket @supabase + dompurify)
+
 CURRENT STATE
 -------------
 - Semua 5 architecture candidate SELESAI
 - 13 migration sync (001–012 + seed 20250727)
 - Build sukses, deploy live via wrangler manual (auto-deploy GitHub masih mati)
 - AUTO-DEPLOY GitHub → Cloudflare Pages SUDAH AKTIF (workflow deploy.yml, run success) — tidak perlu wrangler manual lagi
+- Build produksi SUDAH diberi env vars VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY dari GitHub secrets (deploy.yml) — error Supabase di produksi hilang
+- SMTP Brevo AKTIF (gratis, 300 email/hari, kirim ke siapa pun): smtp-relay.brevo.com:587, sender Mr Ole <ardhisasongko71@gmail.com>. IP blocking SMTP deactivated
+- 5 template email branded Mr Ole TERPASANG di produksi (subject + HTML): confirm, reset-password, magic-link, invite, email-change — email konfirmasi tampil branded di Gmail
+- site_url Supabase = https://lms-mrole.pages.dev (redirect email konfirmasi ke produksi, bukan localhost)
 - Supabase CLI ter-install & ter-link
 - Quiz: tanpa instant feedback, tanpa crash, submit_quiz tanpa error ambigu
 - Dark mode toggle tersedia di Navbar, DashboardLayout, AdminLayout, Settings
@@ -191,6 +209,13 @@ PENDING TASKS
 - ~~Banner CTA responsive di HP (2 baris)~~ ✅
 - ~~Auto-deploy GitHub→Cloudflare Pages (root cause: package-lock.json tidak sinkron → npm ci gagal)~~ ✅
 - ~~Workflow deploy.yml (push ke main → build + deploy otomatis)~~ ✅
+- ~~Env vars Supabase di build produksi (VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY dari GitHub secrets)~~ ✅
+- ~~Custom email templates branded Mr Ole (5 template + subject)~~ ✅
+- ~~SMTP custom (Resend → Brevo gratis, kirim ke siapa pun)~~ ✅
+- ~~Brevo IP blocking (authorize IP AWS + deactivate SMTP keys)~~ ✅
+- ~~site_url produksi (lms-mrole.pages.dev)~~ ✅
+- ~~node_modules korupsi OneDrive (reinstall dompurify + @supabase)~~ ✅
+- Domain sendiri untuk sender produksi (noreply@domainmu.com) — belum, butuh dana
 
 KEY FILES
 ---------
@@ -216,6 +241,8 @@ KEY FILES
 - src/hooks/useDarkMode.js - Dark mode hook + storage sync listener
 - src/components/layout/DashboardLayout.jsx - Toggle dark mode di header mobile + sidebar
 - src/components/layout/AdminLayout.jsx - Toggle dark mode di header mobile + sidebar
+- supabase/templates/ - 5 template email branded Mr Ole (confirm, reset-password, magic-link, invite, email-change)
+- .github/workflows/deploy.yml - Auto-deploy + env vars Supabase dari GitHub secrets
 
 IMPORTANT DECISIONS
 -------------------
@@ -231,7 +258,10 @@ IMPORTANT DECISIONS
 - deleteUser moved to server-side Cloudflare Function (service_role key required)
 - Deploy: auto-deploy GitHub MATI → gunakan wrangler manual (CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID)
 - Deploy SEKARANG: auto-deploy AKTIF via .github/workflows/deploy.yml (push ke main). Wrangler manual hanya cadangan
-- GitHub secrets: CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID wajib ada di repo (Settings → Secrets → Actions)
+- GitHub secrets: CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID + VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY wajib ada di repo (Settings → Secrets → Actions)
+- SMTP produksi: Brevo (gratis, 300 email/hari, kirim ke siapa pun). Sender Mr Ole <ardhisasongko71@gmail.com>. IP blocking SMTP deactivated karena IP Supabase dinamis
+- Custom email template (project baru free tier) hanya bisa jika pakai custom SMTP — kebijakan Supabase sejak 3 Juni 2026
+- Template email dikelola via Dashboard (Authentication → Emails) atau API PATCH config/auth; file di supabase/templates/ hanya untuk local dev via config.toml
 - Token Cloudflare Pages disimpan di "Front Err/token-cloudflare.txt" (token cfut_eko... TIDAK punya izin Pages; gunakan token Pages yang tersimpan di file tsb — cfut_6wM...). File sudah masuk .gitignore
 - Dashboard motivasi: hitung dari data yang sudah ada (useProgress/useStreak/chartData) — tidak menambah query supabase baru
 
@@ -264,3 +294,7 @@ CONTEXT FOR CONTINUATION
 - Nama user tampil penuh (break-words) di mobile — tidak ada truncate
 - Auto-deploy GitHub→Cloudflare Pages AKTIF (workflow deploy.yml). Root cause lama (npm ci gagal karena lock tidak sinkron) sudah diperbaiki
 - Langkah deploy cepat: git push ke main → otomatis build + deploy (tanpa wrangler manual)
+- Build produksi sudah inject env vars Supabase dari GitHub secrets (deploy.yml)
+- Email produksi aktif via Brevo SMTP: 5 template branded Mr Ole terpasang, terkirim ke siapa pun, site_url sudah produksi
+- Kalau error build "Failed to resolve entry for package X" → OneDrive tidak sync node_modules; hapus & reinstall paket tsb (dompurify, @supabase/*)
+- TODO produksi: beli domain → verifikasi di Brevo → ganti sender ke noreply@domainmu.com
