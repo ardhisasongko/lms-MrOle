@@ -196,7 +196,7 @@ export default function History() {
                         {Math.round(a.score)}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-semibold text-gray-900 dark:text-gray-100">
+                        <p className="font-semibold text-gray-900 dark:text-gray-100 break-words leading-snug">
                           {a.categories?.name || 'Unknown'}
                         </p>
                         <div className="flex items-center gap-2 mt-1 flex-wrap">

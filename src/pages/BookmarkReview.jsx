@@ -134,12 +134,12 @@ export default function BookmarkReview() {
                 <CardContent className="py-4">
                   <div className="flex items-start gap-3">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1.5">
+                      <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                         <Badge variant={difficultyBadge[q.difficulty]} size="sm">
                           <DiffIcon className="w-3 h-3 inline mr-1" />
                           {DIFFICULTY_LABEL[q.difficulty]}
                         </Badge>
-                        <span className="text-xs text-gray-400">{q.categories?.name}</span>
+                        <span className="text-xs text-gray-400 min-w-0 break-words">{q.categories?.name}</span>
                       </div>
                       <p className="text-sm text-gray-900 dark:text-gray-100 line-clamp-2">
                         {q.question}

@@ -37,7 +37,7 @@ function MessageBubble({ msg, onCopy }) {
           <Robot className="w-4.5 h-4.5 text-white" weight="fill" />
         </div>
       )}
-      <div className={`max-w-[80%] ${isUser ? 'order-1' : ''}`}>
+      <div className={`max-w-[80%] min-w-0 ${isUser ? 'order-1' : ''}`}>
         <div
           className={`rounded-2xl px-4 py-3 text-[0.9375rem] leading-relaxed ${
             isUser
@@ -45,7 +45,7 @@ function MessageBubble({ msg, onCopy }) {
               : 'bg-gray-100 dark:bg-gray-700/80 text-gray-900 dark:text-gray-100 rounded-bl-md'
           }`}
         >
-          <p className="whitespace-pre-wrap">{msg.content}</p>
+          <p className="whitespace-pre-wrap break-words">{msg.content}</p>
         </div>
         <div className={`flex items-center gap-2 mt-1 ${isUser ? 'justify-end' : ''}`}>
           <span className="text-[0.6875rem] text-gray-400 dark:text-gray-500 flex items-center gap-1">
@@ -182,8 +182,8 @@ export default function Chat() {
                   : 'bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >
-              <Icon className="w-4 h-4" />
-              <span>{m.label}</span>
+              <Icon className="w-4 h-4 shrink-0" />
+              <span className="leading-tight">{m.label}</span>
             </button>
           );
         })}
@@ -213,9 +213,9 @@ export default function Chat() {
 
             {error && (
               <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 min-w-0">
                   <WarningCircle className="w-4 h-4 shrink-0" />
-                  <span>{error}</span>
+                  <span className="break-words">{error}</span>
                 </div>
                 {failedMessage && (
                   <button

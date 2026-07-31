@@ -52,6 +52,7 @@ export default function Login() {
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
             required
+            className="pr-10"
           />
           <button
             type="button"

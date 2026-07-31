@@ -129,34 +129,36 @@ export default function Practice() {
             className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800/50 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-primary-400 focus:ring-2 focus:ring-primary-200/50 dark:focus:ring-primary-800/30 transition-all duration-200"
           />
         </div>
-        <button
-          onClick={() => setUseAdaptive(!useAdaptive)}
-          className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
-            useAdaptive
-              ? 'bg-cta-500 text-white shadow-clay'
-              : 'bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
-          }`}
-        >
-          <MagicWand className="w-4 h-4" />
-          Adaptive
-        </button>
-        <button
-          onClick={() => { setUseTimed(!useTimed); if (!useTimed) setUseAdaptive(false); }}
-          className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
-            useTimed
-              ? 'bg-amber-500 text-white shadow-clay'
-              : 'bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
-          }`}
-        >
-          <Timer className="w-4 h-4" />
-          Timed (5 menit)
-        </button>
-        <button
-          onClick={() => { setUseAdaptive(false); setUseTimed(false); }}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600"
-        >
-          Normal
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setUseAdaptive(!useAdaptive)}
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+              useAdaptive
+                ? 'bg-cta-500 text-white shadow-clay'
+                : 'bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+            }`}
+          >
+            <MagicWand className="w-4 h-4" />
+            Adaptive
+          </button>
+          <button
+            onClick={() => { setUseTimed(!useTimed); if (!useTimed) setUseAdaptive(false); }}
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+              useTimed
+                ? 'bg-amber-500 text-white shadow-clay'
+                : 'bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+            }`}
+          >
+            <Timer className="w-4 h-4" />
+            Timed (5 menit)
+          </button>
+          <button
+            onClick={() => { setUseAdaptive(false); setUseTimed(false); }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600"
+          >
+            Normal
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -211,7 +213,7 @@ export default function Practice() {
                       <Icon className="w-5.5 h-5.5" weight={isSelected ? 'fill' : 'regular'} />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-[0.9375rem] text-gray-900 dark:text-gray-100 truncate">
+                      <p className="font-semibold text-[0.9375rem] text-gray-900 dark:text-gray-100 break-words leading-snug">
                         {cat.name}
                       </p>
                       <p className="text-[0.8125rem] text-gray-400 dark:text-gray-500 leading-snug line-clamp-2">

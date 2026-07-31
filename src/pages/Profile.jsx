@@ -134,9 +134,9 @@ export default function Profile() {
                 <Camera className="w-5 h-5 text-white" />
               </button>
             </div>
-            <div>
-              <p className="font-semibold text-gray-900 dark:text-gray-100">{form.fullName || 'Belum diisi'}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{user?.email}</p>
+            <div className="min-w-0">
+              <p className="font-semibold text-gray-900 dark:text-gray-100 break-words leading-snug">{form.fullName || 'Belum diisi'}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 break-words">{user?.email}</p>
             </div>
           </div>
         </CardHeader>

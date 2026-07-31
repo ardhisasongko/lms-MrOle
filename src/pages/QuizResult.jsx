@@ -336,7 +336,7 @@ export default function QuizResult() {
                 key={f.key}
                 onClick={() => { setFilter(f.key); setCurrentIndex(0); }}
                 className={`
-                  flex-1 px-3 py-2 rounded-lg text-sm font-medium
+                  flex-1 px-2 sm:px-3 py-2 rounded-lg text-sm font-medium leading-tight
                   transition-all duration-200 ease-spring
                   ${isActive
                     ? 'bg-white dark:bg-gray-600 shadow-sm text-gray-900 dark:text-gray-100'
@@ -345,7 +345,7 @@ export default function QuizResult() {
                 `.trim()}
               >
                 {f.label}
-                <span className="ml-1.5 tabular-nums opacity-60">({count})</span>
+                <span className="ml-1.5 tabular-nums opacity-60 shrink-0">({count})</span>
               </button>
             );
           })}
@@ -419,7 +419,7 @@ export default function QuizResult() {
                         `.trim()}>
                           {opt.label}
                         </span>
-                        <span className="flex-1 text-gray-700 dark:text-gray-300">{opt.text}</span>
+                        <span className="flex-1 min-w-0 break-words text-gray-700 dark:text-gray-300">{opt.text}</span>
                         {icon && (
                           <span className="flex items-center">{icon}</span>
                         )}

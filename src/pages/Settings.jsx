@@ -32,13 +32,13 @@ export default function Settings() {
             to="/profile"
             className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center shrink-0">
                 <User className="w-5 h-5 text-primary-600" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="font-medium text-gray-900 dark:text-gray-100">{t('nav.profile')}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{user?.email}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 break-words">{user?.email}</p>
               </div>
             </div>
             <CaretRight className="w-5 h-5 text-gray-400" />

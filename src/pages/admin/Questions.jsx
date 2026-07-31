@@ -109,10 +109,10 @@ export default function AdminQuestions() {
             <Badge variant="secondary" size="sm">{q.categories?.name}</Badge>
             <Badge variant={q.difficulty === 'easy' ? 'success' : q.difficulty === 'medium' ? 'warning' : 'danger'} size="sm">{DIFFICULTY_LABEL[q.difficulty]}</Badge>
             <Badge size="sm">{q.type === 'multiple_choice' ? 'PG' : 'Isian'}</Badge>
-            <span className="text-xs text-gray-500">Jawaban: {sanitize(q.correct_answer)}</span>
+            <span className="text-xs text-gray-500 break-words">Jawaban: {sanitize(q.correct_answer)}</span>
           </div>
           {q.type === 'multiple_choice' && (
-            <p className="text-xs text-gray-400 mt-1 truncate">{renderOptions(q.options)}</p>
+            <p className="text-xs text-gray-400 mt-1 break-words leading-snug">{renderOptions(q.options)}</p>
           )}
         </div>
       )}

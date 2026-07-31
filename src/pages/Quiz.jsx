@@ -288,19 +288,19 @@ export default function Quiz() {
             style={{ width: `${progress}%` }}
           />
         </div>
-        <div className="flex justify-between items-center text-sm">
-          <span className="flex items-center gap-2">
+        <div className="flex justify-between items-center text-sm gap-3 flex-wrap gap-y-1.5">
+          <span className="flex items-center gap-2 min-w-0">
             <span className="text-gray-400 dark:text-gray-500 font-medium tabular-nums">
               Soal {currentIndex + 1}
               <span className="text-gray-300 dark:text-gray-600"> dari {questions.length}</span>
             </span>
             {isAdaptive && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.625rem] font-semibold uppercase tracking-wider bg-cta-100 dark:bg-cta-900/30 text-cta-700 dark:text-cta-300">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.625rem] font-semibold uppercase tracking-wider bg-cta-100 dark:bg-cta-900/30 text-cta-700 dark:text-cta-300 shrink-0">
                 Adaptive
               </span>
             )}
           </span>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0">
             <span className={`inline-flex items-center gap-1 tabular-nums ${
               timedMode && timeLeft !== null && timeLeft <= 60
                 ? 'text-red-500 dark:text-red-400 font-semibold'
@@ -403,12 +403,12 @@ export default function Quiz() {
                   <button
                     key={q.id}
                     onClick={() => { setCurrentIndex(idx); setShowReview(false); }}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all"
+                    className="w-full flex items-start gap-3 px-3 py-2.5 rounded-xl text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all"
                   >
                     <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
                       {idx + 1}
                     </span>
-                    <span className="flex-1 truncate text-gray-700 dark:text-gray-300">
+                    <span className="flex-1 min-w-0 break-words text-gray-700 dark:text-gray-300">
                       {q.question}
                     </span>
                     {hasAns ? (

@@ -370,9 +370,9 @@ export default function Dashboard() {
                   to={`/practice`}
                   className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-all group"
                 >
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{cat.name}</p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500">Rata-rata: {cat.score}% — Perlu ditingkatkan</p>
+                  <div className="min-w-0">
+                    <p className="font-medium text-gray-900 dark:text-gray-100 text-sm break-words leading-snug">{cat.name}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 break-words">Rata-rata: {cat.score}% — Perlu ditingkatkan</p>
                   </div>
                   <PlayCircle className="w-5 h-5 text-gray-300 dark:text-gray-600 group-hover:text-primary-500 transition-colors" weight="fill" />
                 </Link>

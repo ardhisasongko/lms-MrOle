@@ -54,6 +54,9 @@
 
   html {
     scroll-behavior: smooth;
+    /* Fluid root font: skala otomatis mengikuti lebar layar (clamp 15px–17px).
+       Semua ukuran rem Tailwind ikut menyesuaikan dimensi HP user. */
+    font-size: clamp(15px, 4.267vw, 17px);
   }
 
   body {

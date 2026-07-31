@@ -47,7 +47,7 @@ const StreakCard = memo(function StreakCard({ streakData, loading }) {
             return (
               <div key={day.date} className="flex flex-col items-center gap-1">
                 <span className="text-[0.625rem] text-gray-400 dark:text-gray-500">{dayName}</span>
-                <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-[0.625rem] font-medium transition-all ${
+                <div className={`w-full aspect-square rounded-lg flex items-center justify-center text-[0.625rem] font-medium transition-all ${
                   day.done
                     ? 'bg-cta-500 text-white shadow-sm'
                     : 'bg-gray-100 dark:bg-gray-700/50 text-gray-400 dark:text-gray-500'
