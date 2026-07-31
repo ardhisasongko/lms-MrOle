@@ -48,7 +48,7 @@ export default function Leaderboard() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900 dark:text-gray-100 truncate">{user.name}</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100 break-words leading-snug">{user.name}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">{user.sessions} sesi, {user.totalQuestions} soal</p>
                 </div>
                 <div className="text-right shrink-0">

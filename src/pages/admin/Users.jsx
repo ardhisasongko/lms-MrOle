@@ -152,7 +152,7 @@ export default function AdminUsers() {
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="font-semibold text-gray-900 dark:text-gray-100 truncate">{u.full_name}</p>
+                        <p className="font-semibold text-gray-900 dark:text-gray-100 break-words leading-snug">{u.full_name}</p>
                         <Badge variant={u.role === 'admin' ? 'primary' : 'secondary'} size="sm">
                           {u.role === 'admin' ? (
                             <span className="flex items-center gap-1"><Shield className="w-3 h-3" /> Admin</span>

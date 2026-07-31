@@ -143,7 +143,7 @@ export default function AdminDashboard() {
                       'bg-red-500'
                     }`} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-gray-700 dark:text-gray-300 truncate">
+                      <p className="text-gray-700 dark:text-gray-300 break-words leading-snug">
                         <span className="font-medium">{log.profiles?.full_name || 'Admin'}</span>
                         {' '}{actionLabel(log.action)}{' '}
                         <span className="font-medium">{log.table_name}</span>

@@ -25,3 +25,6 @@ fix-report/
 **/C:\\*
 lighthouse.*/
 
+# Secrets
+Front Err/token-cloudflare.txt
+

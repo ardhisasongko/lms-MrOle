@@ -7,7 +7,7 @@ import { useProgress } from '../hooks/useProgress';
 import { useStreak } from '../hooks/useStreak';
 import { useAuth } from '../contexts/AuthContext';
 import { getBookmarkCount } from '../services/bookmarks';
-import { formatDate, getLocale } from '../utils/format';
+import { getLocale } from '../utils/format';
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { checkBadges, getDailyProgress, getRecommendations } from '../services/gamification';
@@ -66,45 +66,133 @@ export default function Dashboard() {
 
   const recommendations = useMemo(() => getRecommendations(scoreByCategory), [scoreByCategory]);
 
+  const motivation = useMemo(() => {
+    if (loading) return null;
+    if (stats.totalQuestions === 0) {
+      return 'Ayo mulai! Kerjakan latihan pertamamu untuk membuka rapor belajarmu.';
+    }
+    if (dailyProgress.answered < 10) {
+      const remaining = 10 - dailyProgress.answered;
+      return `Tinggal ${remaining} soal lagi untuk menyelesaikan Quest Harian. Pertahankan streak ${streakData.currentStreak} harimu!`;
+    }
+    if (streakData.currentStreak >= 3) {
+      return `Hebat, streak ${streakData.currentStreak} hari! Jangan putus hari ini.`;
+    }
+    return 'Quest harian selesai! Lanjut tantang dirimu di kategori lain.';
+  }, [loading, stats.totalQuestions, dailyProgress.answered, streakData.currentStreak]);
+
+  const improvement = useMemo(() => {
+    if (chartData.length < 2) return null;
+    const today = chartData[chartData.length - 1].score;
+    const yesterday = chartData[chartData.length - 2].score;
+    if (yesterday > 0 && today > yesterday) return today - yesterday;
+    return null;
+  }, [chartData]);
+
+  const categoryInsight = useMemo(() => {
+    if (scoreByCategory.length < 2) return null;
+    const best = scoreByCategory.reduce((a, b) => (b.score > a.score ? b : a));
+    const weak = scoreByCategory.reduce((a, b) => (b.score < a.score ? b : a));
+    if (best.name === weak.name) return null;
+    return { best, weak };
+  }, [scoreByCategory]);
+
+  function timeAgo(dateStr) {
+    if (!dateStr) return null;
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 1) return 'baru saja';
+    if (minutes < 60) return `${minutes} menit lalu`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} jam lalu`;
+    const days = Math.floor(hours / 24);
+    return days === 1 ? 'kemarin' : `${days} hari lalu`;
+  }
+
   const statCards = [
-    { label: 'Total Soal', value: stats.totalQuestions, icon: BookOpen, color: 'text-primary-500 bg-primary-100 dark:bg-primary-900/30' },
-    { label: 'Rata-rata Nilai', value: `${stats.averageScore}%`, icon: TrendUp, color: 'text-cta-500 bg-cta-100 dark:bg-cta-900/30' },
-    { label: 'Streak', value: `${streakData.currentStreak} hari`, icon: Medal, color: 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30' },
-    { label: 'Bookmark', value: bookmarkCount, icon: BookmarkSimple, color: 'text-secondary-500 bg-secondary-100 dark:bg-secondary-900/30' },
+    { label: 'Total Soal', value: stats.totalQuestions, icon: BookOpen, color: 'text-primary-500 bg-primary-100 dark:bg-primary-900/30', to: '/history' },
+    { label: 'Rata-rata Nilai', value: `${stats.averageScore}%`, icon: TrendUp, color: 'text-cta-500 bg-cta-100 dark:bg-cta-900/30', to: '/history' },
+    { label: 'Streak', value: `${streakData.currentStreak} hari`, icon: Medal, color: 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30', to: '/practice' },
+    { label: 'Bookmark', value: bookmarkCount, icon: BookmarkSimple, color: 'text-secondary-500 bg-secondary-100 dark:bg-secondary-900/30', to: '/bookmarks' },
   ];
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div>
         <h1 className="text-[1.875rem] font-semibold tracking-tight text-gray-900 dark:text-gray-100">Dashboard</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1.5">Pantau perkembangan belajarmu.</p>
+        <p className="text-gray-500 dark:text-gray-400 mt-1.5">{motivation || 'Pantau perkembangan belajarmu.'}</p>
+        {!loading && stats.lastSession && (
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+            Latihan terakhir: {timeAgo(stats.lastSession)}
+          </p>
+        )}
       </div>
 
-      {!loading && stats.totalQuestions > 0 && (
-        <Card>
-          <CardContent className="py-5 px-6">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shrink-0 shadow-clay">
-                <Star className="w-7 h-7 text-white" weight="fill" />
+      {!loading && stats.totalQuestions > 0 && improvement && (
+        <div className="flex items-center gap-3 px-5 py-4 rounded-2xl bg-green-50 dark:bg-green-900/20 ring-1 ring-green-200 dark:ring-green-800/30">
+          <span className="text-2xl">🎉</span>
+          <p className="text-sm font-medium text-green-800 dark:text-green-300">
+            Skormu naik {improvement} poin dibanding kemarin. Pertahankan momentummu!
+          </p>
+        </div>
+      )}
+
+      <Card hover={false}>
+        <CardContent className="py-4 px-5 sm:px-6">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shrink-0">
+                <PlayCircle className="w-6 h-6 text-white" weight="fill" />
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-2">
-                  <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Level {level}</h2>
-                  <span className="text-sm text-gray-400 dark:text-gray-500 tabular-nums">{xp} XP</span>
-                </div>
-                <div className="mt-2 relative w-full h-2.5 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
-                  <div
-                    className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500 ease-spring"
-                    style={{ width: `${levelProgress}%` }}
-                  />
-                </div>
-                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                  {xp}/{nextLevelXp} XP ke Level {level + 1}
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
+                  {stats.totalQuestions === 0 ? 'Siap mulai belajar?' : 'Lanjut berlatih!'}
+                </h3>
+                <p className="text-xs text-gray-400 dark:text-gray-500">
+                  {stats.totalQuestions === 0
+                    ? 'Kerjakan latihan pertamamu dan raih badge pertama.'
+                    : 'Pilih kategori dan naikkan levelmu hari ini.'}
                 </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+            <Link
+              to="/practice"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-cta-500 text-white text-sm font-medium rounded-xl hover:bg-cta-600 shadow-clay transition-all duration-200 ease-spring active:scale-[0.98] shrink-0 min-h-[44px]"
+            >
+              Mulai Latihan
+              <PlayCircle className="w-4 h-4" weight="fill" />
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+
+      {!loading && stats.totalQuestions > 0 && (
+        <Link to="/practice" className="block group">
+          <Card hover={false}>
+            <CardContent className="py-5 px-6">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shrink-0 shadow-clay">
+                  <Star className="w-7 h-7 text-white" weight="fill" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Level {level}</h2>
+                    <span className="text-sm text-gray-400 dark:text-gray-500 tabular-nums">{xp} XP</span>
+                  </div>
+                  <div className="mt-2 relative w-full h-2.5 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
+                    <div
+                      className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500 ease-spring"
+                      style={{ width: `${levelProgress}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                    {xp}/{nextLevelXp} XP ke Level {level + 1}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
       )}
 
       {loading ? (
@@ -118,15 +206,21 @@ export default function Dashboard() {
           {statCards.map((stat) => {
             const Icon = stat.icon;
             return (
-              <Card key={stat.label}>
-                <CardContent className="flex flex-col items-center text-center py-5">
-                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-3 ${stat.color}`}>
-                    <Icon className="w-5 h-5" weight="fill" />
-                  </div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stat.value}</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{stat.label}</p>
-                </CardContent>
-              </Card>
+              <Link
+                key={stat.label}
+                to={stat.to}
+                className="group block transition-transform duration-200 ease-spring hover:-translate-y-0.5 active:scale-[0.98]"
+              >
+                <Card hover={false} className="h-full group-hover:shadow-md transition-shadow duration-200">
+                  <CardContent className="flex flex-col items-center text-center py-5">
+                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-3 ${stat.color}`}>
+                      <Icon className="w-5 h-5" weight="fill" />
+                    </div>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stat.value}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 group-hover:text-primary-500 transition-colors">{stat.label}</p>
+                  </CardContent>
+                </Card>
+              </Link>
             );
           })}
         </div>
@@ -183,24 +277,36 @@ export default function Dashboard() {
             ) : scoreByCategory.length === 0 ? (
               <EmptyState icon={BookOpen} title="Belum Ada Data" description="Kerjakan latihan untuk melihat skor per kategori." />
             ) : (
-              <div className="space-y-4">
-                {scoreByCategory.map((cat) => (
-                  <div key={cat.name}>
-                    <div className="flex justify-between text-sm mb-1.5">
-                      <span className="text-gray-600 dark:text-gray-400">{cat.name}</span>
-                      <span className="font-medium text-gray-900 dark:text-gray-100">{cat.score}%</span>
+              <>
+                <div className="space-y-4">
+                  {scoreByCategory.map((cat) => (
+                    <div key={cat.name}>
+                      <div className="flex justify-between text-sm mb-1.5">
+                        <span className="text-gray-600 dark:text-gray-400">{cat.name}</span>
+                        <span className="font-medium text-gray-900 dark:text-gray-100">{cat.score}%</span>
+                      </div>
+                      <div className="w-full bg-black/[0.04] dark:bg-white/[0.06] rounded-full h-2">
+                        <div
+                          className={`h-2 rounded-full transition-all ${
+                            cat.score >= 80 ? 'bg-cta-500' : cat.score >= 50 ? 'bg-yellow-500' : 'bg-red-500'
+                          }`}
+                          style={{ width: `${cat.score}%` }}
+                        />
+                      </div>
                     </div>
-                    <div className="w-full bg-black/[0.04] dark:bg-white/[0.06] rounded-full h-2">
-                      <div
-                        className={`h-2 rounded-full transition-all ${
-                          cat.score >= 80 ? 'bg-cta-500' : cat.score >= 50 ? 'bg-yellow-500' : 'bg-red-500'
-                        }`}
-                        style={{ width: `${cat.score}%` }}
-                      />
-                    </div>
+                  ))}
+                </div>
+                {categoryInsight && (
+                  <div className="mt-4 pt-3 border-t border-black/[0.04] dark:border-white/[0.06] space-y-1">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      💪 Terkuat: <span className="font-medium text-gray-700 dark:text-gray-300">{categoryInsight.best.name}</span> ({categoryInsight.best.score}%)
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      🎯 Perlu ditingkatkan: <span className="font-medium text-gray-700 dark:text-gray-300">{categoryInsight.weak.name}</span> ({categoryInsight.weak.score}%)
+                    </p>
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             )}
           </CardContent>
         </Card>
