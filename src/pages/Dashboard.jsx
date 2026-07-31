@@ -139,12 +139,12 @@ export default function Dashboard() {
 
       <Card hover={false}>
         <CardContent className="py-4 px-5 sm:px-6">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3 min-w-0">
               <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shrink-0">
                 <PlayCircle className="w-6 h-6 text-white" weight="fill" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
                   {stats.totalQuestions === 0 ? 'Siap mulai belajar?' : 'Lanjut berlatih!'}
                 </h3>
@@ -157,7 +157,7 @@ export default function Dashboard() {
             </div>
             <Link
               to="/practice"
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-cta-500 text-white text-sm font-medium rounded-xl hover:bg-cta-600 shadow-clay transition-all duration-200 ease-spring active:scale-[0.98] shrink-0 min-h-[44px]"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-cta-500 text-white text-sm font-medium rounded-xl hover:bg-cta-600 shadow-clay transition-all duration-200 ease-spring active:scale-[0.98] shrink-0 min-h-[44px] w-full sm:w-auto"
             >
               Mulai Latihan
               <PlayCircle className="w-4 h-4" weight="fill" />
