@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
-    "@supabase/supabase-js": "^2.110.8",
+    "@supabase/supabase-js": "^2.111.0",
     "dompurify": "^3.4.12",
     "html2canvas": "^1.4.1",
     "i18next": "^26.3.6",
