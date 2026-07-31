@@ -127,7 +127,7 @@ export default function App() {
           <AppRoutes />
         </ErrorBoundary>
         <Toaster
-          position="top-right"
+          position="top-center"
           toastOptions={{
             duration: 4000,
             style: {

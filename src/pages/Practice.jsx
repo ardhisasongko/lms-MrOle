@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   BookOpen, Book, FileText, Headphones, Microphone, PenNib,
-  CaretRight, GraduationCap, MagnifyingGlass, Star, MagicWand,
+  CaretRight, GraduationCap, MagnifyingGlass, Star, MagicWand, Timer,
 } from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
 import Button from '../components/common/Button';
@@ -40,6 +40,7 @@ export default function Practice() {
   const [lastScores, setLastScores] = useState({});
   const [adaptiveScores, setAdaptiveScores] = useState({});
   const [useAdaptive, setUseAdaptive] = useState(false);
+  const [useTimed, setUseTimed] = useState(false);
 
   const fetchExtras = useCallback(async () => {
     try {
@@ -84,14 +85,19 @@ export default function Practice() {
       toast.error('Pilih kategori');
       return;
     }
+    const params = [];
     if (useAdaptive && adaptiveScores[selectedCategory]) {
-      navigate(`/practice/${selectedCategory}?difficulty=${adaptiveScores[selectedCategory]}&adaptive=true`);
-    } else if (!selectedDifficulty) {
-      toast.error('Pilih tingkat kesulitan');
-      return;
+      params.push(`difficulty=${adaptiveScores[selectedCategory]}`, 'adaptive=true');
+    } else if (useTimed) {
+      params.push(`difficulty=${selectedDifficulty || 'easy'}`, 'timed=true');
     } else {
-      navigate(`/practice/${selectedCategory}?difficulty=${selectedDifficulty}`);
+      if (!selectedDifficulty) {
+        toast.error('Pilih tingkat kesulitan');
+        return;
+      }
+      params.push(`difficulty=${selectedDifficulty}`);
     }
+    navigate(`/practice/${selectedCategory}?${params.join('&')}`);
   };
 
   const filtered = search
@@ -133,6 +139,23 @@ export default function Practice() {
         >
           <MagicWand className="w-4 h-4" />
           Adaptive
+        </button>
+        <button
+          onClick={() => { setUseTimed(!useTimed); if (!useTimed) setUseAdaptive(false); }}
+          className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+            useTimed
+              ? 'bg-amber-500 text-white shadow-clay'
+              : 'bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+          }`}
+        >
+          <Timer className="w-4 h-4" />
+          Timed (5 menit)
+        </button>
+        <button
+          onClick={() => { setUseAdaptive(false); setUseTimed(false); }}
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600"
+        >
+          Normal
         </button>
       </div>
 

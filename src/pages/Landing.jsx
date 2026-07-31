@@ -37,7 +37,7 @@ export default function Landing() {
 
       {/* ─── HERO ─── */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary-300 via-secondary-300 to-lavender-400">
-        <div className="absolute inset-0 opacity-20">
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
           <div className="absolute -top-20 -left-20 w-80 h-80 bg-white rounded-full blur-3xl" />
           <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-white rounded-full blur-3xl" />
           <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-lavender-400 rounded-full blur-3xl" />
@@ -45,14 +45,14 @@ export default function Landing() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-28 lg:py-36">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/70 text-gray-700 text-sm font-medium backdrop-blur-sm mb-8 shadow-sm">
+              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/70 dark:bg-gray-800/70 text-gray-700 dark:text-gray-200 text-sm font-medium backdrop-blur-sm mb-8 shadow-sm">
                 <Sparkle className="w-4 h-4 text-primary-400" weight="fill" /> Platform Belajar Inggris #1 untuk siswa Indonesia
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-gray-800 leading-tight">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-gray-800 dark:text-gray-100 leading-tight">
                 Belajar Inggris
                 <span className="block text-white drop-shadow-sm">Jadi Petualangan Seru!</span>
               </h1>
-              <p className="text-lg text-gray-600 mb-10 max-w-lg leading-relaxed">
+              <p className="text-lg text-gray-600 dark:text-gray-300 mb-10 max-w-lg leading-relaxed">
                 Mr Ole bikin belajar bahasa Inggris terasa kayak main game — latihan seru, progres terpantau, dan AI siap bantu kapan aja!
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
@@ -64,7 +64,7 @@ export default function Landing() {
                 </Link>
                 <Link
                   to="/login"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-white/80 text-gray-700 hover:bg-white hover:text-gray-900 font-semibold text-lg backdrop-blur-sm transition-all duration-300 ease-spring w-full sm:w-auto"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-700 hover:text-gray-900 font-semibold text-lg backdrop-blur-sm transition-all duration-300 ease-spring w-full sm:w-auto"
                 >
                   Masuk
                 </Link>
@@ -96,15 +96,15 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
             {[
-              { value: '500+', label: 'Siswa Aktif', colorClass: 'text-primary-300' },
-              { value: '250+', label: 'Bank Soal', colorClass: 'text-secondary-300' },
-              { value: '6', label: 'Kategori Belajar', colorClass: 'text-lavender-400' },
-              { value: '100%', label: 'Gratis!', colorClass: 'text-mint-400' },
+              { value: '500+', label: 'Siswa Aktif', colorClass: 'text-primary-600 dark:text-primary-400' },
+              { value: '250+', label: 'Bank Soal', colorClass: 'text-secondary-600 dark:text-secondary-400' },
+              { value: '6', label: 'Kategori Belajar', colorClass: 'text-lavender-600 dark:text-lavender-400' },
+              { value: '100%', label: 'Gratis!', colorClass: 'text-mint-600 dark:text-mint-400' },
             ].map((stat) => (
               <Card key={stat.label} hover={false}>
                 <CardContent className="text-center py-6">
                   <div className={`text-3xl sm:text-4xl font-bold mb-1 ${stat.colorClass}`}>{stat.value}</div>
-                  <div className="text-sm text-gray-400 font-medium">{stat.label}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">{stat.label}</div>
                 </CardContent>
               </Card>
             ))}
@@ -116,10 +116,10 @@ export default function Landing() {
       <section className="py-16 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-4 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 dark:text-gray-100 mb-4 tracking-tight">
               Pilih Petualanganmu
             </h2>
-            <p className="text-gray-400 max-w-2xl mx-auto text-lg">
+            <p className="text-gray-400 dark:text-gray-500 max-w-2xl mx-auto text-lg">
               6 kategori belajar yang bakal bikin kamu makin jago bahasa Inggris
             </p>
           </div>
@@ -133,8 +133,8 @@ export default function Landing() {
                   >
                     <Icon className={`w-7 h-7 ${course.colorClass}`} weight="fill" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-2">{course.title}</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">{course.desc}</p>
+                  <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">{course.title}</h3>
+                  <p className="text-gray-400 dark:text-gray-500 text-sm leading-relaxed">{course.desc}</p>
                   <div
                     className={`mt-4 h-1.5 rounded-full w-0 group-hover:w-full transition-all duration-500 ease-spring bg-gradient-to-r ${course.colorClass} to-transparent opacity-50`}
                   />
@@ -149,44 +149,44 @@ export default function Landing() {
       <section className="py-16 sm:py-20 bg-page-light dark:bg-page-dark">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-4 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 dark:text-gray-100 mb-4 tracking-tight">
               Pantau Progres, Tetap Semangat
             </h2>
-            <p className="text-gray-400 max-w-2xl mx-auto text-lg">
+            <p className="text-gray-400 dark:text-gray-500 max-w-2xl mx-auto text-lg">
               Setiap latihan tercatat — lihat perkembanganmu dari hari ke hari
             </p>
           </div>
           <div className="max-w-4xl mx-auto">
             <Card className="p-6 sm:p-8">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="font-bold text-gray-800 text-lg">Minggu Ini</h3>
+                <h3 className="font-bold text-gray-800 dark:text-gray-100 text-lg">Minggu Ini</h3>
                 <Badge variant="success" size="sm">+15% dari minggu lalu</Badge>
               </div>
               <div className="space-y-3">
                 {weeklyData.map((d) => (
                   <div key={d.day} className="flex items-center gap-3">
-                    <span className="w-8 text-sm font-semibold text-gray-400">{d.day}</span>
+                    <span className="w-8 text-sm font-semibold text-gray-400 dark:text-gray-500">{d.day}</span>
                     <div className="flex-1 h-5 rounded-full bg-black/[0.04] dark:bg-white/[0.06]">
                       <div
                         className="h-full rounded-full transition-all duration-500 ease-spring bg-gradient-to-r from-primary-300 to-secondary-300"
                         style={{ width: `${d.pct}%` }}
                       />
                     </div>
-                    <span className="w-10 text-sm font-bold text-gray-600 text-right">{d.pct}%</span>
+                    <span className="w-10 text-sm font-bold text-gray-600 dark:text-gray-300 text-right">{d.pct}%</span>
                   </div>
                 ))}
               </div>
               <div className="mt-6 pt-5 border-t border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between">
                 <div>
-                  <span className="text-sm text-gray-400">Streak belajar</span>
+                  <span className="text-sm text-gray-400 dark:text-gray-500">Streak belajar</span>
                   <div className="flex items-center gap-2 mt-1">
                     <Flame className="w-5 h-5 text-orange-400" weight="fill" />
-                    <span className="text-2xl font-bold text-gray-800">5 hari</span>
+                    <span className="text-2xl font-bold text-gray-800 dark:text-gray-100">5 hari</span>
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-sm text-gray-400">Rata-rata skor</span>
-                  <div className="text-2xl font-bold mt-1 text-primary-400">76%</div>
+                  <span className="text-sm text-gray-400 dark:text-gray-500">Rata-rata skor</span>
+                  <div className="text-2xl font-bold mt-1 text-primary-400 dark:text-primary-300">76%</div>
                 </div>
               </div>
             </Card>
@@ -198,10 +198,10 @@ export default function Landing() {
       <section className="py-16 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-4 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 dark:text-gray-100 mb-4 tracking-tight">
               Kata Mereka
             </h2>
-            <p className="text-gray-400 max-w-2xl mx-auto text-lg">
+            <p className="text-gray-400 dark:text-gray-500 max-w-2xl mx-auto text-lg">
               Yang udah cobain Mr Ole, pada suka!
             </p>
           </div>
@@ -213,7 +213,7 @@ export default function Landing() {
                     <Star key={i} className="w-4 h-4 text-primary-400" weight="fill" />
                   ))}
                 </div>
-                <p className="text-gray-600 text-sm leading-relaxed mb-6 italic">
+                <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-6 italic">
                   &ldquo;{t.text}&rdquo;
                 </p>
                 <div className="flex items-center gap-3">
@@ -223,8 +223,8 @@ export default function Landing() {
                     {t.avatar}
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-800 text-sm">{t.name}</div>
-                    <div className="text-xs text-gray-400">{t.role}</div>
+                    <div className="font-semibold text-gray-800 dark:text-gray-100 text-sm">{t.name}</div>
+                    <div className="text-xs text-gray-400 dark:text-gray-500">{t.role}</div>
                   </div>
                 </div>
               </Card>
@@ -245,7 +245,7 @@ export default function Landing() {
             ].map((item) => {
               const Icon = item.icon;
               return (
-                <div key={item.text} className="flex items-center gap-2 text-gray-600">
+                <div key={item.text} className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
                   <Icon className="w-5 h-5 text-cta-500" weight="fill" />
                   <span className="font-medium text-sm">{item.text}</span>
                 </div>
@@ -257,15 +257,15 @@ export default function Landing() {
 
       {/* ─── CTA ─── */}
       <section className="py-20 sm:py-28 relative overflow-hidden bg-gradient-to-br from-primary-300 via-secondary-300 to-lavender-400">
-        <div className="absolute inset-0 opacity-15">
+        <div className="absolute inset-0 opacity-15 pointer-events-none">
           <div className="absolute top-10 right-10 w-72 h-72 bg-white rounded-full blur-3xl" />
           <div className="absolute bottom-10 left-10 w-80 h-80 bg-white rounded-full blur-3xl" />
         </div>
         <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-5xl font-bold text-gray-800 mb-4 leading-tight tracking-tight">
+          <h2 className="text-3xl sm:text-5xl font-bold text-gray-800 dark:text-gray-100 mb-4 leading-tight tracking-tight">
             Siap Jadi Jago Inggris?
           </h2>
-          <p className="text-gray-600 text-lg mb-10 max-w-xl mx-auto">
+          <p className="text-gray-600 dark:text-gray-300 text-lg mb-10 max-w-xl mx-auto">
             Gratis selamanya. Mulai sekarang, nggak perlu ragu!
           </p>
           <Link

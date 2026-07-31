@@ -1,4 +1,4 @@
-import { BookOpen, TrendUp, Medal, BookmarkSimple, Target } from '@phosphor-icons/react';
+import { BookOpen, TrendUp, Medal, BookmarkSimple, Target, Star, Lightbulb, PlayCircle } from '@phosphor-icons/react';
 import Card, { CardContent, CardHeader } from '../components/common/Card';
 import EmptyState from '../components/feedback/EmptyState';
 import Skeleton from '../components/common/Skeleton';
@@ -8,19 +8,63 @@ import { useStreak } from '../hooks/useStreak';
 import { useAuth } from '../contexts/AuthContext';
 import { getBookmarkCount } from '../services/bookmarks';
 import { formatDate, getLocale } from '../utils/format';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { checkBadges, getDailyProgress, getRecommendations } from '../services/gamification';
+import Confetti from '../components/game/Confetti';
+import { playLevelUp } from '../utils/sound';
 
 export default function Dashboard() {
   const { user } = useAuth();
   const { stats, scoreByCategory, chartData, loading } = useProgress();
   const streakData = useStreak();
   const [bookmarkCount, setBookmarkCount] = useState(0);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [prevLevel, setPrevLevel] = useState(1);
+  const dailyProgress = useMemo(() => getDailyProgress(), []);
+  const hasPerfect = useMemo(() => stats.averageScore >= 100, [stats]);
 
   useEffect(() => {
     if (user?.id) {
       getBookmarkCount(user.id).then(setBookmarkCount).catch(() => {});
     }
   }, [user?.id]);
+
+  const { xp, level, nextLevelXp, prevLevelXp } = useMemo(() => {
+    if (stats.totalQuestions === 0) return { xp: 0, level: 1, nextLevelXp: 100, prevLevelXp: 0 };
+    const correctAnswers = Math.round(stats.totalQuestions * (stats.averageScore / 100));
+    const xp = correctAnswers * 10;
+    const level = Math.floor(Math.sqrt(xp / 100)) + 1;
+    const nextLevelXp = Math.pow(level, 2) * 100;
+    const prevLevelXp = Math.pow(level - 1, 2) * 100;
+    return { xp, level, nextLevelXp, prevLevelXp };
+  }, [stats]);
+
+  useEffect(() => {
+    if (level > prevLevel && prevLevel > 1) {
+      setShowConfetti(true);
+      playLevelUp();
+      setTimeout(() => setShowConfetti(false), 3000);
+    }
+    if (level !== prevLevel) setPrevLevel(level);
+  }, [level]);
+
+  const levelProgress = nextLevelXp > prevLevelXp ? ((xp - prevLevelXp) / (nextLevelXp - prevLevelXp)) * 100 : 0;
+
+  const badgeList = useMemo(() => {
+    if (stats.totalQuestions === 0) return [];
+    const categoryCount = scoreByCategory.length;
+    return checkBadges({
+      total: stats.totalQuestions,
+      avgScore: stats.averageScore,
+      streak: streakData.currentStreak,
+      hasPerfect,
+      categoryCount,
+      dailyDone: dailyProgress.answered >= 10,
+    });
+  }, [stats, streakData.currentStreak, hasPerfect, scoreByCategory, dailyProgress]);
+
+  const recommendations = useMemo(() => getRecommendations(scoreByCategory), [scoreByCategory]);
 
   const statCards = [
     { label: 'Total Soal', value: stats.totalQuestions, icon: BookOpen, color: 'text-primary-500 bg-primary-100 dark:bg-primary-900/30' },
@@ -35,6 +79,33 @@ export default function Dashboard() {
         <h1 className="text-[1.875rem] font-semibold tracking-tight text-gray-900 dark:text-gray-100">Dashboard</h1>
         <p className="text-gray-500 dark:text-gray-400 mt-1.5">Pantau perkembangan belajarmu.</p>
       </div>
+
+      {!loading && stats.totalQuestions > 0 && (
+        <Card>
+          <CardContent className="py-5 px-6">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shrink-0 shadow-clay">
+                <Star className="w-7 h-7 text-white" weight="fill" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2">
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Level {level}</h2>
+                  <span className="text-sm text-gray-400 dark:text-gray-500 tabular-nums">{xp} XP</span>
+                </div>
+                <div className="mt-2 relative w-full h-2.5 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
+                  <div
+                    className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500 ease-spring"
+                    style={{ width: `${levelProgress}%` }}
+                  />
+                </div>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                  {xp}/{nextLevelXp} XP ke Level {level + 1}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {loading ? (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -66,7 +137,7 @@ export default function Dashboard() {
 
         <Card>
           <CardHeader>
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100">Skor per Kategori</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100">Grafik Harian</h3>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -135,6 +206,78 @@ export default function Dashboard() {
         </Card>
       </div>
 
+      {/* Badges */}
+      {badgeList.length > 0 && (
+        <div>
+          <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-[0.06em] mb-3">Prestasi</h3>
+          <div className="flex flex-wrap gap-3">
+            {badgeList.filter((b) => b.earned).slice(0, 8).map((b) => (
+              <div key={b.id} className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-sm">
+                <span className="text-lg">{b.icon}</span>
+                <span className="font-medium text-gray-800 dark:text-gray-200">{b.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Daily Quest */}
+      <Card>
+        <CardContent className="py-4 px-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+                <Star className="w-5 h-5 text-white" weight="fill" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Quest Harian</h3>
+                <p className="text-xs text-gray-400 dark:text-gray-500">Jawab 10 soal hari ini</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <span className="text-lg font-bold text-gray-900 dark:text-gray-100">{Math.min(dailyProgress.answered, 10)}/10</span>
+            </div>
+          </div>
+          <div className="mt-3 w-full h-2 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-500 ease-spring"
+              style={{ width: `${Math.min((dailyProgress.answered / 10) * 100, 100)}%` }}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Recommendations */}
+      {recommendations.length > 0 && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Lightbulb className="w-5 h-5 text-amber-500" weight="fill" />
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100">Rekomendasi Latihan</h3>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {recommendations.map((cat) => (
+                <Link
+                  key={cat.name}
+                  to={`/practice`}
+                  className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-all group"
+                >
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{cat.name}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">Rata-rata: {cat.score}% — Perlu ditingkatkan</p>
+                  </div>
+                  <PlayCircle className="w-5 h-5 text-gray-300 dark:text-gray-600 group-hover:text-primary-500 transition-colors" weight="fill" />
+                </Link>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <Confetti active={showConfetti} />
+
       {!loading && stats.totalQuestions === 0 && (
         <Card>
           <CardContent className="py-12">
@@ -159,22 +302,18 @@ export default function Dashboard() {
             <h3 className="font-semibold text-gray-900 dark:text-gray-100">Ringkasan</h3>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-              <div className="p-3 rounded-xl bg-primary-50/50 dark:bg-primary-900/20">
-                <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">{stats.totalQuestions}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Total Soal</p>
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500 dark:text-gray-400">Total Soal:</span>
+                <span className="text-lg font-bold text-gray-900 dark:text-gray-100">{stats.totalQuestions}</span>
               </div>
-              <div className="p-3 rounded-xl bg-cta-50/50 dark:bg-cta-900/20">
-                <p className="text-2xl font-bold text-cta-600 dark:text-cta-400">{stats.averageScore}%</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Rata-rata</p>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500 dark:text-gray-400">Streak:</span>
+                <span className="text-lg font-bold text-gray-900 dark:text-gray-100">{streakData.currentStreak} hari</span>
               </div>
-              <div className="p-3 rounded-xl bg-yellow-50/50 dark:bg-yellow-900/20">
-                <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{streakData.currentStreak}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Streak Hari</p>
-              </div>
-              <div className="p-3 rounded-xl bg-secondary-50/50 dark:bg-secondary-900/20">
-                <p className="text-2xl font-bold text-secondary-600 dark:text-secondary-400">{bookmarkCount}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Bookmark</p>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500 dark:text-gray-400">Bookmark:</span>
+                <span className="text-lg font-bold text-gray-900 dark:text-gray-100">{bookmarkCount}</span>
               </div>
             </div>
           </CardContent>

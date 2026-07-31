@@ -11,10 +11,22 @@ function json(data, status = 200) {
   });
 }
 
+async function verifyAuth(request, env) {
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) return null;
+  const token = authHeader.slice(7);
+  try {
+    const res = await fetch(`${env.SUPABASE_URL}/auth/v1/user`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch { return null; }
+}
+
 export async function onRequest(context) {
   const { request, env } = context;
 
-  // Handle CORS preflight
   if (request.method === 'OPTIONS') {
     return new Response(null, { status: 204, headers: CORS_HEADERS });
   }
@@ -24,14 +36,19 @@ export async function onRequest(context) {
   }
 
   if (!env.AI) {
-    return json({ error: 'Workers AI not configured. Add AI binding in Cloudflare Dashboard.' }, 500);
+    return json({ error: 'Workers AI not configured' }, 500);
+  }
+
+  const user = await verifyAuth(request, env);
+  if (!user) {
+    return json({ error: 'Unauthorized' }, 401);
   }
 
   try {
     const { message, mode = 'chat', history = [] } = await request.json();
 
-    if (!message || typeof message !== 'string') {
-      return json({ error: 'Message is required' }, 400);
+    if (!message || typeof message !== 'string' || message.length > 2000) {
+      return json({ error: 'Message must be between 1 and 2000 characters' }, 400);
     }
 
     const systemPrompt = mode === 'grammar'

@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useSearchParams, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import {
-  ArrowLeft, ArrowRight, CheckCircle, Clock, GridFour,
-  Bookmark, ArrowsOut, ArrowsIn, Circle,
+  ArrowLeft, ArrowRight, CheckCircle, XCircle, Clock, GridFour,
+  Bookmark, ArrowsOut, ArrowsIn, Circle, Timer,
 } from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
 import Button from '../components/common/Button';
@@ -13,6 +13,8 @@ import ErrorState from '../components/feedback/ErrorState';
 import { handleError } from '../utils/errors';
 import EmptyState from '../components/feedback/EmptyState';
 import toast from 'react-hot-toast';
+import { playCorrect, playWrong } from '../utils/sound';
+import { saveDailyProgress } from '../services/gamification';
 
 const STORAGE_KEY = (catId, diff, isAdaptive) => `quiz_progress_${catId}_${diff}${isAdaptive ? '_adaptive' : ''}`;
 
@@ -40,9 +42,11 @@ export default function Quiz() {
   const location = useLocation();
 
   const retryQuestions = location.state?.retryQuestions;
-  const retryMeta = location.state?.retryMeta; // { categoryId, difficulty } for retry submission
+  const retryMeta = location.state?.retryMeta;
   const effectiveCategoryId = retryQuestions ? retryMeta?.categoryId : categoryId;
   const effectiveDifficulty = retryQuestions ? retryMeta?.difficulty : difficulty;
+  const timedMode = searchParams.get('timed') === 'true';
+  const [timeLeft, setTimeLeft] = useState(timedMode ? 300 : null);
   const { questions: fetchedQuestions, loading, error } = useQuestions(
     retryQuestions ? null : categoryId,
     retryQuestions ? null : difficulty,
@@ -59,6 +63,7 @@ export default function Quiz() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const timerRef = useRef(null);
   const quizStartRef = useRef(Date.now());
+  const submitRef = useRef(null);
 
   // Restore saved progress on mount (skip for retry mode)
   useEffect(() => {
@@ -88,17 +93,114 @@ export default function Quiz() {
 
   // Timer
   useEffect(() => {
+    if (timedMode) return;
     timerRef.current = setInterval(() => {
       setElapsed(Math.floor((Date.now() - quizStartRef.current) / 1000));
     }, 1000);
     return () => clearInterval(timerRef.current);
-  }, []);
+  }, [timedMode]);
+
+  // Countdown timer for timed mode
+  useEffect(() => {
+    if (!timedMode || timeLeft === null) return;
+    if (timeLeft <= 0) {
+      submitRef.current?.();
+      return;
+    }
+    const id = setTimeout(() => setTimeLeft((t) => t - 1), 1000);
+    return () => clearTimeout(id);
+  }, [timedMode, timeLeft]);
 
   const stopTimer = useCallback(() => {
     clearInterval(timerRef.current);
   }, []);
 
-  // Keyboard shortcuts
+  // Fullscreen change listener
+  useEffect(() => {
+    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', onFsChange);
+    return () => document.removeEventListener('fullscreenchange', onFsChange);
+  }, []);
+
+  const handleAnswer = useCallback((questionId, value) => {
+    setAnswers((prev) => ({ ...prev, [questionId]: value }));
+  }, []);
+
+  const handleAnswerWithSound = useCallback((questionId, value) => {
+    setAnswers((prev) => ({ ...prev, [questionId]: value }));
+    const q = questions.find((qq) => qq.id === questionId);
+    if (q) {
+      if (value === q.correct_answer) playCorrect();
+      else playWrong();
+    }
+  }, [questions]);
+
+  const toggleBookmark = useCallback(() => {
+    setBookmarked((prev) => {
+      const c = questions[currentIndex];
+      if (!c) return prev;
+      return { ...prev, [c.id]: !prev[c.id] };
+    });
+  }, [questions, currentIndex]);
+
+  const goToQuestion = useCallback((idx) => {
+    setCurrentIndex(idx);
+    setShowNavigator(false);
+  }, []);
+
+  const handleNext = useCallback(() => {
+    const q = questions[currentIndex];
+    if (!answers[q?.id]) {
+      toast.error('Jawab dulu soalnya');
+      return;
+    }
+    if (currentIndex === questions.length - 1) {
+      setShowReview(true);
+    } else {
+      setCurrentIndex((i) => i + 1);
+    }
+  }, [answers, questions, currentIndex]);
+
+  const handlePrev = useCallback(() => {
+    if (currentIndex === 0) return;
+    setCurrentIndex((i) => i - 1);
+  }, [currentIndex]);
+
+  const handleSubmit = useCallback(async () => {
+    const unanswered = questions.filter((q) => !answers[q.id]);
+    if (!timedMode && unanswered.length > 0) {
+      toast.error(`Masih ada ${unanswered.length} soal belum dijawab`);
+      setConfirmSubmit(false);
+      return;
+    }
+    stopTimer();
+    try {
+      if (!retryQuestions) localStorage.removeItem(STORAGE_KEY(categoryId, difficulty, isAdaptive));
+      const result = await submitQuiz({
+        categoryId: effectiveCategoryId || categoryId,
+        difficulty: effectiveDifficulty || difficulty,
+        questions,
+        answers,
+      });
+      saveDailyProgress({ answered: questions.length, correct: result?.correct || 0 });
+      if (!result?.attemptId) throw new Error('Gagal mendapatkan hasil');
+      navigate(`/practice/${result.attemptId}/result`, {
+        state: {
+          ...result,
+          categoryId: effectiveCategoryId || categoryId,
+          difficulty: effectiveDifficulty || difficulty,
+          isAdaptive,
+          timed: timedMode,
+        },
+      });
+    } catch (err) {
+      handleError(err, 'Gagal mengirim jawaban');
+    } finally {
+      setConfirmSubmit(false);
+    }
+  }, [questions, answers, categoryId, difficulty, isAdaptive, retryQuestions, effectiveCategoryId, effectiveDifficulty, timedMode, stopTimer, submitQuiz, navigate]);
+
+  // Keyboard shortcuts effect deps: add handleNext for stable closure
   useEffect(() => {
     const handler = (e) => {
       if (e.target.tagName === 'INPUT') return;
@@ -122,29 +224,13 @@ export default function Quiz() {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [currentIndex, questions, answers]);
-
-  // Fullscreen change listener
-  useEffect(() => {
-    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
-    document.addEventListener('fullscreenchange', onFsChange);
-    return () => document.removeEventListener('fullscreenchange', onFsChange);
-  }, []);
-
-  if (!difficulty && !retryQuestions) return <Navigate to="/practice" replace />;
+  }, [currentIndex, questions, answers, handleAnswer, handleNext]);
 
   const current = questions[currentIndex];
-  const isLast = currentIndex === questions.length - 1;
-  const isFirst = currentIndex === 0;
-  const progress = questions.length > 0 ? ((currentIndex + 1) / questions.length) * 100 : 0;
-  const answeredCount = Object.keys(answers).length;
-
-  // ponytail: handle both [{...}] and {options:[{...}]} formats
   const rawOptions = current?.options
     ? (Array.isArray(current.options) ? current.options : current.options.options)
     : null;
 
-  // Shuffle options once per question (stable keyed on question id)
   const shuffledOptions = useMemo(() => {
     if (!rawOptions) return null;
     return shuffle(rawOptions);
@@ -153,14 +239,14 @@ export default function Quiz() {
 
   const options = shuffledOptions || rawOptions;
 
-  const handleAnswer = useCallback((questionId, value) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: value }));
-  }, []);
+  if (!difficulty && !retryQuestions) return <Navigate to="/practice" replace />;
 
-  const toggleBookmark = useCallback(() => {
-    if (!current) return;
-    setBookmarked((prev) => ({ ...prev, [current.id]: !prev[current.id] }));
-  }, [current]);
+  const isLast = currentIndex === questions.length - 1;
+  const isFirst = currentIndex === 0;
+  const progress = questions.length > 0 ? ((currentIndex + 1) / questions.length) * 100 : 0;
+  const answeredCount = Object.keys(answers).length;
+  const isAnswered = current ? !!answers[current.id] : false;
+  const isCorrect = current && isAnswered ? answers[current.id] === current.correct_answer : false;
 
   const toggleFullscreen = async () => {
     try {
@@ -172,59 +258,7 @@ export default function Quiz() {
     } catch { /* fullscreen not supported */ }
   };
 
-  const goToQuestion = useCallback((idx) => {
-    setCurrentIndex(idx);
-    setShowNavigator(false);
-  }, []);
-
-  const handleNext = useCallback(() => {
-    if (!answers[current?.id]) {
-      toast.error('Jawab dulu soalnya');
-      return;
-    }
-    if (isLast) {
-      setShowReview(true);
-    } else {
-      setCurrentIndex((i) => i + 1);
-    }
-  }, [answers, current, isLast]);
-
-  const handlePrev = useCallback(() => {
-    if (isFirst) return;
-    setCurrentIndex((i) => i - 1);
-  }, [isFirst]);
-
-  const handleSubmit = async () => {
-    const unanswered = questions.filter((q) => !answers[q.id]);
-    if (unanswered.length > 0) {
-      toast.error(`Masih ada ${unanswered.length} soal belum dijawab`);
-      setConfirmSubmit(false);
-      return;
-    }
-    stopTimer();
-    try {
-      if (!retryQuestions) localStorage.removeItem(STORAGE_KEY(categoryId, difficulty, isAdaptive));
-      const result = await submitQuiz({
-        categoryId: effectiveCategoryId || categoryId,
-        difficulty: effectiveDifficulty || difficulty,
-        questions,
-        answers,
-      });
-      if (!result?.attemptId) throw new Error('Gagal mendapatkan hasil');
-      navigate(`/practice/${result.attemptId}/result`, {
-        state: {
-          ...result,
-          categoryId: effectiveCategoryId || categoryId,
-          difficulty: effectiveDifficulty || difficulty,
-          isAdaptive,
-        },
-      });
-    } catch (err) {
-      handleError(err, 'Gagal mengirim jawaban');
-    } finally {
-      setConfirmSubmit(false);
-    }
-  };
+  submitRef.current = handleSubmit;
 
   if (loading) {
     return (
@@ -278,9 +312,16 @@ export default function Quiz() {
             )}
           </span>
           <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1 text-gray-400 dark:text-gray-500 tabular-nums">
-              <Clock className="w-3.5 h-3.5" weight="regular" />
-              {formatTimer(elapsed)}
+            <span className={`inline-flex items-center gap-1 tabular-nums ${
+              timedMode && timeLeft !== null && timeLeft <= 60
+                ? 'text-red-500 dark:text-red-400 font-semibold'
+                : 'text-gray-400 dark:text-gray-500'
+            }`}>
+              {timedMode && timeLeft !== null ? (
+                <><Timer className="w-3.5 h-3.5" weight="regular" />{formatTimer(timeLeft)}</>
+              ) : (
+                <><Clock className="w-3.5 h-3.5" weight="regular" />{formatTimer(elapsed)}</>
+              )}
             </span>
             <span className="text-gray-400 dark:text-gray-500 tabular-nums">
               {answeredCount}/{questions.length}
@@ -432,38 +473,67 @@ export default function Quiz() {
                   {current.question}
                 </p>
 
+                {isAnswered && (
+                  <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium ${
+                    isCorrect
+                      ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
+                      : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
+                  }`}>
+                    {isCorrect
+                      ? <><CheckCircle className="w-4 h-4" weight="fill" /> Jawabanmu benar!</>
+                      : <><XCircle className="w-4 h-4" weight="fill" /> Jawabanmu salah. Jawaban benar: <span className="font-bold">{current.correct_answer}</span></>
+                    }
+                  </div>
+                )}
+
                 {current.type === 'multiple_choice' && options ? (
                   <div className="space-y-2.5">
                     {options.map((opt) => {
                       const isSelected = answers[current.id] === opt.label;
+                      const isCorrectAnswer = opt.label === current.correct_answer;
+                      const isWrongSelection = isSelected && !isCorrect;
+
+                      let borderClass = 'ring-1 ring-black/[0.06] dark:ring-white/[0.08] bg-white dark:bg-gray-800/50 text-gray-700 dark:text-gray-300';
+                      let labelClass = 'bg-primary-100/50 dark:bg-gray-700 text-gray-500 dark:text-gray-400';
+                      if (isAnswered && isCorrectAnswer) {
+                        borderClass = 'ring-2 ring-green-400/60 bg-green-50/80 dark:bg-green-900/20 text-green-800 dark:text-green-200';
+                        labelClass = 'bg-green-500 text-white';
+                      } else if (isWrongSelection) {
+                        borderClass = 'ring-2 ring-red-400/60 bg-red-50/80 dark:bg-red-900/20 text-red-800 dark:text-red-200';
+                        labelClass = 'bg-red-500 text-white';
+                      } else if (isSelected) {
+                        borderClass = 'ring-2 ring-primary-400/60 bg-primary-500/8 text-primary-800 dark:text-primary-200 shadow-clay';
+                        labelClass = 'bg-primary-500 text-white scale-110';
+                      }
+
                       return (
                         <button
                           key={opt.label}
-                          onClick={() => handleAnswer(current.id, opt.label)}
+                          onClick={() => !isAnswered && handleAnswerWithSound(current.id, opt.label)}
+                          disabled={isAnswered}
                           className={`
                             w-full text-left px-4 py-3.5 rounded-xl text-[0.9375rem]
                             transition-all duration-300 ease-spring
-                            active:scale-[0.99]
-                            ${isSelected
-                              ? 'bg-primary-500/8 text-primary-800 dark:text-primary-200 ring-2 ring-primary-400/60 shadow-clay'
-                              : 'bg-white dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 ring-1 ring-black/[0.06] dark:ring-white/[0.08] hover:ring-primary-300/40 hover:bg-primary-50/30 dark:hover:bg-primary-900/10'
-                            }
+                            active:scale-[0.99] ${borderClass}
+                            ${isAnswered ? 'cursor-default' : 'hover:ring-primary-300/40 hover:bg-primary-50/30 dark:hover:bg-primary-900/10'}
                           `.trim()}
                         >
                           <span className="inline-flex items-center gap-3">
                             <span className={`
                               w-7 h-7 rounded-full flex items-center justify-center text-sm font-semibold
-                              transition-all duration-300 ease-spring
-                              ${isSelected
-                                ? 'bg-primary-500 text-white scale-110'
-                                : 'bg-primary-100/50 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
-                              }
+                              transition-all duration-300 ease-spring ${labelClass}
                             `.trim()}>
                               {opt.label}
                             </span>
                             <span className={isSelected ? 'font-medium' : ''}>
                               {opt.text}
                             </span>
+                            {isAnswered && isCorrectAnswer && (
+                              <CheckCircle className="w-4 h-4 ml-auto shrink-0 text-green-600 dark:text-green-400" weight="fill" />
+                            )}
+                            {isWrongSelection && (
+                              <XCircle className="w-4 h-4 ml-auto shrink-0 text-red-500 dark:text-red-400" weight="fill" />
+                            )}
                           </span>
                         </button>
                       );
@@ -471,21 +541,44 @@ export default function Quiz() {
                   </div>
                 ) : (
                   <div>
-                    <input
-                      type="text"
-                      placeholder="Tulis jawabanmu..."
-                      value={answers[current.id] || ''}
-                      onChange={(e) => handleAnswer(current.id, e.target.value)}
-                      className="w-full px-4 py-3.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-primary-400 focus:ring-2 focus:ring-primary-200/50 dark:focus:ring-primary-800/30 transition-all duration-200"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && answers[current.id]) {
-                          handleNext();
+                    {isAnswered ? (
+                      <div className={`flex items-start gap-3 px-4 py-3.5 rounded-xl border ${
+                        isCorrect
+                          ? 'border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-900/10'
+                          : 'border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-900/10'
+                      }`}>
+                        {isCorrect
+                          ? <CheckCircle className="w-5 h-5 mt-0.5 shrink-0 text-green-600" weight="fill" />
+                          : <XCircle className="w-5 h-5 mt-0.5 shrink-0 text-red-500" weight="fill" />
                         }
-                      }}
-                    />
-                    <p className="mt-1.5 text-[0.8125rem] text-gray-400 dark:text-gray-500">
-                      Tekan Enter untuk lanjut
-                    </p>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{answers[current.id]}</p>
+                          {!isCorrect && (
+                            <p className="text-sm text-green-600 dark:text-green-400 mt-1">
+                              Jawaban benar: <span className="font-bold">{current.correct_answer}</span>
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <input
+                          type="text"
+                          placeholder="Tulis jawabanmu..."
+                          value={answers[current.id] || ''}
+                          onChange={(e) => handleAnswer(current.id, e.target.value)}
+                          className="w-full px-4 py-3.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-primary-400 focus:ring-2 focus:ring-primary-200/50 dark:focus:ring-primary-800/30 transition-all duration-200"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && answers[current.id]) {
+                              handleNext();
+                            }
+                          }}
+                        />
+                        <p className="mt-1.5 text-[0.8125rem] text-gray-400 dark:text-gray-500">
+                          Tekan Enter untuk lanjut
+                        </p>
+                      </>
+                    )}
                   </div>
                 )}
 

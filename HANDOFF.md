@@ -63,6 +63,44 @@ WORK COMPLETED
 - Created scripts/auto-fix.mjs — rule-based fixes (horizontal scroll, aria-label, alt text) + optional AI via OpenAI/Anthropic
 - Created .github/workflows/ci-fix.yml — full pipeline: test → auto-fix (max 3 attempts) → PR jika gagal
 - Updated package.json scripts: test:e2e, test:e2e:ui, test:lighthouse, fix:auto
+- DESIGN.md: design token system documentation
+- Migrated Inter font self-hosting, removed Google Fonts render-blocking
+- Fixed color contrast, SEO, and console errors for Lighthouse
+
+=== Sesi 6 ===
+- Mobile Navbar: toggle dark mode + bahasa pindah ke top bar (icon only), login/register dihapus dari hamburger, hamburger hanya untuk logged-in user
+- Desktop Navbar: seamless — hapus mt-4, rounded-2xl, border, shadow-clay; bg-white/70 → bg-white/20
+- Navbar dark mode harmony: dark:bg-gray-950/40 agar menyatu dengan gradient AuthLayout
+- Code-split: chunk pdf dipecah jadi pdf-js (jspdf) + pdf-canvas (html2canvas); chunkSizeWarningLimit → 1000
+- Test 3/3 passed (src/services/__tests__/quiz.test.js)
+
+=== Sesi 7 ===
+- Quiz.jsx: instant feedback — setelah jawab soal, langsung tampil hijau (benar) / merah (salah) + jawaban benar, opsi disable
+- QuizResult.jsx: score count-up animation (ease-out cubic, 800ms)
+- Dashboard.jsx: Level & XP system — level dihitung dari total jawaban benar × 10, progress bar ke level berikutnya
+- AuthContext: fix refresh redirect — loading initialState diubah false → true agar tidak redirect ke /login sebelum session ter-load
+
+=== Sesi 8 (Bug Fix & Security Audit) ===
+- Fix 1.1: Menambahkan import XCircle di Quiz.jsx (crash saat jawab salah)
+- Fix 1.2: Menambahkan import handleError di QuizResult.jsx (crash saat export/share gagal)
+- Fix 1.3: ESLint config — aktifkan js.configs.recommended + eslint-plugin-react (no-undef, react/jsx-no-undef)
+- Fix 1.4: Rules of Hooks — semua useCallback/useEffect/useMemo dipindahkan sebelum early return di Quiz.jsx
+- Fix 1.4: Keyboard shortcut useEffect — tambahkan handleAnswer/handleNext ke dependency array
+- Fix 1.4: Test environment — ganti jsdom → happy-dom (vite.config.js)
+- Fix 2.1: Migration 009 — privilege escalation role: guard trigger + WITH CHECK pada profiles_update_own
+- Fix 2.2: Migration 009 — created questions_public view (future use)
+- Fix 2.3: Migration 009 — perkuat submit_quiz (division-by-zero guard, dedup, question validation, search_path)
+- Fix 2.3: Migration 009 — search_path pada is_admin(), handle_new_user(), log_admin_action()
+- Fix 2.3: Migration 009 — is_admin() check pada log_admin_action()
+- Fix 2.4: deleteUser pindah ke server function (functions/api/delete-user.js) — tidak bisa dari browser
+- Fix 2.5: chat.js — verifikasi JWT Supabase + validasi panjang message (2000 char max)
+- Fix 3.3: Dashboard — "Skor per Kategori" → "Grafik Harian"; Ringkasan card diubah
+- Fix 3.6: IS_DEMO — dikontrol via VITE_DEMO=true eksplisit, env kosong → throw error
+- Fix 4.1: Landing dark mode — tambahkan ~40 dark: kelas teks di seluruh halaman
+- Fix 4.2: Kontras stat numbers (primary-300 → primary-600 dst) untuk WCAG AA
+- Fix 4.3: Fix color scale — primary-600 lebih gelap dari 500; cta-500/600/700 monotonic
+- Fix 4.3: safelist dikosongkan (kelas literal sudah terdeteksi Tailwind)
+- Package.json: added eslint-plugin-react@^7.37.0
 
 === Sesi 4 ===
 - Installed Supabase CLI v2.110.0 di ~/.local/bin/supabase
@@ -77,11 +115,10 @@ WORK COMPLETED
 CURRENT STATE
 -------------
 - Semua 5 architecture candidate SELESAI
-- 9/9 migration sync (local = remote)
+- 10/10 migration sync (009_security_fixes added)
 - Seed data ter-load (categories + english questions)
 - Build sukses, deploy live
 - Supabase CLI ter-install & ter-link
-- Token file di supabase-token.txt sudah dihapus
 
 PENDING TASKS
 -------------
@@ -92,18 +129,21 @@ PENDING TASKS
 - ~~Candidate #5 (Performance)~~ ✅
 - ~~Build & deploy~~ ✅
 - ~~Project pindah dari /mnt/c/ ke ~/projects/lms-MrOle (WSL native)~~ ✅
-- Mobile layout check — user menemukan beberapa tempat yg tidak pas di mobile
-- Lighthouse audit (mobile preset) — belum pernah diukur
-- DESIGN.md — belum ada, UI tidak punya token system
-- Large chunk warning — pdf-DVGTiTQm.js 562 kB, perlu code-split
-- Test suite — vitest ada tapi belum dijalankan
-- ESLint — ada 1 error (conditional useMemo di Quiz.jsx) + 2 warnings
+- ~~Mobile layout check — user menemukan beberapa tempat yg tidak pas di mobile~~ ✅
+- ~~DESIGN.md — belum ada, UI tidak punya token system~~ ✅
+- ~~Large chunk warning — pdf-*.js, perlu code-split~~ ✅
+- ~~Test suite — vitest ada tapi belum dijalankan~~ ✅
+- ~~ESLint — 6 error conditional hooks di Quiz.jsx~~ ✅
+- ~~Quiz crash karena XCircle tidak di-import~~ ✅
+- ~~Privilege escalation role (user bisa jadi admin)~~ ✅
+- Lighthouse audit — butuh Chrome environment
+- npm install perlu dijalankan (eslint-plugin-react, happy-dom)
 
 KEY FILES
 ---------
 - src/services/ - Data access layer (users.js, quiz.js, auth.js, storage.js, streaks.js)
 - src/utils/errors.js - Error handling utilities
-- eslint.config.js - ESLint config + service seam enforcement
+- eslint.config.js - ESLint config + service seam enforcement + recommended rules
 - scripts/check-service-seam.mjs - Build-time service seam check
 - scripts/auto-fix.mjs - AI + rule-based auto-fixer for CI pipeline
 - playwright.config.js - Playwright config (mobile 375px + desktop 1280px)
@@ -112,8 +152,10 @@ KEY FILES
 - .github/workflows/ci-fix.yml - Full CI pipeline: test → auto-fix → loop guard → PR
 - supabase/config.toml - Supabase CLI config
 - supabase/seed/ - Seed data (seed.sql, english-questions.sql)
-- supabase/migrations/ - 9 migration files (001 to 008 + 20250727)
+- supabase/migrations/ - 10 migration files (001 to 009)
 - functions/api/chat.js - Cloudflare Pages Function for AI chat
+- functions/api/delete-user.js - Cloudflare Function for admin user deletion
+- supabase/migrations/009_security_fixes.sql - Security hardening migration
 
 IMPORTANT DECISIONS
 -------------------
@@ -125,6 +167,8 @@ IMPORTANT DECISIONS
 - Service seam: pages and hooks must not import supabase directly
 - Type safety: no as any, no @ts-ignore, no @ts-expect-error
 - Bugfix rule: fix minimally, never refactor while fixing
+- IS_DEMO controlled by explicit VITE_DEMO=true flag, not by missing env vars
+- deleteUser moved to server-side Cloudflare Function (service_role key required)
 
 EXPLICIT CONSTRAINTS
 --------------------
@@ -135,13 +179,15 @@ EXPLICIT CONSTRAINTS
 - Category-domain matching for task delegation
 
 CONTEXT FOR CONTINUATION
------------------------
+----------------------
 - All 5 architecture candidates completed and pushed to main
 - Supabase fully configured and seeded
 - Build passes, deployed via Cloudflare Pages auto-deploy from GitHub
-- Project pindah ke WSL native: ~/projects/lms-MrOle (npm install 2m, build 1m15s)
-- Playwright + Lighthouse CI + auto-fix pipeline sudah di-setup (belum di-commit)
-- Auto-fix workflow: GitHub Actions → Playwright test → Lighthouse CI → auto-fix → loop guard (3x) → PR jika gagal
-- Auto-fix script: rule-based (horizontal scroll, aria-label, alt text) + optional AI (OpenAI/Anthropic API key)
-- Perlu setting OPENAI_API_KEY atau ANTHROPIC_API_KEY di GitHub secrets untuk AI auto-fix
-- Next focus: commit pipeline files, lalu mobile layout fixes (user akan SS bagian yg broken)
+- Playwright + Lighthouse CI + auto-fix pipeline + DESIGN.md sudah di-setup
+- Mobile layout fixes: toggle dark mode + bahasa pindah ke top bar navbar (icon), login/register di hero
+- Desktop navbar: seamless tanpa mt-4/rounded/border/shadow
+- Navbar dark mode: harmonis dengan bg-gray-950/40
+- Code-split: pdf chunk dipecah jadi pdf-js + pdf-canvas
+- ESLint: 6 error hooks sudah diperbaiki, recommended rules + react plugin diaktifkan
+- Lighthouse: butuh Chrome environment untuk jalan
+- npm install butuh dijalankan ulang (korupsi node_modules di WSL)
