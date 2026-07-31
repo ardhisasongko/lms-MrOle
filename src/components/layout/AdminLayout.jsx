@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { GraduationCap, ArrowLeft, List, X, Gauge, Users, FileText, Bookmarks } from '@phosphor-icons/react';
+import { GraduationCap, ArrowLeft, List, X, Gauge, Users, FileText, Bookmarks, Sun, Moon } from '@phosphor-icons/react';
 import { cn } from '../../utils/cn';
+import { useDarkMode } from '../../hooks/useDarkMode';
 
 const sidebarLinks = [
   { to: '/admin', label: 'Dashboard', icon: Gauge },
@@ -13,6 +14,7 @@ const sidebarLinks = [
 export default function AdminLayout() {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { isDark, toggle } = useDarkMode();
 
   useEffect(() => { setSidebarOpen(false); }, [location.pathname]);
 
@@ -60,7 +62,13 @@ export default function AdminLayout() {
             );
           })}
         </nav>
-        <div className="p-3 border-t border-black/[0.04] dark:border-white/[0.06]">
+        <div className="p-3 border-t border-black/[0.04] dark:border-white/[0.06] space-y-0.5">
+          <button
+            onClick={toggle}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-black/[0.03] dark:hover:bg-white/[0.05] w-full transition-all duration-200 ease-spring"
+          >
+            {isDark ? <Sun className="w-4 h-4 shrink-0" weight="regular" /> : <Moon className="w-4 h-4 shrink-0" weight="regular" />} {isDark ? 'Mode Terang' : 'Mode Gelap'}
+          </button>
           <Link
             to="/dashboard"
             className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-black/[0.03] dark:hover:bg-white/[0.05] transition-all duration-200 ease-spring"
@@ -78,9 +86,14 @@ export default function AdminLayout() {
             </Link>
             <span className="font-semibold text-primary-500">Panel Admin</span>
           </div>
-          <button onClick={() => setSidebarOpen(true)} aria-label="Buka menu navigasi" className="p-2 rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring">
-            <List className="w-6 h-6 text-gray-600 dark:text-gray-400" weight="regular" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button onClick={toggle} aria-label={isDark ? 'Aktifkan mode terang' : 'Aktifkan mode gelap'} className="p-2 rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring">
+              {isDark ? <Sun className="w-5 h-5 text-gray-500 dark:text-gray-400" weight="regular" /> : <Moon className="w-5 h-5 text-gray-600 dark:text-gray-400" weight="regular" />}
+            </button>
+            <button onClick={() => setSidebarOpen(true)} aria-label="Buka menu navigasi" className="p-2 rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring">
+              <List className="w-6 h-6 text-gray-600 dark:text-gray-400" weight="regular" />
+            </button>
+          </div>
         </div>
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
           <Outlet />

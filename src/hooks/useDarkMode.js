@@ -28,8 +28,17 @@ export function useDarkMode() {
         setIsDark(e.matches);
       }
     };
+    const storageHandler = (e) => {
+      if (e.key === STORAGE_KEY) {
+        setIsDark(e.newValue === 'dark');
+      }
+    };
     mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
+    window.addEventListener('storage', storageHandler);
+    return () => {
+      mq.removeEventListener('change', handler);
+      window.removeEventListener('storage', storageHandler);
+    };
   }, []);
 
   const toggle = useCallback(() => setIsDark((prev) => !prev), []);
