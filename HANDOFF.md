@@ -112,13 +112,25 @@ WORK COMPLETED
 - git commit + push ke main
 - Cloudflare Pages auto-deploy (https://lms-mrole.pages.dev)
 
+=== Sesi 9 (Deploy, DB Fix, UI Polish) ===
+- Quiz crash (XCircle) di produksi — root cause: versi lama masih live karena auto-deploy GitHub→Cloudflare Pages MATI (berhenti di commit 9f7c472 / Sesi 7)
+- Migration 008 (bookmarks) sebelumnya tidak pernah benar-benar dibuat — record tracking dihapus lalu di-repush dengan --include-all
+- Verifikasi tabel bookmarks via REST (HTTP 200); migration 009 security fixes ter-apply
+- Security alert Supabase: view leaderboard_ranking SECURITY DEFINER → migration 010, diganti RPC get_leaderboard() dengan SET search_path, REVOKE dari PUBLIC/anon, GRANT ke authenticated; src/services/users.js pakai supabase.rpc('get_leaderboard')
+- Deploy manual via wrangler berhasil: CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID → npx wrangler pages deploy dist --project-name lms-mrole --branch main (token Pages di "Front Err/token-cloudflare.txt", gunakan token cfut_6wMs... bukan yang lama)
+- Fix: hapus instant feedback di Quiz.jsx — tidak lagi menampilkan benar/salah saat menjawab, opsi tidak di-disable (bisa ganti jawaban), suara playCorrect/playWrong dihapus; jawaban benar hanya tampil di QuizResult
+- Fix migration 011: submit_quiz error "column reference ans is ambiguous" — loop variable ans bentrok alias SQL ans di INSERT quiz_answers → ganti ke v_ans
+- Fix migration 012: submit_quiz error "column reference q.id is ambiguous" — variabel q bentrok alias JOIN questions q → ganti alias ke qq
+- Fix dark mode: DashboardLayout & AdminLayout tidak punya toggle dark mode sama sekali (HP siswa tidak bisa ganti tema) → tambah toggle Sun/Moon di header mobile + sidebar; useDarkMode tambah listener storage agar instance sinkron
+
 CURRENT STATE
 -------------
 - Semua 5 architecture candidate SELESAI
-- 10/10 migration sync (009_security_fixes added)
-- Seed data ter-load (categories + english questions)
-- Build sukses, deploy live
+- 13 migration sync (001–012 + seed 20250727)
+- Build sukses, deploy live via wrangler manual (auto-deploy GitHub masih mati)
 - Supabase CLI ter-install & ter-link
+- Quiz: tanpa instant feedback, tanpa crash, submit_quiz tanpa error ambigu
+- Dark mode toggle tersedia di Navbar, DashboardLayout, AdminLayout, Settings
 
 PENDING TASKS
 -------------
@@ -138,6 +150,13 @@ PENDING TASKS
 - ~~Privilege escalation role (user bisa jadi admin)~~ ✅
 - Lighthouse audit — butuh Chrome environment
 - npm install perlu dijalankan (eslint-plugin-react, happy-dom)
+- ~~Re-connect auto-deploy GitHub→Cloudflare Pages (Settings → Builds & deployments)~~ 🔶 MASIH GAGAL — deploy manual via wrangler adalah metode aktif
+- ~~Quiz crash XCircle di produksi~~ ✅
+- ~~Tabel bookmarks hilang (404)~~ ✅
+- ~~Leaderboard view SECURITY DEFINER~~ ✅
+- ~~Instant feedback dihapus dari quiz~~ ✅
+- ~~submit_quiz ambiguous (ans, q)~~ ✅
+- ~~Dark mode toggle di Dashboard/Admin layout~~ ✅
 
 KEY FILES
 ---------
@@ -152,10 +171,16 @@ KEY FILES
 - .github/workflows/ci-fix.yml - Full CI pipeline: test → auto-fix → loop guard → PR
 - supabase/config.toml - Supabase CLI config
 - supabase/seed/ - Seed data (seed.sql, english-questions.sql)
-- supabase/migrations/ - 10 migration files (001 to 009)
+- supabase/migrations/ - 14 migration files (001 to 012 + seed)
 - functions/api/chat.js - Cloudflare Pages Function for AI chat
 - functions/api/delete-user.js - Cloudflare Function for admin user deletion
 - supabase/migrations/009_security_fixes.sql - Security hardening migration
+- supabase/migrations/010_leaderboard_rpc.sql - RPC get_leaderboard() pengganti view SECURITY DEFINER
+- supabase/migrations/011_fix_submit_quiz_ambiguous.sql - Fix ambiguous 'ans' reference
+- supabase/migrations/012_fix_submit_quiz_q_ambiguous.sql - Fix ambiguous 'q' reference
+- src/hooks/useDarkMode.js - Dark mode hook + storage sync listener
+- src/components/layout/DashboardLayout.jsx - Toggle dark mode di header mobile + sidebar
+- src/components/layout/AdminLayout.jsx - Toggle dark mode di header mobile + sidebar
 
 IMPORTANT DECISIONS
 -------------------
@@ -169,6 +194,8 @@ IMPORTANT DECISIONS
 - Bugfix rule: fix minimally, never refactor while fixing
 - IS_DEMO controlled by explicit VITE_DEMO=true flag, not by missing env vars
 - deleteUser moved to server-side Cloudflare Function (service_role key required)
+- Deploy: auto-deploy GitHub MATI → gunakan wrangler manual (CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID)
+- Token Cloudflare Pages disimpan di "Front Err/token-cloudflare.txt" (token cfut_eko... TIDAK punya izin Pages; gunakan token Pages yang tersimpan di file tsb)
 
 EXPLICIT CONSTRAINTS
 --------------------
@@ -191,3 +218,8 @@ CONTEXT FOR CONTINUATION
 - ESLint: 6 error hooks sudah diperbaiki, recommended rules + react plugin diaktifkan
 - Lighthouse: butuh Chrome environment untuk jalan
 - npm install butuh dijalankan ulang (korupsi node_modules di WSL)
+- Deploy aktif: wrangler manual dari ~/projects/lms-MrOle (build ~1-2m, lalu wrangler pages deploy dist). Auto-deploy GitHub→Cloudflare Pages masih putus — reconnect bila sempat
+- Quiz tanpa instant feedback; jawaban benar hanya muncul di halaman hasil
+- submit_quiz sudah bebas error ambigu (migration 011 + 012)
+- Dark mode toggle tersedia di semua layout + sinkron antar komponen
+- Langkah deploy cepat: npm run build && CLOUDFLARE_API_TOKEN=... CLOUDFLARE_ACCOUNT_ID=... npx wrangler pages deploy dist --project-name lms-mrole --branch main
