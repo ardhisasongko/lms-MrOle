@@ -15,8 +15,10 @@ async function verifyAuth(request, env) {
   const authHeader = request.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ')) return null;
   const token = authHeader.slice(7);
+  const supabaseUrl = env.SUPABASE_URL || env.VITE_SUPABASE_URL;
+  if (!supabaseUrl) return null;
   try {
-    const res = await fetch(`${env.SUPABASE_URL}/auth/v1/user`, {
+    const res = await fetch(`${supabaseUrl}/auth/v1/user`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) return null;

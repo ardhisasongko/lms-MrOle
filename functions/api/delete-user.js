@@ -26,7 +26,7 @@ export async function onRequest(context) {
     const { userId } = await request.json();
     if (!userId) return json({ error: 'userId is required' }, 400);
 
-    const supabaseUrl = env.SUPABASE_URL;
+    const supabaseUrl = env.SUPABASE_URL || env.VITE_SUPABASE_URL;
     const supabaseServiceKey = env.SUPABASE_SERVICE_ROLE_KEY;
 
     if (!supabaseUrl || !supabaseServiceKey) {
