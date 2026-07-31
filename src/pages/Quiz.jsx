@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useSearchParams, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import {
-  ArrowLeft, ArrowRight, CheckCircle, XCircle, Clock, GridFour,
+  ArrowLeft, ArrowRight, CheckCircle, Clock, GridFour,
   Bookmark, ArrowsOut, ArrowsIn, Circle, Timer,
 } from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
@@ -13,7 +13,7 @@ import ErrorState from '../components/feedback/ErrorState';
 import { handleError } from '../utils/errors';
 import EmptyState from '../components/feedback/EmptyState';
 import toast from 'react-hot-toast';
-import { playCorrect, playWrong } from '../utils/sound';
+
 import { saveDailyProgress } from '../services/gamification';
 
 const STORAGE_KEY = (catId, diff, isAdaptive) => `quiz_progress_${catId}_${diff}${isAdaptive ? '_adaptive' : ''}`;
@@ -126,15 +126,6 @@ export default function Quiz() {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
   }, []);
 
-  const handleAnswerWithSound = useCallback((questionId, value) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: value }));
-    const q = questions.find((qq) => qq.id === questionId);
-    if (q) {
-      if (value === q.correct_answer) playCorrect();
-      else playWrong();
-    }
-  }, [questions]);
-
   const toggleBookmark = useCallback(() => {
     setBookmarked((prev) => {
       const c = questions[currentIndex];
@@ -245,8 +236,6 @@ export default function Quiz() {
   const isFirst = currentIndex === 0;
   const progress = questions.length > 0 ? ((currentIndex + 1) / questions.length) * 100 : 0;
   const answeredCount = Object.keys(answers).length;
-  const isAnswered = current ? !!answers[current.id] : false;
-  const isCorrect = current && isAnswered ? answers[current.id] === current.correct_answer : false;
 
   const toggleFullscreen = async () => {
     try {
@@ -473,35 +462,14 @@ export default function Quiz() {
                   {current.question}
                 </p>
 
-                {isAnswered && (
-                  <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium ${
-                    isCorrect
-                      ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
-                      : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
-                  }`}>
-                    {isCorrect
-                      ? <><CheckCircle className="w-4 h-4" weight="fill" /> Jawabanmu benar!</>
-                      : <><XCircle className="w-4 h-4" weight="fill" /> Jawabanmu salah. Jawaban benar: <span className="font-bold">{current.correct_answer}</span></>
-                    }
-                  </div>
-                )}
-
                 {current.type === 'multiple_choice' && options ? (
                   <div className="space-y-2.5">
                     {options.map((opt) => {
                       const isSelected = answers[current.id] === opt.label;
-                      const isCorrectAnswer = opt.label === current.correct_answer;
-                      const isWrongSelection = isSelected && !isCorrect;
 
                       let borderClass = 'ring-1 ring-black/[0.06] dark:ring-white/[0.08] bg-white dark:bg-gray-800/50 text-gray-700 dark:text-gray-300';
                       let labelClass = 'bg-primary-100/50 dark:bg-gray-700 text-gray-500 dark:text-gray-400';
-                      if (isAnswered && isCorrectAnswer) {
-                        borderClass = 'ring-2 ring-green-400/60 bg-green-50/80 dark:bg-green-900/20 text-green-800 dark:text-green-200';
-                        labelClass = 'bg-green-500 text-white';
-                      } else if (isWrongSelection) {
-                        borderClass = 'ring-2 ring-red-400/60 bg-red-50/80 dark:bg-red-900/20 text-red-800 dark:text-red-200';
-                        labelClass = 'bg-red-500 text-white';
-                      } else if (isSelected) {
+                      if (isSelected) {
                         borderClass = 'ring-2 ring-primary-400/60 bg-primary-500/8 text-primary-800 dark:text-primary-200 shadow-clay';
                         labelClass = 'bg-primary-500 text-white scale-110';
                       }
@@ -509,13 +477,12 @@ export default function Quiz() {
                       return (
                         <button
                           key={opt.label}
-                          onClick={() => !isAnswered && handleAnswerWithSound(current.id, opt.label)}
-                          disabled={isAnswered}
+                          onClick={() => handleAnswer(current.id, opt.label)}
                           className={`
                             w-full text-left px-4 py-3.5 rounded-xl text-[0.9375rem]
                             transition-all duration-300 ease-spring
                             active:scale-[0.99] ${borderClass}
-                            ${isAnswered ? 'cursor-default' : 'hover:ring-primary-300/40 hover:bg-primary-50/30 dark:hover:bg-primary-900/10'}
+                            hover:ring-primary-300/40 hover:bg-primary-50/30 dark:hover:bg-primary-900/10
                           `.trim()}
                         >
                           <span className="inline-flex items-center gap-3">
@@ -528,12 +495,6 @@ export default function Quiz() {
                             <span className={isSelected ? 'font-medium' : ''}>
                               {opt.text}
                             </span>
-                            {isAnswered && isCorrectAnswer && (
-                              <CheckCircle className="w-4 h-4 ml-auto shrink-0 text-green-600 dark:text-green-400" weight="fill" />
-                            )}
-                            {isWrongSelection && (
-                              <XCircle className="w-4 h-4 ml-auto shrink-0 text-red-500 dark:text-red-400" weight="fill" />
-                            )}
                           </span>
                         </button>
                       );
@@ -541,44 +502,21 @@ export default function Quiz() {
                   </div>
                 ) : (
                   <div>
-                    {isAnswered ? (
-                      <div className={`flex items-start gap-3 px-4 py-3.5 rounded-xl border ${
-                        isCorrect
-                          ? 'border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-900/10'
-                          : 'border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-900/10'
-                      }`}>
-                        {isCorrect
-                          ? <CheckCircle className="w-5 h-5 mt-0.5 shrink-0 text-green-600" weight="fill" />
-                          : <XCircle className="w-5 h-5 mt-0.5 shrink-0 text-red-500" weight="fill" />
+                    <input
+                      type="text"
+                      placeholder="Tulis jawabanmu..."
+                      value={answers[current.id] || ''}
+                      onChange={(e) => handleAnswer(current.id, e.target.value)}
+                      className="w-full px-4 py-3.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-primary-400 focus:ring-2 focus:ring-primary-200/50 dark:focus:ring-primary-800/30 transition-all duration-200"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && answers[current.id]) {
+                          handleNext();
                         }
-                        <div>
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{answers[current.id]}</p>
-                          {!isCorrect && (
-                            <p className="text-sm text-green-600 dark:text-green-400 mt-1">
-                              Jawaban benar: <span className="font-bold">{current.correct_answer}</span>
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <input
-                          type="text"
-                          placeholder="Tulis jawabanmu..."
-                          value={answers[current.id] || ''}
-                          onChange={(e) => handleAnswer(current.id, e.target.value)}
-                          className="w-full px-4 py-3.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-primary-400 focus:ring-2 focus:ring-primary-200/50 dark:focus:ring-primary-800/30 transition-all duration-200"
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' && answers[current.id]) {
-                              handleNext();
-                            }
-                          }}
-                        />
-                        <p className="mt-1.5 text-[0.8125rem] text-gray-400 dark:text-gray-500">
-                          Tekan Enter untuk lanjut
-                        </p>
-                      </>
-                    )}
+                      }}
+                    />
+                    <p className="mt-1.5 text-[0.8125rem] text-gray-400 dark:text-gray-500">
+                      Tekan Enter untuk lanjut
+                    </p>
                   </div>
                 )}
 
