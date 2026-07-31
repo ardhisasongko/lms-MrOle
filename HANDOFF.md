@@ -123,6 +123,21 @@ WORK COMPLETED
 - Fix migration 012: submit_quiz error "column reference q.id is ambiguous" — variabel q bentrok alias JOIN questions q → ganti alias ke qq
 - Fix dark mode: DashboardLayout & AdminLayout tidak punya toggle dark mode sama sekali (HP siswa tidak bisa ganti tema) → tambah toggle Sun/Moon di header mobile + sidebar; useDarkMode tambah listener storage agar instance sinkron
 
+=== Sesi 10 (Mobile Name Truncate Fix + Dashboard Motivasi Siswa) ===
+- Fix truncate username/nama user di mobile: Leaderboard.jsx, admin/Users.jsx, admin/Dashboard.jsx — ganti class `truncate` → `break-words leading-snug` agar nama panjang tampil penuh (wrap), tidak kepotong
+- Token Cloudflare Pages disalin dari OneDrive Desktop Windows (/mnt/c/Users/Lenovo/OneDrive/Desktop/lms-MrOle/Front Err/token-cloudflare.txt) ke ~/projects/lms-MrOle/Front Err/token-cloudflare.txt
+- Front Err/token-cloudflare.txt masuk .gitignore agar tidak ter-push ke GitHub (terverifikasi via git check-ignore)
+- Dashboard: kartu statistik jadi link interaktif — Level→/practice, Total Soal→/history, Rata-rata Nilai→/history, Streak→/practice, Bookmark→/bookmarks (hover effect + Card hover={false} + h-full)
+- Dashboard motivasi siswa (5 saran diterapkan, semua pakai data yang sudah ada di useProgress/useStreak — arsitektur service seam utuh):
+  1. CTA header dinamis sesuai kondisi: belum latihan / quest harian belum selesai (sisa X soal) / streak ≥3 / quest selesai
+  2. Banner CTA "Mulai Latihan" selalu terlihat di atas dashboard (bukan hanya saat data kosong)
+  3. Insight "Skor per Kategori": baris 💪 Terkuat & 🎯 Perlu ditingkatkan
+  4. Banner pujian kenaikan skor: "Skormu naik X poin dibanding kemarin" (hitung dari chartData hari ini vs kemarin)
+  5. Info "Latihan terakhir: X menit/jam/hari lalu" (timeAgo dari stats.lastSession)
+- Fix banner CTA mobile: layout sebelumnya 1 baris menumpuk → di HP jadi 2 baris (ikon+teks atas, tombol lebar penuh di bawah); desktop tetap 1 baris (flex-col sm:flex-row + w-full sm:w-auto)
+- Commit Sesi 10: 45b7e88 (dashboard motivasi + stat cards + truncate fix), d0ded7b (fix banner CTA mobile)
+- Deploy live via wrangler manual: https://lms-mrole.pages.dev
+
 CURRENT STATE
 -------------
 - Semua 5 architecture candidate SELESAI
@@ -131,6 +146,9 @@ CURRENT STATE
 - Supabase CLI ter-install & ter-link
 - Quiz: tanpa instant feedback, tanpa crash, submit_quiz tanpa error ambigu
 - Dark mode toggle tersedia di Navbar, DashboardLayout, AdminLayout, Settings
+- Dashboard motivasi siswa: CTA dinamis, banner Mulai Latihan selalu terlihat, insight kategori, pujian kenaikan skor, info latihan terakhir
+- Stat cards dashboard interaktif (link ke /history, /practice, /bookmarks)
+- Username/nama user tampil penuh di mobile (tanpa truncate) di Leaderboard, admin Users, admin Dashboard log
 
 PENDING TASKS
 -------------
@@ -157,6 +175,10 @@ PENDING TASKS
 - ~~Instant feedback dihapus dari quiz~~ ✅
 - ~~submit_quiz ambiguous (ans, q)~~ ✅
 - ~~Dark mode toggle di Dashboard/Admin layout~~ ✅
+- ~~Fix truncate username/nama user di mobile (Leaderboard, admin Users, admin Dashboard log)~~ ✅
+- ~~Dashboard motivasi siswa (CTA dinamis, banner Mulai Latihan, insight kategori, pujian skor, info latihan terakhir)~~ ✅
+- ~~Stat cards dashboard jadi link interaktif~~ ✅
+- ~~Banner CTA responsive di HP (2 baris)~~ ✅
 
 KEY FILES
 ---------
@@ -195,7 +217,8 @@ IMPORTANT DECISIONS
 - IS_DEMO controlled by explicit VITE_DEMO=true flag, not by missing env vars
 - deleteUser moved to server-side Cloudflare Function (service_role key required)
 - Deploy: auto-deploy GitHub MATI → gunakan wrangler manual (CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID)
-- Token Cloudflare Pages disimpan di "Front Err/token-cloudflare.txt" (token cfut_eko... TIDAK punya izin Pages; gunakan token Pages yang tersimpan di file tsb)
+- Token Cloudflare Pages disimpan di "Front Err/token-cloudflare.txt" (token cfut_eko... TIDAK punya izin Pages; gunakan token Pages yang tersimpan di file tsb — cfut_6wM...). File sudah masuk .gitignore
+- Dashboard motivasi: hitung dari data yang sudah ada (useProgress/useStreak/chartData) — tidak menambah query supabase baru
 
 EXPLICIT CONSTRAINTS
 --------------------
@@ -222,4 +245,6 @@ CONTEXT FOR CONTINUATION
 - Quiz tanpa instant feedback; jawaban benar hanya muncul di halaman hasil
 - submit_quiz sudah bebas error ambigu (migration 011 + 012)
 - Dark mode toggle tersedia di semua layout + sinkron antar komponen
+- Dashboard motivasi: kartu statistik klikable; banner Mulai Latihan responsive (2 baris di HP); CTA teks dinamis; insight kategori terkuat/terlemah; pujian kenaikan skor; info latihan terakhir
+- Nama user tampil penuh (break-words) di mobile — tidak ada truncate
 - Langkah deploy cepat: npm run build && CLOUDFLARE_API_TOKEN=... CLOUDFLARE_ACCOUNT_ID=... npx wrangler pages deploy dist --project-name lms-mrole --branch main
