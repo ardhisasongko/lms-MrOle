@@ -138,11 +138,21 @@ WORK COMPLETED
 - Commit Sesi 10: 45b7e88 (dashboard motivasi + stat cards + truncate fix), d0ded7b (fix banner CTA mobile)
 - Deploy live via wrangler manual: https://lms-mrole.pages.dev
 
+=== Sesi 11 (Auto-Deploy GitHub → Cloudflare Pages FIXED) ===
+- Auto-deploy GitHub→Cloudflare Pages sudah diperbaiki dan BERFUNGSI — akar masalah: package-lock.json tidak sinkron dengan package.json, sehingga step `npm ci` di GitHub Actions gagal (exit code 1 dalam ~10 detik). Bukan masalah koneksi Cloudflare
+- Buat .github/workflows/deploy.yml — workflow deploy otomatis: push ke main → npm ci → npm run build → deploy via cloudflare/pages-action@v1 (projectName lms-mrole, directory dist)
+- Perlu 2 secrets di GitHub: CLOUDFLARE_API_TOKEN (cfut_6wM... token Pages) + CLOUDFLARE_ACCOUNT_ID (dari Cloudflare Dashboard) — sudah ditambahkan user
+- Regenerasi package-lock.json (npm install) agar sinkron → `npm ci` lokal berhasil
+- Commit: 26faba4 (workflow deploy), 7d364fe (handoff Sesi 10), 7a24493 (regenerate package-lock)
+- Workflow run #3 SUCCESS — auto-deploy aktif, https://lms-mrole.pages.dev HTTP 200
+- Sejak ini: TIDAK perlu wrangler manual lagi; setiap push ke main auto-build + auto-deploy
+
 CURRENT STATE
 -------------
 - Semua 5 architecture candidate SELESAI
 - 13 migration sync (001–012 + seed 20250727)
 - Build sukses, deploy live via wrangler manual (auto-deploy GitHub masih mati)
+- AUTO-DEPLOY GitHub → Cloudflare Pages SUDAH AKTIF (workflow deploy.yml, run success) — tidak perlu wrangler manual lagi
 - Supabase CLI ter-install & ter-link
 - Quiz: tanpa instant feedback, tanpa crash, submit_quiz tanpa error ambigu
 - Dark mode toggle tersedia di Navbar, DashboardLayout, AdminLayout, Settings
@@ -179,6 +189,8 @@ PENDING TASKS
 - ~~Dashboard motivasi siswa (CTA dinamis, banner Mulai Latihan, insight kategori, pujian skor, info latihan terakhir)~~ ✅
 - ~~Stat cards dashboard jadi link interaktif~~ ✅
 - ~~Banner CTA responsive di HP (2 baris)~~ ✅
+- ~~Auto-deploy GitHub→Cloudflare Pages (root cause: package-lock.json tidak sinkron → npm ci gagal)~~ ✅
+- ~~Workflow deploy.yml (push ke main → build + deploy otomatis)~~ ✅
 
 KEY FILES
 ---------
@@ -191,6 +203,7 @@ KEY FILES
 - e2e/pages.spec.js - E2E smoke tests for public pages + responsive checks
 - .lighthouserc.js - Lighthouse CI config for performance/accessibility/SEO
 - .github/workflows/ci-fix.yml - Full CI pipeline: test → auto-fix → loop guard → PR
+- .github/workflows/deploy.yml - Auto-deploy ke Cloudflare Pages (push ke main)
 - supabase/config.toml - Supabase CLI config
 - supabase/seed/ - Seed data (seed.sql, english-questions.sql)
 - supabase/migrations/ - 14 migration files (001 to 012 + seed)
@@ -217,6 +230,8 @@ IMPORTANT DECISIONS
 - IS_DEMO controlled by explicit VITE_DEMO=true flag, not by missing env vars
 - deleteUser moved to server-side Cloudflare Function (service_role key required)
 - Deploy: auto-deploy GitHub MATI → gunakan wrangler manual (CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID)
+- Deploy SEKARANG: auto-deploy AKTIF via .github/workflows/deploy.yml (push ke main). Wrangler manual hanya cadangan
+- GitHub secrets: CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID wajib ada di repo (Settings → Secrets → Actions)
 - Token Cloudflare Pages disimpan di "Front Err/token-cloudflare.txt" (token cfut_eko... TIDAK punya izin Pages; gunakan token Pages yang tersimpan di file tsb — cfut_6wM...). File sudah masuk .gitignore
 - Dashboard motivasi: hitung dari data yang sudah ada (useProgress/useStreak/chartData) — tidak menambah query supabase baru
 
@@ -241,10 +256,11 @@ CONTEXT FOR CONTINUATION
 - ESLint: 6 error hooks sudah diperbaiki, recommended rules + react plugin diaktifkan
 - Lighthouse: butuh Chrome environment untuk jalan
 - npm install butuh dijalankan ulang (korupsi node_modules di WSL)
-- Deploy aktif: wrangler manual dari ~/projects/lms-MrOle (build ~1-2m, lalu wrangler pages deploy dist). Auto-deploy GitHub→Cloudflare Pages masih putus — reconnect bila sempat
+- Deploy aktif: auto-deploy GitHub→Cloudflare Pages SUDAH AKTIF via deploy.yml (push ke main). Wrangler manual hanya cadangan
 - Quiz tanpa instant feedback; jawaban benar hanya muncul di halaman hasil
 - submit_quiz sudah bebas error ambigu (migration 011 + 012)
 - Dark mode toggle tersedia di semua layout + sinkron antar komponen
 - Dashboard motivasi: kartu statistik klikable; banner Mulai Latihan responsive (2 baris di HP); CTA teks dinamis; insight kategori terkuat/terlemah; pujian kenaikan skor; info latihan terakhir
 - Nama user tampil penuh (break-words) di mobile — tidak ada truncate
-- Langkah deploy cepat: npm run build && CLOUDFLARE_API_TOKEN=... CLOUDFLARE_ACCOUNT_ID=... npx wrangler pages deploy dist --project-name lms-mrole --branch main
+- Auto-deploy GitHub→Cloudflare Pages AKTIF (workflow deploy.yml). Root cause lama (npm ci gagal karena lock tidak sinkron) sudah diperbaiki
+- Langkah deploy cepat: git push ke main → otomatis build + deploy (tanpa wrangler manual)
