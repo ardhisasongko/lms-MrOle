@@ -80,10 +80,7 @@ export async function getStatsCounts() {
 }
 
 export async function getLeaderboard() {
-  const { data, error } = await supabase
-    .from('leaderboard_ranking')
-    .select('user_id, full_name, avatar_url, avg_score, sessions, total_questions')
-    .limit(50);
+  const { data, error } = await supabase.rpc('get_leaderboard');
   if (error) throw error;
   return (data || []).map((r) => ({
     id: r.user_id,
