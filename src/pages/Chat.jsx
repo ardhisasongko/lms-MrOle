@@ -240,12 +240,12 @@ export default function Chat() {
                 onKeyDown={handleKeyDown}
                 placeholder={mode === 'grammar' ? 'Ketik kalimat bahasa Inggris...' : 'Tanya sesuatu...'}
                 disabled={loading}
-                className="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-primary-400 focus:ring-2 focus:ring-primary-200/50 disabled:opacity-50 transition-all duration-200"
+                className="flex-1 min-w-0 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-primary-400 focus:ring-2 focus:ring-primary-200/50 disabled:opacity-50 transition-all duration-200"
               />
               <Button
                 onClick={handleSendClick}
                 disabled={loading || !input.trim()}
-                className="px-4 py-3 rounded-xl"
+                className="px-4 py-3 rounded-xl shrink-0"
                 aria-label="Kirim pesan"
               >
                 <PaperPlaneTilt className="w-4 h-4" weight="fill" />
