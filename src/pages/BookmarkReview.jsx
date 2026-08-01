@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { BookmarkSimple, MagnifyingGlass, Trash, CaretDown, CaretUp, GraduationCap, BookOpen, PenNib } from '@phosphor-icons/react';
+import { BookmarkSimple, MagnifyingGlass, Trash, CaretDown, CaretUp, GraduationCap, BookOpen, PenNib, LockKey } from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
 import Badge from '../components/common/Badge';
 import EmptyState from '../components/feedback/EmptyState';
@@ -36,7 +36,7 @@ function getOptions(options) {
 }
 
 export default function BookmarkReview() {
-  const { bookmarks, loading, error, toggleBookmark } = useBookmarks();
+  const { bookmarks, loading, error, toggleBookmark } = useBookmarks({ review: true });
   const [search, setSearch] = useState('');
   const [filterDifficulty, setFilterDifficulty] = useState('');
   const [expandedId, setExpandedId] = useState(null);
@@ -198,7 +198,7 @@ export default function BookmarkReview() {
                               const isObjectOption = opt && typeof opt === 'object';
                               const label = isObjectOption ? opt.label : String.fromCharCode(65 + i);
                               const text = isObjectOption ? opt.text : opt;
-                              const isCorrect = isObjectOption ? label === q.correct_answer : opt === q.correct_answer;
+                              const isCorrect = q.answer_available && (isObjectOption ? label === q.correct_answer : opt === q.correct_answer);
                               return (
                                 <div
                                   key={i}
@@ -216,17 +216,25 @@ export default function BookmarkReview() {
                         </div>
                       )}
 
-                      {/* Correct answer */}
-                      <div>
-                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jawaban Benar:</p>
-                        <p className="text-sm text-green-600 dark:text-green-400 font-medium">{q.correct_answer}</p>
-                      </div>
-
-                      {/* Explanation */}
-                      {q.explanation && (
-                        <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl px-4 py-3">
-                          <p className="text-sm font-medium text-amber-700 dark:text-amber-400 mb-1">Pembahasan:</p>
-                          <p className="text-sm text-amber-800 dark:text-amber-300 leading-relaxed">{q.explanation}</p>
+                      {q.answer_available ? (
+                        <>
+                          <div>
+                            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jawaban Benar:</p>
+                            <p className="text-sm text-green-600 dark:text-green-400 font-medium">{q.correct_answer}</p>
+                          </div>
+                          {q.explanation && (
+                            <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl px-4 py-3">
+                              <p className="text-sm font-medium text-amber-700 dark:text-amber-400 mb-1">Pembahasan:</p>
+                              <p className="text-sm text-amber-800 dark:text-amber-300 leading-relaxed">{q.explanation}</p>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="flex items-start gap-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 px-4 py-3 text-gray-500 dark:text-gray-400">
+                          <LockKey className="w-4 h-4 mt-0.5 shrink-0" weight="fill" />
+                          <p className="text-sm leading-relaxed">
+                            Jawaban dan pembahasan tersedia setelah soal selesai dikerjakan.
+                          </p>
                         </div>
                       )}
                     </div>

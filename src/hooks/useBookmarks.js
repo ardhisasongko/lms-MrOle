@@ -1,17 +1,17 @@
 import { useState, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useAsync } from './useAsync';
-import { getBookmarksByUser, addBookmark, removeBookmark } from '../services/bookmarks';
+import { getBookmarksByUser, getBookmarkReviews, addBookmark, removeBookmark } from '../services/bookmarks';
 
-export function useBookmarks() {
+export function useBookmarks({ review = false } = {}) {
   const { user } = useAuth();
   const [bookmarks, setBookmarks] = useState([]);
 
   const fetchBookmarks = useCallback(async () => {
     if (!user) return;
-    const data = await getBookmarksByUser(user.id);
+    const data = review ? await getBookmarkReviews() : await getBookmarksByUser(user.id);
     setBookmarks(data);
-  }, [user]);
+  }, [review, user]);
 
   const { loading, error } = useAsync(fetchBookmarks, [user]);
 
