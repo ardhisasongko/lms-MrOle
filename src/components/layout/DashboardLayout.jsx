@@ -36,7 +36,7 @@ export default function DashboardLayout() {
   );
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-page-light dark:bg-page-dark">
+    <div className="h-dvh flex flex-col overflow-hidden bg-page-light dark:bg-page-dark">
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
