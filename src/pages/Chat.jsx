@@ -23,6 +23,9 @@ function formatTime(date) {
 function MessageBubble({ msg }) {
   const [copied, setCopied] = useState(false);
   const isUser = msg.role === 'user';
+  const bubbleWidth = isUser
+    ? 'max-w-[85%] sm:max-w-[80%]'
+    : 'max-w-[calc(100%-2.25rem)] sm:max-w-[80%]';
 
   const handleCopy = () => {
     navigator.clipboard.writeText(msg.content);
@@ -37,7 +40,7 @@ function MessageBubble({ msg }) {
           <Robot className="w-4.5 h-4.5 text-white" weight="fill" />
         </div>
       )}
-      <div className={`max-w-[85%] sm:max-w-[80%] min-w-0 ${isUser ? 'order-1' : ''}`}>
+      <div className={`${bubbleWidth} min-w-0 ${isUser ? 'order-1' : ''}`}>
         <div
           className={`rounded-2xl px-4 py-3 text-[0.9375rem] leading-relaxed ${
             isUser
@@ -208,7 +211,7 @@ export default function Chat() {
         >
           <CardContent className="h-full min-h-0 p-0 flex flex-col">
             <div
-              className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 space-y-4 md:flex-none md:h-[50vh] md:max-h-[450px]"
+              className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-3 py-4 sm:p-4 space-y-4 md:flex-none md:h-[50vh] md:max-h-[450px]"
               role="log"
               aria-live="polite"
               aria-label="Percakapan dengan Mr Ole"
