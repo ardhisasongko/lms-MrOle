@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Audit Arsitektur - LMS Mr Ole</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({ startOnLoad: true, theme: "neutral", securityLevel: "loose" });
+  </script>
+  <style>
+    :root { color-scheme: light; }
+    body { background: #f4f1eb; }
+    .paper { box-shadow: 0 18px 50px rgba(15,23,42,.08); }
+    .seam { border-style: dashed; }
+    .deep { background: linear-gradient(145deg,#0f172a,#1e293b); color: white; }
+    .leak { color: #b91c1c; border-color: #fca5a5; background: #fef2f2; }
+    .before-after { min-height: 280px; }
+    code { overflow-wrap: anywhere; }
+    @media print { body { background:white; } .paper { box-shadow:none; } article { break-inside:avoid; } }
+  </style>
+</head>
+<body class="text-slate-900 antialiased">
+  <main class="max-w-6xl mx-auto px-4 sm:px-7 py-10 space-y-10">
+    <header class="paper rounded-3xl bg-white border border-stone-200 p-7 sm:p-10">
+      <div class="flex flex-wrap items-start justify-between gap-5">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[.22em] text-emerald-700">Read-only architecture audit</p>
+          <h1 class="mt-3 text-4xl sm:text-5xl font-serif tracking-tight">LMS Mr Ole</h1>
+          <p class="mt-3 text-slate-500">Frontend, aliran data frontend-backend, dan pengelolaan Supabase/PostgreSQL</p>
+        </div>
+        <div class="text-right text-sm text-slate-500">
+          <p>1 Agustus 2026</p>
+          <p>HEAD: <code class="text-slate-700">631e9b0</code></p>
+          <p>Mode: audit, tanpa perubahan aplikasi</p>
+        </div>
+      </div>
+      <div class="mt-8 grid sm:grid-cols-4 gap-3 text-sm">
+        <div class="rounded-2xl bg-red-50 border border-red-200 p-4"><b class="text-red-800">1 Critical</b><p class="text-red-700 mt-1">answer leak via bookmark</p></div>
+        <div class="rounded-2xl bg-amber-50 border border-amber-200 p-4"><b class="text-amber-900">6 High</b><p class="text-amber-800 mt-1">integrity, auth, operations</p></div>
+        <div class="rounded-2xl bg-slate-50 border border-slate-200 p-4"><b>19-30 hari</b><p class="text-slate-500 mt-1">estimasi keseluruhan</p></div>
+        <div class="rounded-2xl bg-emerald-50 border border-emerald-200 p-4"><b class="text-emerald-900">2-3 hari</b><p class="text-emerald-800 mt-1">fase darurat</p></div>
+      </div>
+      <div class="mt-7 flex flex-wrap gap-4 text-xs text-slate-500">
+        <span><i class="inline-block w-3 h-3 border-2 border-slate-700 mr-1 align-middle"></i> module</span>
+        <span><i class="inline-block w-5 border-t-2 border-dashed border-slate-500 mr-1 align-middle"></i> seam</span>
+        <span><i class="inline-block w-5 border-t-2 border-red-600 mr-1 align-middle"></i> leakage</span>
+        <span><i class="inline-block w-3 h-3 bg-slate-900 mr-1 align-middle"></i> deep module</span>
+      </div>
+    </header>
+
+    <section class="paper rounded-3xl bg-white border border-stone-200 p-7 sm:p-10">
+      <div class="grid lg:grid-cols-[1.25fr_.75fr] gap-8">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-widest text-slate-500">Arsitektur saat ini</p>
+          <pre class="mermaid mt-5">
+flowchart LR
+  UI[Pages + UI modules] --> H[Hooks]
+  UI --> S[Services]
+  H --> S
+  S --> SB[Supabase browser client]
+  S --> CF[Cloudflare Functions]
+  SB --> AUTH[Auth]
+  SB --> DB[(Postgres + RLS + RPC)]
+  SB --> ST[Storage]
+  CF --> AI[Workers AI]
+  CF --> ADMIN[Supabase Admin]
+  LS[(localStorage)] -. domain state .-> UI
+  classDef deep fill:#0f172a,color:#fff,stroke:#0f172a;
+  class DB deep;
+  classDef leak fill:#fef2f2,stroke:#dc2626,color:#991b1b;
+  class LS leak;
+          </pre>
+        </div>
+        <div class="space-y-4">
+          <h2 class="text-2xl font-serif">Kesimpulan eksekutif</h2>
+          <p class="text-sm leading-6 text-slate-600">Quiz session sudah menjadi module paling deep: pemilihan soal, snapshot, scoring, idempotency, dan ownership berada di database. Masalah terbesar justru datang dari seam di sebelahnya yang lebih shallow.</p>
+          <div class="rounded-2xl leak border p-4 text-sm"><b>Critical:</b> bookmark aktif memberi otorisasi membaca baris <code>questions</code> yang mengandung jawaban.</div>
+          <div class="rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm"><b>High:</b> reset database tidak mereproduksi pool produksi, audit admin tidak transaksional, dan constraint inti masih banyak berada di adapter frontend.</div>
+          <div class="rounded-2xl bg-emerald-50 border border-emerald-200 p-4 text-sm"><b>Strategi:</b> tutup leakage lebih dulu, lalu perdalam module data tanpa rewrite besar.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="candidates" class="space-y-8">
+      <article id="bookmark" class="paper rounded-3xl bg-white border-2 border-red-300 overflow-hidden">
+        <div class="p-7 sm:p-9">
+          <div class="flex flex-wrap justify-between gap-3">
+            <div><p class="text-xs font-bold uppercase tracking-widest text-red-700">Candidate 01</p><h2 class="mt-2 text-3xl font-serif">Tutup answer leak melalui bookmark</h2></div>
+            <div class="flex gap-2"><span class="rounded-full bg-red-700 text-white px-3 py-1 text-xs font-bold">Critical</span><span class="rounded-full bg-emerald-100 text-emerald-800 px-3 py-1 text-xs font-bold">Strong</span></div>
+          </div>
+          <p class="mt-5 font-mono text-xs text-slate-500">src/services/bookmarks.js:3-20,47-51 · 008_bookmarks.sql:18-23 · 202608010005_lock_down_question_answers.sql:32-51</p>
+          <div class="mt-6 grid lg:grid-cols-2 gap-5 before-after">
+            <div class="rounded-2xl bg-red-50 border border-red-200 p-5">
+              <p class="text-xs font-bold uppercase tracking-widest text-red-700">Before - leakage</p>
+              <pre class="mermaid mt-3">
+flowchart TD
+  A[Active quiz gives question_id] --> B[Insert bookmark]
+  B --> C[RLS bookmark branch]
+  C --> D[SELECT questions row]
+  D --> E[correct_answer + explanation]
+  classDef leak fill:#fee2e2,stroke:#dc2626,color:#991b1b;
+  class C,D,E leak;
+              </pre>
+            </div>
+            <div class="rounded-2xl deep p-5">
+              <p class="text-xs font-bold uppercase tracking-widest text-emerald-300">After - deep review module</p>
+              <div class="mt-8 space-y-3 text-sm">
+                <div class="rounded-xl border border-slate-500 p-3">Bookmark interface: ID + safe prompt only</div>
+                <div class="text-center text-slate-400">↓ submitted-attempt check</div>
+                <div class="rounded-xl bg-emerald-500/15 border border-emerald-400 p-4">Review RPC owns answer release</div>
+                <div class="text-center text-xs text-slate-400">Base questions row never exposed to active learner</div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-6 grid md:grid-cols-4 gap-4 text-sm">
+            <div><b>Masalah</b><p class="mt-1 text-slate-600">RLS row access membuka semua kolom sensitif.</p></div>
+            <div><b>Solusi</b><p class="mt-1 text-slate-600">RPC review terkontrol; hapus bookmark dari policy base table.</p></div>
+            <div><b>Estimasi</b><p class="mt-1 text-slate-600">1.5-3 hari.</p></div>
+            <div><b>Efek</b><p class="mt-1 text-slate-600">Bookmark sebelum submit tetap ada, jawaban baru terbuka setelah submit.</p></div>
+          </div>
+          <div class="mt-5 flex flex-wrap gap-2 text-xs"><span class="bg-slate-100 rounded px-2 py-1">locality: release jawaban di satu module</span><span class="bg-slate-100 rounded px-2 py-1">leverage: semua mode quiz terlindungi</span><span class="bg-slate-100 rounded px-2 py-1">risk: migration RLS</span></div>
+        </div>
+      </article>
+
+      <article id="database-authority" class="paper rounded-3xl bg-white border border-stone-200 p-7 sm:p-9">
+        <div class="flex flex-wrap justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-widest text-amber-700">Candidate 02</p><h2 class="mt-2 text-3xl font-serif">Jadikan migration satu-satunya schema authority</h2></div><div class="flex gap-2"><span class="rounded-full bg-amber-100 text-amber-900 px-3 py-1 text-xs font-bold">High</span><span class="rounded-full bg-emerald-100 text-emerald-800 px-3 py-1 text-xs font-bold">Strong</span></div></div>
+        <p class="mt-5 font-mono text-xs text-slate-500">supabase/config.toml:66-71 · seed/seed.sql · seed/english-questions.sql · supabase/FULL_SCHEMA.sql · scripts/generate-question-bank.mjs:13-16</p>
+        <div class="mt-6 grid lg:grid-cols-2 gap-5">
+          <div class="rounded-2xl border border-amber-200 bg-amber-50 p-5"><p class="text-xs font-bold uppercase tracking-widest text-amber-800">Before - tiga authority</p><div class="mt-6 grid grid-cols-3 gap-2 text-center text-xs"><div class="rounded-xl bg-white border p-4">Migrations<br><b>production</b></div><div class="rounded-xl bg-white border p-4">Legacy seeds<br><b>post-migration</b></div><div class="rounded-xl bg-white border p-4">FULL_SCHEMA<br><b>stale</b></div></div><p class="mt-5 text-sm text-amber-900">Fresh reset menghasilkan V2 + legacy published rows; applied migration dapat ditulis ulang generator.</p></div>
+          <div class="rounded-2xl deep p-5"><p class="text-xs font-bold uppercase tracking-widest text-emerald-300">After - one authority</p><div class="mt-6 mx-auto max-w-sm rounded-2xl border-2 border-emerald-400 p-5 text-center"><b>Immutable migrations</b><p class="mt-2 text-xs text-slate-300">new timestamp per bank release</p><div class="mt-4 grid grid-cols-2 gap-2"><span class="rounded bg-white/10 p-2">fixture seed</span><span class="rounded bg-white/10 p-2">checksum manifest</span></div></div></div>
+        </div>
+        <div class="mt-6 grid md:grid-cols-4 gap-4 text-sm"><div><b>Masalah</b><p class="mt-1 text-slate-600">Reset, production, dan schema dump berbeda.</p></div><div><b>Solusi</b><p class="mt-1 text-slate-600">Retire FULL_SCHEMA, pisahkan fixture, migration immutable.</p></div><div><b>Estimasi</b><p class="mt-1 text-slate-600">2-4 hari.</p></div><div><b>Efek</b><p class="mt-1 text-slate-600">Reset lokal deterministik; proses release bank berubah.</p></div></div>
+      </article>
+
+      <article id="integrity" class="paper rounded-3xl bg-white border border-stone-200 p-7 sm:p-9">
+        <div class="flex flex-wrap justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-widest text-amber-700">Candidate 03</p><h2 class="mt-2 text-3xl font-serif">Pindahkan invariant data ke database module</h2></div><div class="flex gap-2"><span class="rounded-full bg-amber-100 text-amber-900 px-3 py-1 text-xs font-bold">High</span><span class="rounded-full bg-emerald-100 text-emerald-800 px-3 py-1 text-xs font-bold">Strong</span></div></div>
+        <p class="mt-5 font-mono text-xs text-slate-500">001_initial.sql:58-68,80-114 · 202608010006_harden_quiz_session_submission.sql:75-151 · src/pages/admin/Questions.jsx:17-69</p>
+        <div class="mt-6 grid lg:grid-cols-2 gap-5">
+          <div class="rounded-2xl bg-slate-50 border p-5"><p class="text-xs font-bold uppercase tracking-widest text-slate-500">Before - adapter-owned rules</p><div class="mt-5 space-y-2 text-sm"><div class="rounded border bg-white p-3">Admin adapter validates options</div><div class="rounded border bg-white p-3">RPC validates some answers</div><div class="rounded border-red-300 bg-red-50 p-3 text-red-800">Tables accept invalid score, duplicate answer, malformed question</div></div></div>
+          <div class="rounded-2xl deep p-5"><p class="text-xs font-bold uppercase tracking-widest text-emerald-300">After - constraints absorb complexity</p><div class="mt-5 rounded-2xl border-2 border-emerald-400 p-5"><p class="font-bold">Postgres invariant module</p><div class="mt-3 grid grid-cols-2 gap-2 text-xs"><span class="bg-white/10 rounded p-2">score range</span><span class="bg-white/10 rounded p-2">unique answer</span><span class="bg-white/10 rounded p-2">question shape</span><span class="bg-white/10 rounded p-2">bounded text</span></div></div></div>
+        </div>
+        <div class="mt-6 grid md:grid-cols-4 gap-4 text-sm"><div><b>Masalah</b><p class="mt-1 text-slate-600">Future adapter/import dapat menyimpan state invalid.</p></div><div><b>Solusi</b><p class="mt-1 text-slate-600">Additive constraints, profile data, validate bertahap.</p></div><div><b>Estimasi</b><p class="mt-1 text-slate-600">3-5 hari.</p></div><div><b>Efek</b><p class="mt-1 text-slate-600">Write invalid ditolak; perlu cleanup data lama.</p></div></div>
+      </article>
+
+      <article id="admin" class="paper rounded-3xl bg-white border border-stone-200 p-7 sm:p-9">
+        <div class="flex flex-wrap justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-widest text-amber-700">Candidate 04</p><h2 class="mt-2 text-3xl font-serif">Perdalam mutation dan audit admin</h2></div><div class="flex gap-2"><span class="rounded-full bg-amber-100 text-amber-900 px-3 py-1 text-xs font-bold">High</span><span class="rounded-full bg-emerald-100 text-emerald-800 px-3 py-1 text-xs font-bold">Strong</span></div></div>
+        <p class="mt-5 font-mono text-xs text-slate-500">007_admin_audit.sql:5-46 · src/utils/logAdmin.js:1-5 · admin/Categories.jsx:20-38 · functions/api/delete-user.js:41-73</p>
+        <div class="mt-6 grid lg:grid-cols-2 gap-5">
+          <div class="rounded-2xl border border-red-200 bg-red-50 p-5"><p class="text-xs font-bold uppercase tracking-widest text-red-700">Before - split transaction</p><pre class="mermaid mt-3">
+sequenceDiagram
+  participant UI as Admin UI
+  participant DB as PostgREST
+  participant Log as logAdmin
+  UI->>DB: mutation
+  DB-->>UI: success
+  UI--xLog: fire-and-forget
+  Note over UI,Log: audit can disappear or be fabricated
+          </pre></div>
+          <div class="rounded-2xl deep p-5"><p class="text-xs font-bold uppercase tracking-widest text-emerald-300">After - atomic locality</p><pre class="mermaid mt-3">
+sequenceDiagram
+  participant UI as Admin UI
+  participant M as Mutation RPC
+  participant DB as Database
+  UI->>M: intent
+  M->>DB: mutation + trusted audit
+  DB-->>M: one transaction
+  M-->>UI: stable result
+          </pre></div>
+        </div>
+        <div class="mt-6 grid md:grid-cols-4 gap-4 text-sm"><div><b>Masalah</b><p class="mt-1 text-slate-600">Audit opsional; delete kategori berisiko cascade/restrict; user-delete header adapter lemah.</p></div><div><b>Solusi</b><p class="mt-1 text-slate-600">Trigger/RPC atomik, archive kategori, harden delete-user.</p></div><div><b>Estimasi</b><p class="mt-1 text-slate-600">4-7 hari.</p></div><div><b>Efek</b><p class="mt-1 text-slate-600">Perilaku admin lebih ketat; audit lama tetap dipertahankan.</p></div></div>
+      </article>
+
+      <article id="data-interface" class="paper rounded-3xl bg-white border border-stone-200 p-7 sm:p-9">
+        <div class="flex flex-wrap justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-widest text-indigo-700">Candidate 05</p><h2 class="mt-2 text-3xl font-serif">Satukan interface data frontend</h2></div><div class="flex gap-2"><span class="rounded-full bg-amber-100 text-amber-900 px-3 py-1 text-xs font-bold">High</span><span class="rounded-full bg-emerald-100 text-emerald-800 px-3 py-1 text-xs font-bold">Strong</span></div></div>
+        <p class="mt-5 font-mono text-xs text-slate-500">src/hooks/useAsync.js:7-28 · src/services/quiz.js · QuizResult.jsx:108-134 · BookmarkReview.jsx:25-35 · admin/Questions.jsx:17-69</p>
+        <div class="mt-6 grid lg:grid-cols-2 gap-5">
+          <div class="rounded-2xl bg-slate-50 border p-5"><p class="text-xs font-bold uppercase tracking-widest text-slate-500">Before - shallow transport seam</p><div class="mt-5 grid grid-cols-3 gap-2 text-center text-xs"><div class="rounded border bg-white p-3">raw snake_case</div><div class="rounded border bg-white p-3">page parsing</div><div class="rounded border bg-white p-3">mixed errors</div></div><div class="mt-3 rounded border-red-300 bg-red-50 p-3 text-sm text-red-800">useAsync.refetch returns cleanup immediately; stale requests can win.</div></div>
+          <div class="rounded-2xl deep p-5"><p class="text-xs font-bold uppercase tracking-widest text-emerald-300">After - canonical adapters</p><div class="mt-5 rounded-2xl border-2 border-indigo-300 p-5"><p class="font-bold">Domain read interface</p><div class="mt-3 flex flex-wrap gap-2 text-xs"><span class="rounded bg-white/10 p-2">camelCase DTO</span><span class="rounded bg-white/10 p-2">canonical options</span><span class="rounded bg-white/10 p-2">stable errors</span><span class="rounded bg-white/10 p-2">race-safe async</span></div></div></div>
+        </div>
+        <div class="mt-6 grid md:grid-cols-4 gap-4 text-sm"><div><b>Masalah</b><p class="mt-1 text-slate-600">Schema dan lifecycle async bocor ke banyak page.</p></div><div><b>Solusi</b><p class="mt-1 text-slate-600">Canonical adapter + perbaikan useAsync + server result authoritative.</p></div><div><b>Estimasi</b><p class="mt-1 text-slate-600">4-6 hari.</p></div><div><b>Efek</b><p class="mt-1 text-slate-600">Touch banyak consumer; risiko regresi medium-high namun test surface mengecil.</p></div></div>
+      </article>
+
+      <article id="read-models" class="paper rounded-3xl bg-white border border-stone-200 p-7 sm:p-9">
+        <div class="flex flex-wrap justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-widest text-indigo-700">Candidate 06</p><h2 class="mt-2 text-3xl font-serif">Bentuk server-owned learner read models</h2></div><div class="flex gap-2"><span class="rounded-full bg-amber-100 text-amber-900 px-3 py-1 text-xs font-bold">High</span><span class="rounded-full bg-amber-100 text-amber-900 px-3 py-1 text-xs font-bold">Worth exploring</span></div></div>
+        <p class="mt-5 font-mono text-xs text-slate-500">services/gamification.js:1-24 · services/quiz.js:114-140,191-199 · hooks/useProgress.js:21-35 · History.jsx:38-62 · Practice.jsx:45-67</p>
+        <div class="mt-6 grid lg:grid-cols-2 gap-5">
+          <div class="rounded-2xl border bg-slate-50 p-5"><p class="text-xs font-bold uppercase tracking-widest text-slate-500">Before - fragmented ownership</p><div class="mt-5 grid grid-cols-2 gap-2 text-xs"><div class="rounded bg-white border p-3">localStorage daily quest</div><div class="rounded bg-white border p-3">100-attempt totals</div><div class="rounded bg-white border p-3">10-row history stats</div><div class="rounded bg-white border p-3">N+1 practice recommendations</div></div></div>
+          <div class="rounded-2xl deep p-5"><p class="text-xs font-bold uppercase tracking-widest text-emerald-300">After - two deep read modules</p><div class="mt-5 grid grid-cols-2 gap-3 text-center text-sm"><div class="rounded-xl border-2 border-emerald-400 p-5"><b>Learner summary</b><p class="mt-2 text-xs text-slate-300">lifetime, daily, streak, badges</p></div><div class="rounded-xl border-2 border-indigo-300 p-5"><b>History query</b><p class="mt-2 text-xs text-slate-300">global filter, sort, aggregate</p></div></div></div>
+        </div>
+        <div class="mt-6 grid md:grid-cols-4 gap-4 text-sm"><div><b>Masalah</b><p class="mt-1 text-slate-600">Metric yang disebut lifetime sebenarnya window lokal.</p></div><div><b>Solusi</b><p class="mt-1 text-slate-600">RPC summary dan query history terkomposisi.</p></div><div><b>Estimasi</b><p class="mt-1 text-slate-600">5-8 hari.</p></div><div><b>Efek</b><p class="mt-1 text-slate-600">Angka XP/history dapat berubah menjadi lebih akurat; perlu komunikasi produk.</p></div></div>
+      </article>
+
+      <article id="platform" class="paper rounded-3xl bg-white border border-stone-200 p-7 sm:p-9">
+        <div class="flex flex-wrap justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-widest text-indigo-700">Candidate 07</p><h2 class="mt-2 text-3xl font-serif">Perkeras Cloudflare dan storage adapters</h2></div><div class="flex gap-2"><span class="rounded-full bg-amber-100 text-amber-900 px-3 py-1 text-xs font-bold">High</span><span class="rounded-full bg-emerald-100 text-emerald-800 px-3 py-1 text-xs font-bold">Strong</span></div></div>
+        <p class="mt-5 font-mono text-xs text-slate-500">functions/api/delete-user.js:41-73 · functions/api/chat.js:45-70 · 003_avatars.sql:1-14 · functions/api/config.js:1-19</p>
+        <div class="mt-6 grid lg:grid-cols-2 gap-5">
+          <div class="rounded-2xl border border-red-200 bg-red-50 p-5"><p class="text-xs font-bold uppercase tracking-widest text-red-700">Before - browser controls</p><ul class="mt-5 space-y-2 text-sm text-red-900"><li>AI quota hanya di browser</li><li>History AI aggregate tidak dibatasi</li><li>Avatar path/MIME/size tidak enforced server-side</li><li>Delete-user request headers dan governance tidak lengkap</li></ul></div>
+          <div class="rounded-2xl deep p-5"><p class="text-xs font-bold uppercase tracking-widest text-emerald-300">After - enforced adapters</p><div class="mt-5 space-y-2 text-sm"><div class="rounded border border-emerald-400 p-3">Per-user quota + bounded request</div><div class="rounded border border-emerald-400 p-3">Owned avatar path + bucket limits</div><div class="rounded border border-emerald-400 p-3">Typed delete-user adapter + last-admin guard</div></div></div>
+        </div>
+        <div class="mt-6 grid md:grid-cols-4 gap-4 text-sm"><div><b>Masalah</b><p class="mt-1 text-slate-600">Client validation dipakai pada trust seam.</p></div><div><b>Solusi</b><p class="mt-1 text-slate-600">Enforcement server-side dan function contract tests.</p></div><div><b>Estimasi</b><p class="mt-1 text-slate-600">3-5 hari.</p></div><div><b>Efek</b><p class="mt-1 text-slate-600">Menekan abuse/cost; upload dan chat invalid mulai ditolak.</p></div></div>
+      </article>
+
+      <article id="delivery" class="paper rounded-3xl bg-white border border-stone-200 p-7 sm:p-9">
+        <div class="flex flex-wrap justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-widest text-indigo-700">Candidate 08</p><h2 class="mt-2 text-3xl font-serif">Jadikan CI dan database tests release gate</h2></div><div class="flex gap-2"><span class="rounded-full bg-amber-100 text-amber-900 px-3 py-1 text-xs font-bold">High</span><span class="rounded-full bg-emerald-100 text-emerald-800 px-3 py-1 text-xs font-bold">Strong</span></div></div>
+        <p class="mt-5 font-mono text-xs text-slate-500">.github/workflows/deploy.yml:19-25 · ci-fix.yml:50-69,104-126 · e2e/pages.spec.js · package.json:6-20</p>
+        <div class="mt-6 grid lg:grid-cols-2 gap-5">
+          <div class="rounded-2xl border bg-slate-50 p-5"><p class="text-xs font-bold uppercase tracking-widest text-slate-500">Before - deploy can outrun checks</p><pre class="mermaid mt-3">
+flowchart LR
+  P[push main] --> B[build]
+  B --> D[deploy]
+  C[CI] -. parallel .-> P
+  C --> E[Playwright continue-on-error]
+  C --> L[Lighthouse always success]
+          </pre></div>
+          <div class="rounded-2xl deep p-5"><p class="text-xs font-bold uppercase tracking-widest text-emerald-300">After - one release gate</p><pre class="mermaid mt-3">
+flowchart LR
+  P[PR/push] --> U[unit + lint]
+  U --> R[RLS + migration replay]
+  R --> E[E2E]
+  E --> B[build]
+  B --> D[deploy]
+          </pre></div>
+        </div>
+        <div class="mt-6 grid md:grid-cols-4 gap-4 text-sm"><div><b>Masalah</b><p class="mt-1 text-slate-600">Deploy tidak menunggu unit/lint/RLS; auto-fix dapat push source.</p></div><div><b>Solusi</b><p class="mt-1 text-slate-600">Required workflow, migration replay, role-matrix tests, no direct auto-push.</p></div><div><b>Estimasi</b><p class="mt-1 text-slate-600">4-7 hari.</p></div><div><b>Efek</b><p class="mt-1 text-slate-600">Deploy lebih lambat beberapa menit, risiko production regression turun tajam.</p></div></div>
+      </article>
+    </section>
+
+    <section class="paper rounded-3xl bg-white border border-stone-200 p-7 sm:p-10">
+      <h2 class="text-3xl font-serif">Estimasi dan efek terhadap sistem</h2>
+      <p class="mt-2 text-sm text-slate-500">Estimasi satu engineer yang memahami codebase; belum termasuk waktu approval produk.</p>
+      <div class="mt-6 overflow-x-auto">
+        <table class="w-full text-sm border-collapse">
+          <thead><tr class="text-left border-b-2 border-slate-800"><th class="py-3 pr-4">Fase</th><th class="py-3 pr-4">Scope</th><th class="py-3 pr-4">Estimasi</th><th class="py-3 pr-4">Efek runtime</th><th class="py-3">Risiko rollout</th></tr></thead>
+          <tbody class="divide-y">
+            <tr><td class="py-4 pr-4 font-bold text-red-700">0. Darurat</td><td class="py-4 pr-4">Bookmark leak + adversarial RLS test</td><td class="py-4 pr-4">2-3 hari</td><td class="py-4 pr-4">Jawaban bookmark ditahan hingga submit</td><td class="py-4">Medium; policy migration</td></tr>
+            <tr><td class="py-4 pr-4 font-bold text-amber-800">1. Integritas</td><td class="py-4 pr-4">Schema authority, constraints, admin mutation, storage/function hardening</td><td class="py-4 pr-4">6-10 hari</td><td class="py-4 pr-4">Invalid writes ditolak; admin flow lebih ketat</td><td class="py-4">Medium-high; data profiling wajib</td></tr>
+            <tr><td class="py-4 pr-4 font-bold text-indigo-800">2. Data architecture</td><td class="py-4 pr-4">Canonical adapters, async semantics, learner/history read models</td><td class="py-4 pr-4">7-11 hari</td><td class="py-4 pr-4">Request berkurang; angka lifetime berubah akurat</td><td class="py-4">Medium-high; banyak consumer</td></tr>
+            <tr><td class="py-4 pr-4 font-bold text-emerald-800">3. Operasional</td><td class="py-4 pr-4">CI gate, DB tests, observability, backup runbook, ADR</td><td class="py-4 pr-4">4-6 hari</td><td class="py-4 pr-4">Tidak mengubah UX; deploy sedikit lebih lama</td><td class="py-4">Low-medium</td></tr>
+          </tbody>
+          <tfoot><tr class="border-t-2 border-slate-800"><td class="py-4 font-bold" colspan="2">Total program</td><td class="py-4 font-bold">19-30 hari engineer</td><td class="py-4" colspan="2">4-6 minggu untuk 1 engineer; 2-3 minggu untuk 2 engineer dengan pembagian seam yang jelas</td></tr></tfoot>
+        </table>
+      </div>
+      <div class="mt-7 grid md:grid-cols-3 gap-4 text-sm">
+        <div class="rounded-2xl bg-emerald-50 border border-emerald-200 p-5"><b class="text-emerald-900">Efek positif</b><p class="mt-2 text-emerald-800">Assessment integrity, reproducible database, global metric akurat, request lebih sedikit, release lebih aman.</p></div>
+        <div class="rounded-2xl bg-amber-50 border border-amber-200 p-5"><b class="text-amber-900">Efek sementara</b><p class="mt-2 text-amber-800">Admin flow dan upload lebih ketat, migration rollout perlu staging, deploy gate bertambah beberapa menit.</p></div>
+        <div class="rounded-2xl bg-slate-50 border border-slate-200 p-5"><b>Yang tidak perlu</b><p class="mt-2 text-slate-600">Tidak perlu rewrite React, framework backend baru, state library baru, atau memindahkan seluruh Supabase ke Cloudflare.</p></div>
+      </div>
+    </section>
+
+    <section class="paper rounded-3xl bg-white border border-stone-200 p-7 sm:p-10">
+      <h2 class="text-3xl font-serif">Urutan pengerjaan yang disarankan</h2>
+      <div class="mt-7 grid md:grid-cols-4 gap-4">
+        <div class="rounded-2xl border-t-4 border-red-600 bg-red-50 p-5"><span class="text-xs font-bold text-red-700">01</span><h3 class="mt-2 font-bold">Contain</h3><p class="mt-2 text-sm text-slate-600">Tutup bookmark leak. Tambah RLS exploit test sebelum refactor lain.</p></div>
+        <div class="rounded-2xl border-t-4 border-amber-500 bg-amber-50 p-5"><span class="text-xs font-bold text-amber-800">02</span><h3 class="mt-2 font-bold">Stabilize</h3><p class="mt-2 text-sm text-slate-600">Perbaiki useAsync, quiz timer failure, delete-user, provenance edit.</p></div>
+        <div class="rounded-2xl border-t-4 border-indigo-500 bg-indigo-50 p-5"><span class="text-xs font-bold text-indigo-800">03</span><h3 class="mt-2 font-bold">Deepen</h3><p class="mt-2 text-sm text-slate-600">Canonical adapters, database constraints, admin transaction, read models.</p></div>
+        <div class="rounded-2xl border-t-4 border-emerald-600 bg-emerald-50 p-5"><span class="text-xs font-bold text-emerald-800">04</span><h3 class="mt-2 font-bold">Operate</h3><p class="mt-2 text-sm text-slate-600">Migration replay, RLS matrix, release gate, monitoring, restore drill.</p></div>
+      </div>
+    </section>
+
+    <section id="top-recommendation" class="rounded-3xl deep p-8 sm:p-11">
+      <p class="text-xs font-bold uppercase tracking-[.22em] text-emerald-300">Top recommendation</p>
+      <h2 class="mt-3 text-4xl font-serif">Mulai dari Candidate 01</h2>
+      <p class="mt-4 max-w-3xl text-slate-300">Bookmark answer leak membatalkan manfaat module secure quiz yang sudah dibangun. Menutup seam ini memberi leverage keamanan tertinggi dengan scope terkecil, sekaligus menyediakan pola RLS test untuk seluruh pekerjaan berikutnya.</p>
+      <a href="#bookmark" class="inline-block mt-6 rounded-full bg-emerald-400 text-slate-950 px-5 py-2 text-sm font-bold">Lihat candidate 01</a>
+    </section>
+
+    <footer class="pb-8 text-xs text-slate-500">
+      <p>Audit statis read-only. Tidak menjalankan exploit terhadap database produksi dan tidak mengubah repository.</p>
+      <p class="mt-1">Residual uncertainty: status policy remote, volume data produksi, backup Supabase hosted, dan query plan perlu diverifikasi pada fase implementasi.</p>
+    </footer>
+  </main>
+</body>
+</html>
