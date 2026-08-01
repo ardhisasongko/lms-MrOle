@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import Quiz from './Quiz';
 
@@ -69,6 +69,10 @@ describe('Quiz server sessions', () => {
     mocks.saveAnswer.mockResolvedValue({});
   });
 
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('starts a normal session and renders structured content without legacy labels', async () => {
     renderQuiz('/practice/category-id?difficulty=easy');
 
@@ -116,5 +120,36 @@ describe('Quiz server sessions', () => {
       sourceAttemptId: 'attempt-id',
       challengeToken: null,
     });
+  });
+
+  it('keeps the timer running after a manual submission fails', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-08-01T10:00:10Z'));
+    const session = makeSession();
+    session.startedAt = '2026-08-01T10:00:00Z';
+    session.expiresAt = '2026-08-01T10:30:00Z';
+    const answers = Object.fromEntries(session.questions.map((question) => [question.id, 'A']));
+    window.localStorage.setItem('mr_ole_quiz_session_v2:session-id', JSON.stringify({
+      answers,
+      currentIndex: 19,
+    }));
+    mocks.startSession.mockResolvedValue(session);
+    mocks.submitSession.mockRejectedValue(new Error('Network unavailable'));
+
+    renderQuiz('/practice/category-id?difficulty=easy');
+    await act(async () => { await Promise.resolve(); });
+
+    expect(screen.getByText('00:10')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /Selesai/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Kumpulkan/i }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /Ya, Kumpulkan/i }));
+      await Promise.resolve();
+    });
+
+    await act(async () => { vi.advanceTimersByTime(2000); });
+
+    expect(screen.getByText('00:12')).toBeTruthy();
+    expect(mocks.submitSession).toHaveBeenCalledTimes(1);
   });
 });

@@ -217,7 +217,7 @@ export default function Quiz() {
       return;
     }
     submittingRef.current = true;
-    stopTimer();
+    if (fromTimer) stopTimer();
     try {
       const result = await submitSession({
         sessionId: session.sessionId,
@@ -230,6 +230,7 @@ export default function Quiz() {
         saveDailyProgress({ answered: questions.length, correct: result?.correct || 0 });
       }
       if (!result?.attemptId) throw new Error('Gagal mendapatkan hasil');
+      stopTimer();
       localStorage.removeItem(STORAGE_KEY(session.sessionId));
       const resultQuery = challengeToken
         ? `?challenge=${encodeURIComponent(challengeToken)}`
@@ -632,7 +633,7 @@ export default function Quiz() {
                 <Button variant="outline" onClick={() => setConfirmSubmit(false)}>
                   Lanjutkan
                 </Button>
-                <Button onClick={handleSubmit} loading={submitting}>
+                <Button onClick={() => handleSubmit()} loading={submitting}>
                   Ya, Kumpulkan
                 </Button>
               </div>
