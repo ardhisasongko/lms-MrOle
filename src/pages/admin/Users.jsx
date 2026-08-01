@@ -57,7 +57,6 @@ export default function AdminUsers() {
     setDeleting(true);
     try {
       await deleteUser(deleteTarget);
-      logAdmin('delete', 'profiles', deleteTarget);
       toast.success('User berhasil dihapus');
       setUsers((prev) => prev.filter((u) => u.id !== deleteTarget));
       setDeleteTarget(null);

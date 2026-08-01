@@ -1,8 +1,12 @@
 -- ============================================================
 -- FULL SCHEMA: LMS Mr Ole
--- Gabungan Migration 001-007
--- Jalankan di Supabase SQL Editor untuk setup database baru
+-- RETIRED: baseline ini hanya menggabungkan migration 001-007 dan tidak aman
+-- untuk setup baru. Gunakan seluruh file supabase/migrations secara berurutan.
 -- ============================================================
+
+DO $$ BEGIN
+  RAISE EXCEPTION 'FULL_SCHEMA.sql is retired; run the versioned migrations instead';
+END $$;
 
 -- ============================================================
 -- MIGRATION 001: Initial Schema
