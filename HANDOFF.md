@@ -14,10 +14,15 @@ USER REQUESTS (AS-IS)
 - "apakah sudah di rangkum dan di tuli di file handoff"
 - "lanjut ke build dan deploy"
 - "catat temuan tersebut dalam file handoff"
+- "What did we do so far?"
+- "Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed."
+- "commit and push"
+- "apakah sudah beres ?"
+- "tulis semua progres dan pekerjaan kedalam file handoff"
 
 GOAL
 ----
-Semua 5 architecture candidate selesai. Database ter-migrate & ter-seed. Build & deploy ke Cloudflare Pages.
+Semua architecture candidate selesai, database ter-migrate dan ter-seed, share hasil quiz tersedia, serta quiz production memakai server-side session aman dengan bank 2.000 soal dan batas 20 soal per sesi non-retry.
 
 WORK COMPLETED
 --------------
@@ -117,7 +122,7 @@ WORK COMPLETED
 - Migration 008 (bookmarks) sebelumnya tidak pernah benar-benar dibuat — record tracking dihapus lalu di-repush dengan --include-all
 - Verifikasi tabel bookmarks via REST (HTTP 200); migration 009 security fixes ter-apply
 - Security alert Supabase: view leaderboard_ranking SECURITY DEFINER → migration 010, diganti RPC get_leaderboard() dengan SET search_path, REVOKE dari PUBLIC/anon, GRANT ke authenticated; src/services/users.js pakai supabase.rpc('get_leaderboard')
-- Deploy manual via wrangler berhasil: CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID → npx wrangler pages deploy dist --project-name lms-mrole --branch main (token Pages di "Front Err/token-cloudflare.txt", gunakan token cfut_6wMs... bukan yang lama)
+- Deploy manual via wrangler berhasil: CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID → npx wrangler pages deploy dist --project-name lms-mrole --branch main; nilai secret tidak dicatat di repository
 - Fix: hapus instant feedback di Quiz.jsx — tidak lagi menampilkan benar/salah saat menjawab, opsi tidak di-disable (bisa ganti jawaban), suara playCorrect/playWrong dihapus; jawaban benar hanya tampil di QuizResult
 - Fix migration 011: submit_quiz error "column reference ans is ambiguous" — loop variable ans bentrok alias SQL ans di INSERT quiz_answers → ganti ke v_ans
 - Fix migration 012: submit_quiz error "column reference q.id is ambiguous" — variabel q bentrok alias JOIN questions q → ganti alias ke qq
@@ -141,7 +146,7 @@ WORK COMPLETED
 === Sesi 11 (Auto-Deploy GitHub → Cloudflare Pages FIXED) ===
 - Auto-deploy GitHub→Cloudflare Pages sudah diperbaiki dan BERFUNGSI — akar masalah: package-lock.json tidak sinkron dengan package.json, sehingga step `npm ci` di GitHub Actions gagal (exit code 1 dalam ~10 detik). Bukan masalah koneksi Cloudflare
 - Buat .github/workflows/deploy.yml — workflow deploy otomatis: push ke main → npm ci → npm run build → deploy via cloudflare/pages-action@v1 (projectName lms-mrole, directory dist)
-- Perlu 2 secrets di GitHub: CLOUDFLARE_API_TOKEN (cfut_6wM... token Pages) + CLOUDFLARE_ACCOUNT_ID (dari Cloudflare Dashboard) — sudah ditambahkan user
+- Perlu 2 secrets di GitHub: CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID — sudah ditambahkan user; nilai secret tidak dicatat di repository
 - Regenerasi package-lock.json (npm install) agar sinkron → `npm ci` lokal berhasil
 - Commit: 26faba4 (workflow deploy), 7d364fe (handoff Sesi 10), 7a24493 (regenerate package-lock)
 - Workflow run #3 SUCCESS — auto-deploy aktif, https://lms-mrole.pages.dev HTTP 200
@@ -153,7 +158,7 @@ WORK COMPLETED
 - Email konfirmasi custom brand "Mr Ole": dibuat 5 template HTML di supabase/templates/ (confirm, reset-password, magic-link, invite, email-change) dengan warna brand (primary #D96B5E, cta hijau) + variabel {{ .ConfirmationURL }}/{{ .SiteURL }}
 - Supabase free tier (project baru sejak 3 Juni 2026) TIDAK bisa kustom template dengan default SMTP — harus pakai custom SMTP (berlaku di free tier juga)
 - Setup SMTP Resend pertama (onboarding@resend.dev) — berhasil tapi resend.dev hanya bisa kirim ke email akun sendiri (403 untuk email lain), butuh domain verified untuk produksi
-- User tidak punya uang → ganti ke Brevo (gratis, 300 email/hari, tanpa domain): host smtp-relay.brevo.com, port 587, user b3f62a001@smtp-brevo.com, pass SMTP key xkeysib-...
+- User tidak punya uang → ganti ke Brevo (gratis, 300 email/hari, tanpa domain): host smtp-relay.brevo.com, port 587; kredensial disimpan di secret manager dan tidak di repository
 - Fix error Brevo "Unauthorized IP address": IP AWS 54.254.203.116 (outbound Supabase) di-authorize di Brevo → Authorized IPs; SMTP keys IP blocking di-DEACTIVATE (IP Supabase dinamis, tidak bisa di-whitelist satu-satu)
 - URL Configuration Supabase di-update via Management API: site_url → https://lms-mrole.pages.dev, uri_allow_list = produksi + localhost (dev). config.toml lokal di-sync
 - Semua 5 template email (subject + HTML) di-pasang ke produksi via API PATCH config/auth — TERVERIFIKASI: user dapat email konfirmasi branded Mr Ole di Gmail (subject "Konfirmasi email kamu — Mr Ole", header coral, tombol hijau)
@@ -161,11 +166,53 @@ WORK COMPLETED
 - Fix node_modules korupsi (OneDrive tidak sync file): file .mjs hilang (dompurify, @supabase/postgrest-js) → build error "Failed to resolve entry". Hapus + reinstall dompurify & @supabase/supabase-js → build pass (1m30s). Root cause khas OneDrive: kalau error resolve entry lagi, reinstall paket tsb
 - Commit Sesi 12: 0cbcf7e (deploy.yml env vars), 817bf60 (template email + site_url config.toml), 9310d6f (reinstall paket @supabase + dompurify)
 
+=== Sesi 13 (Runtime Config dan AI Chat Mobile) ===
+- Memperbaiki authenticated AI chat serta verifikasi JWT di Cloudflare Function; menambahkan test API chat
+- Menambahkan runtime public config endpoint agar konfigurasi Supabase dapat dimuat saat aplikasi berjalan, tidak hanya saat build
+- Menambahkan dukungan runtime config bootstrap di Vite
+- Mengoptimalkan layout chat pada mobile dan mencegah input/kontrol saling menimpa
+- Commit terkait: 79b80c1, aab6f57, 2451623, a767f18, 96fb5ae, 3e964e1
+
+=== Sesi 14 (Share Hasil Quiz) ===
+- Menambahkan achievement card dan modal share hasil quiz
+- Menambahkan public quiz share/challenge route, service share, migration 013_quiz_shares.sql, RLS/RPC terkait, dan regression tests
+- Menambahkan share format Feed 1080x1350 dan Story 1080x1920
+- Menyimpan pilihan format share pengguna secara lokal
+- Memperbarui copy Bahasa Indonesia/Inggris, DESIGN.md, navigasi, dan layout hasil quiz
+- Commit: 2ec7da1 (shareable quiz achievements), c576405 (Story share format)
+
+=== Sesi 15 (Secure Quiz Sessions dan Bank 2.000 Soal) ===
+- Mengganti alur quiz lama menjadi server-side quiz session melalui RPC start_quiz_session, save_quiz_session_answer, dan submit_quiz_session
+- Sesi normal, adaptive, timed, dan challenge selalu 20 soal; retry hanya soal salah dengan batas 1-20
+- Soal memiliki cooldown 5 menit per pengguna; fallback memilih soal yang paling lama ditampilkan
+- Urutan soal dan opsi diacak satu kali lalu disimpan sebagai snapshot sesi
+- correct_answer dan explanation tidak pernah dikirim sebelum submit; direct insert quiz_attempts/quiz_answers dan RPC submit_quiz lama dicabut
+- Submit dibuat idempotent, timed submit aman, dan snapshot hasil tetap dapat dibaca oleh pemiliknya
+- Memisahkan stimulus (Teks/Transkrip) dari prompt Pertanyaan melalui komponen Stimulus
+- Menambahkan generator/validator scripts/generate-question-bank.mjs
+- Menambahkan bank v2 tepat 2.000 soal published dengan source_key unik; distribusi tiap category+difficulty 111-112 soal
+- Bank v1 dan data legacy diarsipkan, tidak dihapus
+- Menambahkan pagination/pengelolaan bank soal admin serta penyesuaian bookmark dan result review
+- Migration baru 202608010001 sampai 202608010008 sudah di-push dan remote database dinyatakan up to date
+- Verifikasi database/RPC: normal 20 soal unik tanpa jawaban, overlap cooldown 0, retry 14 soal salah, challenge 20 soal, submit idempotent, timed kosong skor 0/20
+- Verifikasi saat implementasi: unit 25/25, E2E lokal 18/18, E2E live mobile+desktop 18/18, build dan service seam lulus
+- Commit: 15d5667 (secure quiz sessions)
+
+=== Sesi 16 (Guard Jumlah Soal dan Deploy Live) ===
+- Menyelidiki laporan Grammar menampilkan lebih dari 250 soal; database dan RPC tetap terbukti mengembalikan 20 soal
+- Jalur render Quiz hanya menggunakan questions dari start_quiz_session; count bank di Practice tidak diteruskan sebagai jumlah sesi
+- Akar laporan browser tidak dapat dipastikan tanpa screenshot/Network response; kandidat utama adalah tab/bundle lama atau payload sesi abnormal
+- Menambahkan validasi di src/services/quiz.js: non-retry wajib tepat 20, retry wajib 1-20, dan panjang snapshot wajib sama dengan question_count
+- Payload abnormal seperti 251 soal sekarang ditolak dengan pesan untuk memulai sesi baru, bukan dipotong diam-diam atau dirender
+- Menambahkan regression test untuk payload 251 soal dan retry dua soal
+- Verifikasi final: full unit test 27/27, production build lulus, service seam lulus, lint 0 error (10 warning lama)
+- Commit c630fd8 sudah di-push ke main; local main sinkron dengan origin/main
+- Live https://lms-mrole.pages.dev sudah diverifikasi memuat quiz service chunk dengan guard terbaru aktif
+
 CURRENT STATE
 -------------
 - Semua 5 architecture candidate SELESAI
-- 13 migration sync (001–012 + seed 20250727)
-- Build sukses, deploy live via wrangler manual (auto-deploy GitHub masih mati)
+- Migration legacy 001-013 dan secure quiz migrations 202608010001-202608010008 tersedia; remote database sudah up to date
 - AUTO-DEPLOY GitHub → Cloudflare Pages SUDAH AKTIF (workflow deploy.yml, run success) — tidak perlu wrangler manual lagi
 - Build produksi SUDAH diberi env vars VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY dari GitHub secrets (deploy.yml) — error Supabase di produksi hilang
 - SMTP Brevo AKTIF (gratis, 300 email/hari, kirim ke siapa pun): smtp-relay.brevo.com:587, sender Mr Ole <ardhisasongko71@gmail.com>. IP blocking SMTP deactivated
@@ -177,6 +224,11 @@ CURRENT STATE
 - Dashboard motivasi siswa: CTA dinamis, banner Mulai Latihan selalu terlihat, insight kategori, pujian kenaikan skor, info latihan terakhir
 - Stat cards dashboard interaktif (link ke /history, /practice, /bookmarks)
 - Username/nama user tampil penuh di mobile (tanpa truncate) di Leaderboard, admin Users, admin Dashboard log
+- Share hasil quiz mendukung Feed, Story, public share, dan challenge
+- Bank aktif berisi tepat 2.000 soal v2 published; setiap cell category+difficulty 111-112 soal
+- Quiz memakai snapshot server-side yang aman; mode non-retry tepat 20 soal dan retry 1-20 soal
+- Guard jumlah soal sudah aktif di live deployment pada commit c630fd8
+- HEAD local dan origin/main: c630fd8
 
 PENDING TASKS
 -------------
@@ -194,9 +246,9 @@ PENDING TASKS
 - ~~ESLint — 6 error conditional hooks di Quiz.jsx~~ ✅
 - ~~Quiz crash karena XCircle tidak di-import~~ ✅
 - ~~Privilege escalation role (user bisa jadi admin)~~ ✅
-- Lighthouse audit — butuh Chrome environment
-- npm install perlu dijalankan (eslint-plugin-react, happy-dom)
-- ~~Re-connect auto-deploy GitHub→Cloudflare Pages (Settings → Builds & deployments)~~ 🔶 MASIH GAGAL — deploy manual via wrangler adalah metode aktif
+- ~~Lighthouse audit~~ ✅
+- ~~npm install dan sinkronisasi dependency~~ ✅
+- ~~Re-connect auto-deploy GitHub→Cloudflare Pages~~ ✅
 - ~~Quiz crash XCircle di produksi~~ ✅
 - ~~Tabel bookmarks hilang (404)~~ ✅
 - ~~Leaderboard view SECURITY DEFINER~~ ✅
@@ -215,7 +267,13 @@ PENDING TASKS
 - ~~Brevo IP blocking (authorize IP AWS + deactivate SMTP keys)~~ ✅
 - ~~site_url produksi (lms-mrole.pages.dev)~~ ✅
 - ~~node_modules korupsi OneDrive (reinstall dompurify + @supabase)~~ ✅
+- ~~Share hasil quiz Feed + Story + public challenge~~ ✅
+- ~~Secure server-side quiz sessions~~ ✅
+- ~~Bank soal v2 tepat 2.000 published~~ ✅
+- ~~Batas keras sesi non-retry 20 soal dan retry 1-20~~ ✅
 - Domain sendiri untuk sender produksi (noreply@domainmu.com) — belum, butuh dana
+- Jika laporan 250+ soal muncul lagi, ambil screenshot teks "Soal X dari Y", URL lengkap, dan response Network start_quiz_session untuk memastikan sumber browser
+- Workflow CI + Auto-Fix pernah merah hanya pada langkah pembuatan failure-report PR; build, Playwright, Lighthouse, dan deploy tetap berhasil
 
 KEY FILES
 ---------
@@ -231,7 +289,7 @@ KEY FILES
 - .github/workflows/deploy.yml - Auto-deploy ke Cloudflare Pages (push ke main)
 - supabase/config.toml - Supabase CLI config
 - supabase/seed/ - Seed data (seed.sql, english-questions.sql)
-- supabase/migrations/ - 14 migration files (001 to 012 + seed)
+- supabase/migrations/ - Migration legacy 001-013 dan secure quiz migrations 202608010001-202608010008
 - functions/api/chat.js - Cloudflare Pages Function for AI chat
 - functions/api/delete-user.js - Cloudflare Function for admin user deletion
 - supabase/migrations/009_security_fixes.sql - Security hardening migration
@@ -243,6 +301,20 @@ KEY FILES
 - src/components/layout/AdminLayout.jsx - Toggle dark mode di header mobile + sidebar
 - supabase/templates/ - 5 template email branded Mr Ole (confirm, reset-password, magic-link, invite, email-change)
 - .github/workflows/deploy.yml - Auto-deploy + env vars Supabase dari GitHub secrets
+- src/components/share/AchievementCard.jsx - Render achievement card Feed/Story
+- src/components/share/ShareResultModal.jsx - Pemilihan format dan aksi share hasil
+- src/pages/PublicQuizShare.jsx - Halaman share publik dan entry challenge
+- src/services/shares.js - Service public share/challenge
+- supabase/migrations/013_quiz_shares.sql - Skema dan RPC share quiz
+- src/pages/Quiz.jsx - Lifecycle server-side quiz session dan render maksimal sesuai kontrak sesi
+- src/hooks/useQuiz.js - Boundary start/save/submit session
+- src/services/quiz.js - Mapping, sanitasi, dan validasi jumlah soal session
+- src/components/quiz/Stimulus.jsx - Render stimulus terpisah dari prompt
+- scripts/generate-question-bank.mjs - Generator dan validator bank 2.000 soal
+- supabase/migrations/202608010001_secure_quiz_sessions.sql - Tabel, constraint, dan RPC session
+- supabase/migrations/202608010005_lock_down_question_answers.sql - Lockdown akses jawaban
+- supabase/migrations/202608010006_harden_quiz_session_submission.sql - Submit aman dan idempotent
+- supabase/migrations/202608010008_question_bank_2000_v2.sql - Bank soal aktif v2
 
 IMPORTANT DECISIONS
 -------------------
@@ -256,14 +328,17 @@ IMPORTANT DECISIONS
 - Bugfix rule: fix minimally, never refactor while fixing
 - IS_DEMO controlled by explicit VITE_DEMO=true flag, not by missing env vars
 - deleteUser moved to server-side Cloudflare Function (service_role key required)
-- Deploy: auto-deploy GitHub MATI → gunakan wrangler manual (CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID)
 - Deploy SEKARANG: auto-deploy AKTIF via .github/workflows/deploy.yml (push ke main). Wrangler manual hanya cadangan
 - GitHub secrets: CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID + VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY wajib ada di repo (Settings → Secrets → Actions)
 - SMTP produksi: Brevo (gratis, 300 email/hari, kirim ke siapa pun). Sender Mr Ole <ardhisasongko71@gmail.com>. IP blocking SMTP deactivated karena IP Supabase dinamis
 - Custom email template (project baru free tier) hanya bisa jika pakai custom SMTP — kebijakan Supabase sejak 3 Juni 2026
 - Template email dikelola via Dashboard (Authentication → Emails) atau API PATCH config/auth; file di supabase/templates/ hanya untuk local dev via config.toml
-- Token Cloudflare Pages disimpan di "Front Err/token-cloudflare.txt" (token cfut_eko... TIDAK punya izin Pages; gunakan token Pages yang tersimpan di file tsb — cfut_6wM...). File sudah masuk .gitignore
+- Kredensial Cloudflare Pages disimpan di GitHub secrets; file kredensial lokal di Front Err/ diabaikan Git dan tidak boleh di-commit
 - Dashboard motivasi: hitung dari data yang sudah ada (useProgress/useStreak/chartData) — tidak menambah query supabase baru
+- Quiz session: server snapshot adalah sumber kebenaran; localStorage hanya menyimpan progress ringan (jawaban, bookmark, currentIndex)
+- Jangan memotong payload sesi abnormal di client; tolak seluruh sesi agar submit dan penilaian tidak berbeda dari snapshot server
+- Batas sesi: normal/adaptive/timed/challenge tepat 20, retry 1-20
+- Huruf A/B/C/D hanya label tampilan; penilaian memakai label immutable dari opsi snapshot
 
 EXPLICIT CONSTRAINTS
 --------------------
@@ -284,8 +359,8 @@ CONTEXT FOR CONTINUATION
 - Navbar dark mode: harmonis dengan bg-gray-950/40
 - Code-split: pdf chunk dipecah jadi pdf-js + pdf-canvas
 - ESLint: 6 error hooks sudah diperbaiki, recommended rules + react plugin diaktifkan
-- Lighthouse: butuh Chrome environment untuk jalan
-- npm install butuh dijalankan ulang (korupsi node_modules di WSL)
+- Lighthouse CI sudah tersedia dan pernah lulus; Chromium tersedia melalui Playwright
+- Dependency sudah terpasang dan sinkron; jika node_modules kembali korup, reinstall paket yang gagal di-resolve
 - Deploy aktif: auto-deploy GitHub→Cloudflare Pages SUDAH AKTIF via deploy.yml (push ke main). Wrangler manual hanya cadangan
 - Quiz tanpa instant feedback; jawaban benar hanya muncul di halaman hasil
 - submit_quiz sudah bebas error ambigu (migration 011 + 012)
@@ -298,3 +373,10 @@ CONTEXT FOR CONTINUATION
 - Email produksi aktif via Brevo SMTP: 5 template branded Mr Ole terpasang, terkirim ke siapa pun, site_url sudah produksi
 - Kalau error build "Failed to resolve entry for package X" → OneDrive tidak sync node_modules; hapus & reinstall paket tsb (dompurify, @supabase/*)
 - TODO produksi: beli domain → verifikasi di Brevo → ganti sender ke noreply@domainmu.com
+- Share hasil quiz aktif: Feed 1080x1350, Story 1080x1920, public link, dan challenge
+- Secure quiz session aktif di produksi: server snapshot, jawaban terkunci sebelum submit, cooldown 5 menit, submit idempotent
+- Bank aktif: 2.000 soal v2 published, source_key unik, 111-112 soal per category+difficulty
+- Kontrak jumlah soal: non-retry tepat 20; retry 1-20; client menolak payload yang tidak cocok dengan question_count
+- Commit terbaru c630fd8 sudah di main, origin/main, dan live Cloudflare Pages
+- Unit suite terbaru 27/27 lulus; build production dan service seam lulus; lint tidak memiliki error
+- Artefak untracked .opencode/opencode-vision.json, Front Err/, dan stitch_website_redesign_project.zip tidak termasuk commit aplikasi
