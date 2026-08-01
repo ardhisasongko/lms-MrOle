@@ -344,6 +344,24 @@ WORK COMPLETED
 - Live verification: invalid UUID menghasilkan 400 sebelum auth; UUID valid tanpa token menghasilkan 401 Unauthorized, membuktikan function baru dan runtime bindings aktif
 - Pekerjaan berikutnya: lanjutkan roadmap database constraints/admin transactions/read models
 
+=== Sesi 24 (System Progress Overview) ===
+- Membuat laporan perbandingan keseluruhan sistem di docs/system-comparison-2026-08-02.html
+- Laporan memakai Engineering Readiness Index, bukan Lighthouse, uptime, coverage, SLA, atau penetration-test score
+- Metodologi: 10 domain berbobot sama; skor hanya dinaikkan berdasarkan bukti repository, migration remote, tests, build/lint, independent review, atau live probe
+- Baseline audit: 48,8%; kondisi terkini: 87,3%; peningkatan +38,5 poin persentase atau +78,9% relatif
+- Domain yang dibandingkan: assessment integrity, data security, admin governance, async reliability, provenance, deployment/runtime, tests/verification, database authority, operations/observability, dan product/UX completeness
+- Tabel laporan mencatat skor before/after/delta, perubahan utama, dan status kuat/berproses untuk setiap domain
+- Evidence ledger menampilkan 2.000 soal aktif, 53/53 tests, kontrak 20 soal, hardening migrations, lint/build gates, dan live probes
+- Remaining 13% difokuskan pada database constraints, server-owned learner/history read models, migration replay, RLS matrix, release gate, monitoring, dan restore drill
+- HTML mandiri tanpa dependency runtime/CDN, memakai token visual DESIGN.md dan responsive table/bar visualization
+- Layout diverifikasi dengan Playwright pada 375px, 768px, dan 1280px tanpa horizontal overflow
+- File dibuka di browser Windows untuk review pengguna
+- docs/system-comparison-2026-08-02.html masih untracked/belum di-commit pada akhir sesi ini
+- HANDOFF.md juga berubah lokal untuk checkpoint Sesi 24 dan belum di-commit
+- Commit remote terakhir tetap 3918676 (docs: confirm deletion endpoint rollout); application commit terakhir 6c32102
+- Artefak untracked yang tidak boleh ikut commit tetap: .opencode/opencode-vision.json, Front Err/, dan stitch_website_redesign_project.zip
+- Langkah awal sesi berikutnya: review laporan HTML bersama pengguna; jika disetujui, stage hanya HANDOFF.md + docs/system-comparison-2026-08-02.html, lalu commit/push
+
 CURRENT STATE
 -------------
 - Semua 5 architecture candidate SELESAI
@@ -528,3 +546,4 @@ CONTEXT FOR CONTINUATION
 - Generated question provenance fix: complete dan live melalui 7acd52c; generator check 2.000/2.000 dan create/update payload regression tests lulus
 - Race-safe useAsync refactor: complete dan live melalui cfeb9df; 10 consumers scoped, Supabase reads abortable, auth/bookmark ownership races covered
 - Admin user deletion hardening: complete dan live melalui 6c32102 + migrations 202608020001-002; Pages Function bindings aktif dan probe auth 401 lulus
+- System progress comparison: docs/system-comparison-2026-08-02.html selesai dan responsive, tetapi belum di-commit

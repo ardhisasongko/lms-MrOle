@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Perbandingan kondisi awal dan terkini keseluruhan sistem LMS Mr Ole." />
+  <title>Perbandingan Sistem | LMS Mr Ole</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --surface-primary: #f7f8fa;
+      --surface-secondary: #ffffff;
+      --text-primary: #1a1d26;
+      --text-secondary: #6b7280;
+      --border-default: rgba(0, 0, 0, 0.06);
+      --accent-primary: #fdbcb4;
+      --accent-hover: #f5a094;
+      --cta-primary: #22c55e;
+      --cta-dark: #15803d;
+      --status-warning: #f59e0b;
+      --status-error: #ef4444;
+      --status-info: #add8e6;
+      --shadow-default: 0 8px 24px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.03);
+      --shadow-prominent: 0 18px 56px rgba(26, 29, 38, 0.1), 0 4px 10px rgba(26, 29, 38, 0.04);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--text-primary);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(253, 188, 180, 0.34), transparent 26rem),
+        radial-gradient(circle at 88% 16%, rgba(173, 216, 230, 0.35), transparent 24rem),
+        var(--surface-primary);
+      font-family: Geist, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+
+    .shell { width: min(1184px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0 80px; }
+    .surface {
+      border: 1px solid var(--border-default);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: var(--shadow-default);
+    }
+    .overline {
+      margin: 0;
+      color: var(--cta-dark);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 16px; font-size: clamp(2.4rem, 6vw, 4.75rem); line-height: 0.98; letter-spacing: -0.045em; }
+    h2 { margin-bottom: 8px; font-size: clamp(1.65rem, 3vw, 2.25rem); line-height: 1.2; letter-spacing: -0.025em; }
+    h3 { margin-bottom: 6px; font-size: 1rem; }
+    .muted { color: var(--text-secondary); }
+    .mono { font-family: "Geist Mono", "JetBrains Mono", monospace; }
+
+    .hero { position: relative; overflow: hidden; padding: clamp(28px, 6vw, 64px); }
+    .hero::after {
+      position: absolute;
+      width: 330px;
+      height: 330px;
+      right: -130px;
+      bottom: -180px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, rgba(34, 197, 94, 0.2), rgba(173, 216, 230, 0.06));
+      box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.14), 0 0 80px rgba(34, 197, 94, 0.12);
+      content: "";
+    }
+    .hero-grid { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(270px, 0.65fr); gap: 48px; align-items: center; }
+    .lead { max-width: 720px; margin-bottom: 0; color: var(--text-secondary); font-size: 18px; }
+    .stamp { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 10px; }
+    .pill { padding: 7px 12px; border-radius: 999px; background: var(--surface-primary); color: var(--text-secondary); font-size: 13px; font-weight: 650; }
+
+    .score-card { position: relative; min-height: 330px; display: grid; place-items: center; }
+    .score-ring {
+      width: 254px;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: conic-gradient(var(--cta-primary) 0 87.3%, rgba(34, 197, 94, 0.1) 87.3% 100%);
+      box-shadow: 0 20px 48px rgba(34, 197, 94, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+    }
+    .score-core {
+      width: 202px;
+      aspect-ratio: 1;
+      display: grid;
+      place-content: center;
+      text-align: center;
+      border-radius: 50%;
+      background: var(--surface-secondary);
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    .score-number { font-size: 3.65rem; font-weight: 700; line-height: 1; letter-spacing: -0.055em; }
+    .score-label { margin-top: 8px; color: var(--text-secondary); font-size: 13px; font-weight: 650; }
+
+    .headline-stats { margin: 24px 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .stat { padding: 24px; }
+    .stat-value { margin: 8px 0 4px; font-size: clamp(1.8rem, 4vw, 2.75rem); font-weight: 700; line-height: 1; letter-spacing: -0.04em; }
+    .stat small { color: var(--text-secondary); }
+    .positive { color: var(--cta-dark); }
+
+    section { margin-top: 40px; }
+    .section-heading { margin-bottom: 20px; display: flex; align-items: end; justify-content: space-between; gap: 24px; }
+    .section-heading p { max-width: 620px; margin-bottom: 0; }
+
+    .comparison { padding: clamp(20px, 4vw, 40px); }
+    .domain-list { display: grid; gap: 18px; }
+    .domain-row { display: grid; grid-template-columns: 210px minmax(0, 1fr) 76px; gap: 18px; align-items: center; }
+    .domain-name { font-size: 14px; font-weight: 650; }
+    .tracks { display: grid; gap: 7px; }
+    .track { height: 11px; overflow: hidden; border-radius: 999px; background: #eef0f3; }
+    .fill { height: 100%; border-radius: inherit; }
+    .fill.before { background: var(--accent-primary); }
+    .fill.now { background: linear-gradient(90deg, var(--cta-primary), #16a34a); }
+    .delta { color: var(--cta-dark); font-size: 13px; font-weight: 750; text-align: right; }
+    .legend { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 18px; color: var(--text-secondary); font-size: 13px; }
+    .legend span::before { width: 22px; height: 8px; margin-right: 7px; display: inline-block; border-radius: 999px; content: ""; }
+    .legend .before::before { background: var(--accent-primary); }
+    .legend .now::before { background: var(--cta-primary); }
+
+    .table-wrap { overflow-x: auto; border-radius: 24px; }
+    table { width: 100%; min-width: 900px; border-collapse: collapse; background: var(--surface-secondary); }
+    caption { padding: 24px 28px 12px; text-align: left; font-size: 13px; color: var(--text-secondary); }
+    th, td { padding: 16px 18px; border-bottom: 1px solid var(--border-default); text-align: left; vertical-align: top; }
+    th { color: var(--text-secondary); background: #fafbfc; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+    td { font-size: 14px; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .pct { font-size: 17px; font-weight: 750; white-space: nowrap; }
+    .status { display: inline-block; padding: 5px 9px; border-radius: 999px; font-size: 11px; font-weight: 750; }
+    .status.strong { color: #166534; background: #dcfce7; }
+    .status.progress { color: #92400e; background: #fef3c7; }
+
+    .evidence-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .evidence { padding: 24px; }
+    .evidence b { display: block; margin-bottom: 8px; font-size: 1.15rem; }
+    .evidence p { margin-bottom: 0; font-size: 14px; color: var(--text-secondary); }
+    .evidence code { overflow-wrap: anywhere; }
+
+    .remaining { padding: clamp(24px, 5vw, 48px); background: #1a1d26; color: #f2f3f5; box-shadow: var(--shadow-prominent); }
+    .remaining .overline { color: #86efac; }
+    .remaining-grid { margin-top: 28px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .remaining-item { padding: 20px; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; background: rgba(255, 255, 255, 0.055); }
+    .remaining-item span { color: #86efac; font-family: "Geist Mono", monospace; font-size: 12px; font-weight: 700; }
+    .remaining-item p { margin: 8px 0 0; color: #c7cad1; font-size: 14px; }
+
+    .method { padding: 28px; }
+    .method p, .method li { color: var(--text-secondary); font-size: 14px; }
+    .method ul { margin-bottom: 0; padding-left: 20px; }
+    footer { padding: 32px 4px 0; color: var(--text-secondary); font-size: 13px; }
+
+    @media (max-width: 820px) {
+      .shell { width: min(100% - 24px, 1184px); padding-top: 24px; }
+      .hero-grid { grid-template-columns: 1fr; gap: 24px; }
+      .score-card { min-height: 280px; }
+      .score-ring { width: 220px; }
+      .score-core { width: 174px; }
+      .headline-stats, .evidence-grid { grid-template-columns: 1fr; }
+      .domain-row { grid-template-columns: 1fr 56px; gap: 8px 12px; }
+      .tracks { grid-column: 1 / -1; grid-row: 2; }
+      .delta { grid-column: 2; grid-row: 1; }
+      .remaining-grid { grid-template-columns: 1fr; }
+      .section-heading { display: block; }
+      .section-heading p { margin-top: 8px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    @media print {
+      body { background: white; }
+      .shell { width: 100%; padding: 0; }
+      .surface { box-shadow: none; break-inside: avoid; }
+      section { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="hero surface">
+      <div class="hero-grid">
+        <div>
+          <p class="overline">System progress report · 2 Agustus 2026</p>
+          <h1>Dari sistem berjalan menjadi sistem terjaga.</h1>
+          <p class="lead">Perbandingan menyeluruh LMS Mr Ole antara baseline audit dan kondisi produksi terkini, berdasarkan kontrol yang benar-benar diuji, dipush, dimigrasikan, dan diverifikasi live.</p>
+          <div class="stamp">
+            <span class="pill mono">Baseline: 631e9b0</span>
+            <span class="pill mono">Application: 6c32102</span>
+            <span class="pill mono">Checkpoint: 3918676</span>
+            <span class="pill">53/53 unit tests</span>
+          </div>
+        </div>
+        <div class="score-card" aria-label="Engineering Readiness Index saat ini 87,3 persen">
+          <div class="score-ring" role="img" aria-label="87,3 persen">
+            <div class="score-core">
+              <div class="score-number">87,3<span style="font-size:.42em">%</span></div>
+              <div class="score-label">Engineering Readiness</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="headline-stats" aria-label="Ringkasan perubahan">
+      <article class="stat surface"><p class="overline">Kondisi awal</p><div class="stat-value">48,8%</div><small>Kontrol penting tersebar dan beberapa seam masih fail-open.</small></article>
+      <article class="stat surface"><p class="overline">Kondisi kini</p><div class="stat-value positive">87,3%</div><small>Kontrol kritis sudah server-owned, diuji, dan aktif di produksi.</small></article>
+      <article class="stat surface"><p class="overline">Perubahan bersih</p><div class="stat-value positive">+38,5</div><small>poin persentase, setara peningkatan relatif 78,9%.</small></article>
+    </div>
+
+    <section>
+      <div class="section-heading">
+        <div><p class="overline">Before / after</p><h2>Perubahan pada 10 domain sistem</h2></div>
+        <p class="muted">Panjang bar menunjukkan skor domain. Angka bukan klaim uptime atau Lighthouse, melainkan indeks kesiapan engineering berbasis bukti.</p>
+      </div>
+      <div class="comparison surface">
+        <div class="domain-list">
+          <div class="domain-row"><div class="domain-name">Integritas assessment</div><div class="tracks"><div class="track"><div class="fill before" style="width:45%"></div></div><div class="track"><div class="fill now" style="width:96%"></div></div></div><div class="delta">+51</div></div>
+          <div class="domain-row"><div class="domain-name">Keamanan data</div><div class="tracks"><div class="track"><div class="fill before" style="width:48%"></div></div><div class="track"><div class="fill now" style="width:94%"></div></div></div><div class="delta">+46</div></div>
+          <div class="domain-row"><div class="domain-name">Governance admin</div><div class="tracks"><div class="track"><div class="fill before" style="width:30%"></div></div><div class="track"><div class="fill now" style="width:92%"></div></div></div><div class="delta">+62</div></div>
+          <div class="domain-row"><div class="domain-name">Reliabilitas async</div><div class="tracks"><div class="track"><div class="fill before" style="width:50%"></div></div><div class="track"><div class="fill now" style="width:91%"></div></div></div><div class="delta">+41</div></div>
+          <div class="domain-row"><div class="domain-name">Provenance data</div><div class="tracks"><div class="track"><div class="fill before" style="width:58%"></div></div><div class="track"><div class="fill now" style="width:96%"></div></div></div><div class="delta">+38</div></div>
+          <div class="domain-row"><div class="domain-name">Deployment & runtime</div><div class="tracks"><div class="track"><div class="fill before" style="width:65%"></div></div><div class="track"><div class="fill now" style="width:90%"></div></div></div><div class="delta">+25</div></div>
+          <div class="domain-row"><div class="domain-name">Test & verification</div><div class="tracks"><div class="track"><div class="fill before" style="width:40%"></div></div><div class="track"><div class="fill now" style="width:88%"></div></div></div><div class="delta">+48</div></div>
+          <div class="domain-row"><div class="domain-name">Otoritas database</div><div class="tracks"><div class="track"><div class="fill before" style="width:45%"></div></div><div class="track"><div class="fill now" style="width:76%"></div></div></div><div class="delta">+31</div></div>
+          <div class="domain-row"><div class="domain-name">Operasional & observability</div><div class="tracks"><div class="track"><div class="fill before" style="width:35%"></div></div><div class="track"><div class="fill now" style="width:60%"></div></div></div><div class="delta">+25</div></div>
+          <div class="domain-row"><div class="domain-name">Kelengkapan produk & UX</div><div class="tracks"><div class="track"><div class="fill before" style="width:72%"></div></div><div class="track"><div class="fill now" style="width:90%"></div></div></div><div class="delta">+18</div></div>
+        </div>
+        <div class="legend"><span class="before">Baseline audit</span><span class="now">Kondisi terkini</span><span>Delta dalam poin persentase</span></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-heading">
+        <div><p class="overline">Comparison matrix</p><h2>Tabel keseluruhan sistem</h2></div>
+        <p class="muted">Status “kuat” berarti kontrol utama telah aktif. Status “berproses” berarti fondasi membaik tetapi roadmap masih memiliki debt material.</p>
+      </div>
+      <div class="table-wrap surface">
+        <table>
+          <caption>10 domain berbobot sama; skor keseluruhan adalah rata-rata aritmetika domain.</caption>
+          <thead><tr><th>Domain</th><th>Awal</th><th>Kini</th><th>Delta</th><th>Perubahan utama</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td><b>Integritas assessment</b></td><td class="pct">45%</td><td class="pct positive">96%</td><td class="positive">+51</td><td>Server snapshot, scoring authoritative, submit idempotent, tepat 20 soal.</td><td><span class="status strong">Kuat</span></td></tr>
+            <tr><td><b>Keamanan data</b></td><td class="pct">48%</td><td class="pct positive">94%</td><td class="positive">+46</td><td>Answer leak bookmark ditutup; controlled review RPC dan adversarial tests aktif.</td><td><span class="status strong">Kuat</span></td></tr>
+            <tr><td><b>Governance admin</b></td><td class="pct">30%</td><td class="pct positive">92%</td><td class="positive">+62</td><td>Delete-user atomic, service-role-only, last-admin lock, durable trusted audit.</td><td><span class="status strong">Kuat</span></td></tr>
+            <tr><td><b>Reliabilitas async</b></td><td class="pct">50%</td><td class="pct positive">91%</td><td class="positive">+41</td><td>Latest-wins AbortController, stale write guards, awaitable refetch, scoped identity.</td><td><span class="status strong">Kuat</span></td></tr>
+            <tr><td><b>Provenance data</b></td><td class="pct">58%</td><td class="pct positive">96%</td><td class="positive">+38</td><td>2.000 unique source keys/hashes; editor tidak menghapus metadata generator.</td><td><span class="status strong">Kuat</span></td></tr>
+            <tr><td><b>Deployment & runtime</b></td><td class="pct">65%</td><td class="pct positive">90%</td><td class="positive">+25</td><td>Auto-deploy aktif, Pages bindings terpasang, bundle/function diverifikasi live.</td><td><span class="status strong">Kuat</span></td></tr>
+            <tr><td><b>Test & verification</b></td><td class="pct">40%</td><td class="pct positive">88%</td><td class="positive">+48</td><td>53/53 unit tests, build/lint/service seam/db lint, independent review berulang.</td><td><span class="status strong">Kuat</span></td></tr>
+            <tr><td><b>Otoritas database</b></td><td class="pct">45%</td><td class="pct positive">76%</td><td class="positive">+31</td><td>Versioned migrations menjadi authority; FULL_SCHEMA lama fail-fast.</td><td><span class="status progress">Berproses</span></td></tr>
+            <tr><td><b>Operasional & observability</b></td><td class="pct">35%</td><td class="pct positive">60%</td><td class="positive">+25</td><td>Audit dan deploy membaik; release gate, monitoring, restore drill masih terbuka.</td><td><span class="status progress">Berproses</span></td></tr>
+            <tr><td><b>Kelengkapan produk & UX</b></td><td class="pct">72%</td><td class="pct positive">90%</td><td class="positive">+18</td><td>Responsive UI, dark mode, share/challenge, social preview, branded email aktif.</td><td><span class="status strong">Kuat</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-heading"><div><p class="overline">Evidence ledger</p><h2>Angka yang dapat diverifikasi</h2></div></div>
+      <div class="evidence-grid">
+        <article class="evidence surface"><b>2.000 soal aktif</b><p>Tepat 2.000 published v2, 2.000 hash unik, 2.000 source key unik, distribusi 111–112 per cell.</p></article>
+        <article class="evidence surface"><b>53/53 tests lulus</b><p>Termasuk race lifecycle, bookmark ownership, timer regression, function security, dan social metadata.</p></article>
+        <article class="evidence surface"><b>20 soal terjaga</b><p>Normal, adaptive, timed, dan challenge tepat 20; retry dibatasi 1–20.</p></article>
+        <article class="evidence surface"><b>12+ hardening migrations</b><p>Secure session, answer lockdown, immutable bank, bookmark review, dan atomic admin deletion.</p></article>
+        <article class="evidence surface"><b>0 lint errors</b><p>Build produksi dan service seam lulus; 10 warning lama dicatat, bukan disembunyikan.</p></article>
+        <article class="evidence surface"><b>Live probes lulus</b><p>Source maps diperiksa; delete-user menolak UUID invalid 400 dan request tanpa token 401.</p></article>
+      </div>
+    </section>
+
+    <section class="remaining surface">
+      <p class="overline">13% menuju matang</p>
+      <h2>Debt kini terkonsentrasi, bukan tersebar.</h2>
+      <p style="max-width:760px;color:#c7cad1">Risiko kritis sudah ditahan. Sisa pekerjaan terutama meningkatkan reproduktibilitas, akurasi read model, dan disiplin operasi.</p>
+      <div class="remaining-grid">
+        <div class="remaining-item"><span>01 · DATABASE</span><p>Tambah constraints inti bertahap dan profiling data sebelum validate.</p></div>
+        <div class="remaining-item"><span>02 · READ MODELS</span><p>Server-owned learner summary dan history query agar metrik lifetime akurat.</p></div>
+        <div class="remaining-item"><span>03 · OPERATIONS</span><p>Migration replay, RLS matrix, required release gate, monitoring, dan restore drill.</p></div>
+      </div>
+    </section>
+
+    <section class="method surface">
+      <p class="overline">Metodologi</p>
+      <h2>Cara membaca persentase</h2>
+      <ul>
+        <li>Sepuluh domain diberi bobot sama agar satu keberhasilan besar tidak menutupi debt di domain lain.</li>
+        <li>Skor meningkat hanya jika ada bukti repository, migration remote, test, build/lint, independent review, atau probe produksi.</li>
+        <li>Rentang interpretasi: 0–39 rapuh, 40–59 dasar, 60–79 terkendali sebagian, 80–94 kuat, 95–100 sangat matang.</li>
+        <li>Skor ini bukan SLA, coverage statement, penetration test, atau hasil Lighthouse terbaru.</li>
+      </ul>
+    </section>
+
+    <footer>
+      <b>LMS Mr Ole · System Comparison</b>
+      <div>Evidence source: architecture audit, HANDOFF sesi 20–23, commits sampai <span class="mono">3918676</span>, remote migrations, dan live verification.</div>
+    </footer>
+  </main>
+</body>
+</html>
