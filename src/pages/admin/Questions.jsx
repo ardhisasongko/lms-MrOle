@@ -62,10 +62,6 @@ function prepareQuestion(form) {
     options,
     correct_answer: correctAnswer,
     explanation: (form.explanation || '').trim(),
-    content_hash: null,
-    batch_id: null,
-    batch_metadata: {},
-    source_key: null,
   };
 }
 
