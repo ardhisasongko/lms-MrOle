@@ -98,7 +98,7 @@ describe('QuizResult', () => {
 
     expect(await screen.findByRole('heading', { name: 'Review jawaban' })).toBeTruthy();
     expect(screen.getByText('She ___ a student.')).toBeTruthy();
-    expect(mocks.getAttemptDetails).toHaveBeenCalledWith('attempt-id');
+    expect(mocks.getAttemptDetails).toHaveBeenCalledWith('attempt-id', expect.any(AbortSignal));
   });
 
   it('keeps retry disabled until incorrect answer details are ready', async () => {

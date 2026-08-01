@@ -15,13 +15,20 @@ export function useProgress() {
   const [scoreByCategory, setScoreByCategory] = useState([]);
   const [chartData, setChartData] = useState([]);
 
-  const { loading } = useAsync(async () => {
-    if (!user) return;
+  const userId = user?.id;
+  const { loading } = useAsync(async (signal) => {
+    setStats({ totalQuestions: 0, averageScore: 0, streak: 0, lastSession: null });
+    setScoreByCategory([]);
+    setChartData([]);
+    if (!userId) {
+      return;
+    }
 
     const [attempts, streak] = await Promise.all([
-      getRecentAttempts(user.id),
-      getCurrentStreak(user.id),
+      getRecentAttempts(userId, 100, signal),
+      getCurrentStreak(userId, signal),
     ]);
+    if (signal.aborted) return;
 
     const totalQuestions = attempts.reduce((sum, a) => sum + a.total_questions, 0);
     const avgScore = attempts.length > 0
@@ -66,7 +73,7 @@ export function useProgress() {
       });
     }
     setChartData(last7);
-  }, [user]);
+  }, [userId]);
 
   return { stats, scoreByCategory, chartData, loading };
 }

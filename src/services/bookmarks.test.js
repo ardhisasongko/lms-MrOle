@@ -19,7 +19,8 @@ describe('bookmark reads', () => {
     const query = {
       select: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
-      order: vi.fn().mockResolvedValue({
+      order: vi.fn().mockReturnThis(),
+      abortSignal: vi.fn().mockResolvedValue({
         data: [{ id: 'bookmark-1', question_id: 'question-1', created_at: '2026-08-01T10:00:00Z' }],
         error: null,
       }),
@@ -35,18 +36,20 @@ describe('bookmark reads', () => {
   });
 
   it('loads review details only through the controlled RPC', async () => {
-    supabase.rpc.mockResolvedValue({
-      data: [{
-        id: 'bookmark-1',
-        question_id: 'question-1',
-        questions: {
-          id: 'question-1',
-          answer_available: false,
-          correct_answer: null,
-          explanation: null,
-        },
-      }],
-      error: null,
+    supabase.rpc.mockReturnValue({
+      abortSignal: vi.fn().mockResolvedValue({
+        data: [{
+          id: 'bookmark-1',
+          question_id: 'question-1',
+          questions: {
+            id: 'question-1',
+            answer_available: false,
+            correct_answer: null,
+            explanation: null,
+          },
+        }],
+        error: null,
+      }),
     });
 
     const result = await getBookmarkReviews();

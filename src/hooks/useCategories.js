@@ -22,12 +22,14 @@ function setCache(data) {
 export function useCategories() {
   const [categories, setCategories] = useState(() => getCached() || []);
 
-  const { loading, error, refetch } = useAsync(async () => {
+  const { loading, error, refetch } = useAsync(async (signal) => {
     const cached = getCached();
     if (cached) return;
-    const data = await getCategories();
-    setCache(data);
-    setCategories(data);
+    const data = await getCategories(signal);
+    if (!signal.aborted) {
+      setCache(data);
+      setCategories(data);
+    }
   }, []);
 
   return { categories, loading, error, refetch };

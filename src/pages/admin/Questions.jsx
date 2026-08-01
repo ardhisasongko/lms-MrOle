@@ -81,12 +81,15 @@ export default function AdminQuestions() {
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
 
-  const { loading, refetch } = useAsync(async () => {
-    const cats = await getCategorySummary();
-    setCategories(cats);
-    const result = await getAllQuestions({ page });
-    setQuestions(result.data);
-    setTotal(result.count);
+  const { loading, refetch } = useAsync(async (signal) => {
+    const cats = await getCategorySummary(signal);
+    if (signal.aborted) return;
+    const result = await getAllQuestions({ page, signal });
+    if (!signal.aborted) {
+      setCategories(cats);
+      setQuestions(result.data);
+      setTotal(result.count);
+    }
   }, [page]);
 
   const handleCreate = async (form) => {

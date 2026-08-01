@@ -1,17 +1,18 @@
 import { supabase } from './supabase';
 
-export async function getBookmarksByUser(userId) {
+export async function getBookmarksByUser(userId, signal) {
   const { data, error } = await supabase
     .from('bookmarks')
     .select('id, question_id, created_at')
     .eq('user_id', userId)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .abortSignal(signal);
   if (error) throw error;
   return data || [];
 }
 
-export async function getBookmarkReviews() {
-  const { data, error } = await supabase.rpc('get_bookmark_reviews');
+export async function getBookmarkReviews(signal) {
+  const { data, error } = await supabase.rpc('get_bookmark_reviews').abortSignal(signal);
   if (error) throw error;
   return Array.isArray(data) ? data : [];
 }
@@ -43,11 +44,12 @@ export async function isBookmarked(userId, questionId) {
   return !!data;
 }
 
-export async function getBookmarkCount(userId) {
+export async function getBookmarkCount(userId, signal) {
   const { count, error } = await supabase
     .from('bookmarks')
     .select('id', { count: 'exact', head: true })
-    .eq('user_id', userId);
+    .eq('user_id', userId)
+    .abortSignal(signal);
   if (error) throw error;
   return count || 0;
 }

@@ -12,9 +12,9 @@ const labelCls = 'block text-sm font-medium text-gray-700 dark:text-gray-300';
 export default function AdminCategories() {
   const [categories, setCategories] = useState([]);
 
-  const { loading, refetch } = useAsync(async () => {
-    const cats = await getCategories();
-    setCategories(cats);
+  const { loading, refetch } = useAsync(async (signal) => {
+    const cats = await getCategories(signal);
+    if (!signal.aborted) setCategories(cats);
   }, []);
 
   const handleCreate = async (form) => {

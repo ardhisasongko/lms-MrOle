@@ -140,19 +140,21 @@ export async function getAttempts(userId, { page = 0, categoryFilter = '' } = {}
   return { data: data || [], count: count || 0, hasMore: count > (page + 1) * HISTORY_PAGE_SIZE };
 }
 
-export async function getAttemptDetails(attemptId) {
+export async function getAttemptDetails(attemptId, signal) {
   const { data, error } = await supabase
     .from('quiz_attempts')
     .select('*, quiz_answers(*, questions(*))')
     .eq('id', attemptId)
-    .single();
+    .single()
+    .abortSignal(signal);
   if (error) throw error;
 
   const { data: session, error: sessionError } = await supabase
     .from('quiz_sessions')
     .select('id')
     .eq('attempt_id', attemptId)
-    .maybeSingle();
+    .maybeSingle()
+    .abortSignal(signal);
   if (sessionError) throw sessionError;
   if (!session?.id) return data;
 
@@ -160,7 +162,8 @@ export async function getAttemptDetails(attemptId) {
     .from('quiz_session_questions')
     .select('question_id, position, question_type, legacy_question, stimulus, prompt, options, correct_answer, user_answer, questions(explanation)')
     .eq('session_id', session.id)
-    .order('position');
+    .order('position')
+    .abortSignal(signal);
   if (snapshotError) throw snapshotError;
   if (!snapshots?.length) throw new Error('Quiz session snapshot is incomplete');
 
@@ -188,13 +191,14 @@ export async function getAttemptDetails(attemptId) {
   };
 }
 
-export async function getRecentAttempts(userId, limit = 100) {
+export async function getRecentAttempts(userId, limit = 100, signal) {
   const { data, error } = await supabase
     .from('quiz_attempts')
     .select('score, total_questions, completed_at, category_id, categories(name)')
     .eq('user_id', userId)
     .order('completed_at', { ascending: false })
-    .limit(limit);
+    .limit(limit)
+    .abortSignal(signal);
   if (error) throw error;
   return data || [];
 }

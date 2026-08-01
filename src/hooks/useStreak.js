@@ -5,6 +5,7 @@ import { getCurrentStreak, getStreakActivity } from '../services/streaks';
 
 export function useStreak() {
   const { user } = useAuth();
+  const userId = user?.id;
   const [streakData, setStreakData] = useState({
     currentStreak: 0,
     longestStreak: 0,
@@ -13,13 +14,17 @@ export function useStreak() {
     totalDays: 0,
   });
 
-  const { loading } = useAsync(async () => {
-    if (!user) return;
+  const { loading } = useAsync(async (signal) => {
+    setStreakData({ currentStreak: 0, longestStreak: 0, todayDone: false, weekActivity: [], totalDays: 0 });
+    if (!userId) {
+      return;
+    }
 
     const [currentStreak, activity] = await Promise.all([
-      getCurrentStreak(user.id),
-      getStreakActivity(user.id),
+      getCurrentStreak(userId, signal),
+      getStreakActivity(userId, 30, signal),
     ]);
+    if (signal.aborted) return;
 
     const today = new Date().toISOString().split('T')[0];
     const todayDone = activity.some((a) => a.date === today);
@@ -63,7 +68,7 @@ export function useStreak() {
       weekActivity,
       totalDays: activity.length,
     });
-  }, [user]);
+  }, [userId]);
 
   return { ...streakData, loading };
 }

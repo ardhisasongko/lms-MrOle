@@ -8,18 +8,20 @@ function isMissingStructuredColumn(error) {
   return error?.code === '42703' || error?.code === 'PGRST204';
 }
 
-export async function getQuestions(categoryId, difficulty) {
+export async function getQuestions(categoryId, difficulty, signal) {
   let { data, error } = await supabase
     .from('questions_public')
     .select(structuredPublicFields)
     .eq('category_id', categoryId)
-    .eq('difficulty', difficulty);
+    .eq('difficulty', difficulty)
+    .abortSignal(signal);
   if (error && isMissingStructuredColumn(error)) {
     ({ data, error } = await supabase
       .from('questions_public')
       .select(publicQuestionFields)
       .eq('category_id', categoryId)
-      .eq('difficulty', difficulty));
+      .eq('difficulty', difficulty)
+      .abortSignal(signal));
   }
   if (error) throw error;
   return data || [];
@@ -27,18 +29,20 @@ export async function getQuestions(categoryId, difficulty) {
 
 export const ADMIN_QUESTION_PAGE_SIZE = 50;
 
-export async function getAllQuestions({ page = 0 } = {}) {
+export async function getAllQuestions({ page = 0, signal } = {}) {
   let { data, error, count } = await supabase
     .from('questions')
     .select(`${adminQuestionFields}, created_at, categories(name)`, { count: 'exact' })
     .order('created_at', { ascending: false })
-    .range(page * ADMIN_QUESTION_PAGE_SIZE, (page + 1) * ADMIN_QUESTION_PAGE_SIZE - 1);
+    .range(page * ADMIN_QUESTION_PAGE_SIZE, (page + 1) * ADMIN_QUESTION_PAGE_SIZE - 1)
+    .abortSignal(signal);
   if (error && isMissingStructuredColumn(error)) {
     const fallback = await supabase
       .from('questions')
       .select(`${publicQuestionFields}, correct_answer, explanation, created_at, categories(name)`, { count: 'exact' })
       .order('created_at', { ascending: false })
-      .range(page * ADMIN_QUESTION_PAGE_SIZE, (page + 1) * ADMIN_QUESTION_PAGE_SIZE - 1);
+      .range(page * ADMIN_QUESTION_PAGE_SIZE, (page + 1) * ADMIN_QUESTION_PAGE_SIZE - 1)
+      .abortSignal(signal);
     data = fallback.data;
     error = fallback.error;
     count = fallback.count;

@@ -4,11 +4,11 @@ import { useAsync } from './useAsync';
 
 export function useQuestions(categoryId, difficulty) {
   const [questions, setQuestions] = useState([]);
-  const { loading, error, refetch } = useAsync(async () => {
-    if (!categoryId || !difficulty) return;
+  const { loading, error, refetch } = useAsync(async (signal) => {
     setQuestions([]);
-    const data = await getQuestions(categoryId, difficulty);
-    setQuestions(data);
+    if (!categoryId || !difficulty) return;
+    const data = await getQuestions(categoryId, difficulty, signal);
+    if (!signal.aborted) setQuestions(data);
   }, [categoryId, difficulty]);
 
   return { questions, loading, error, refetch };

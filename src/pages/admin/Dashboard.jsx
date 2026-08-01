@@ -17,15 +17,18 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [recentActivity, setRecentActivity] = useState([]);
 
-  const { loading } = useAsync(async () => {
+  const { loading } = useAsync(async (signal) => {
     try {
       const [statsData, activityRes] = await Promise.all([
-        getStatsCounts(),
-        getAdminActivityLog(),
+        getStatsCounts(signal),
+        getAdminActivityLog(signal),
       ]);
-      setStats(statsData);
-      setRecentActivity(activityRes);
+      if (!signal.aborted) {
+        setStats(statsData);
+        setRecentActivity(activityRes);
+      }
     } catch {
+      if (signal.aborted) return;
       toast.error('Gagal memuat statistik.');
       setStats({ users: 0, questions: 0, categories: 0, attempts: 0 });
     }

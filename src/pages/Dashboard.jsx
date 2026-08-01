@@ -25,9 +25,14 @@ export default function Dashboard() {
   const hasPerfect = useMemo(() => stats.averageScore >= 100, [stats]);
 
   useEffect(() => {
+    const controller = new AbortController();
+    setBookmarkCount(0);
     if (user?.id) {
-      getBookmarkCount(user.id).then(setBookmarkCount).catch(() => {});
+      getBookmarkCount(user.id, controller.signal)
+        .then((count) => { if (!controller.signal.aborted) setBookmarkCount(count); })
+        .catch(() => {});
     }
+    return () => controller.abort();
   }, [user?.id]);
 
   const { xp, level, nextLevelXp, prevLevelXp } = useMemo(() => {

@@ -61,12 +61,12 @@ export async function upsertProfile(userId, { fullName, avatarUrl }) {
   if (error) throw error;
 }
 
-export async function getStatsCounts() {
+export async function getStatsCounts(signal) {
   const [usersRes, questionsRes, categoriesRes, attemptsRes] = await Promise.all([
-    supabase.from('profiles').select('*', { count: 'exact', head: true }),
-    supabase.from('questions').select('*', { count: 'exact', head: true }),
-    supabase.from('categories').select('*', { count: 'exact', head: true }),
-    supabase.from('quiz_attempts').select('*', { count: 'exact', head: true }),
+    supabase.from('profiles').select('*', { count: 'exact', head: true }).abortSignal(signal),
+    supabase.from('questions').select('*', { count: 'exact', head: true }).abortSignal(signal),
+    supabase.from('categories').select('*', { count: 'exact', head: true }).abortSignal(signal),
+    supabase.from('quiz_attempts').select('*', { count: 'exact', head: true }).abortSignal(signal),
   ]);
   for (const res of [usersRes, questionsRes, categoriesRes, attemptsRes]) {
     if (res.error) throw res.error;
@@ -79,8 +79,8 @@ export async function getStatsCounts() {
   };
 }
 
-export async function getLeaderboard() {
-  const { data, error } = await supabase.rpc('get_leaderboard');
+export async function getLeaderboard(signal) {
+  const { data, error } = await supabase.rpc('get_leaderboard').abortSignal(signal);
   if (error) throw error;
   return (data || []).map((r) => ({
     id: r.user_id,
@@ -92,12 +92,13 @@ export async function getLeaderboard() {
   }));
 }
 
-export async function getAdminActivityLog() {
+export async function getAdminActivityLog(signal) {
   const { data, error } = await supabase
     .from('admin_logs')
     .select('id, action, table_name, created_at, profiles(full_name)')
     .order('created_at', { ascending: false })
-    .limit(10);
+    .limit(10)
+    .abortSignal(signal);
   if (error) throw error;
   return data || [];
 }

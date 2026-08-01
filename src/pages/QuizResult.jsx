@@ -79,7 +79,19 @@ export default function QuizResult() {
   const [revokeLoading, setRevokeLoading] = useState(false);
   const [challengeShare, setChallengeShare] = useState(null);
   const resultRef = useRef(null);
+  const stateAttemptRef = useRef(attemptId);
   const timed = data?.timed;
+  useEffect(() => {
+    if (stateAttemptRef.current === attemptId) return;
+    stateAttemptRef.current = attemptId;
+    setData(null);
+    setAnswers([]);
+    setFilter('all');
+    setCurrentIndex(0);
+    setChallengeShare(null);
+    setShareData(null);
+    setShareOpen(false);
+  }, [attemptId]);
   useEffect(() => {
     if (!data) return;
     const target = Math.round(data.score);
@@ -105,9 +117,9 @@ export default function QuizResult() {
     };
   }, [data]);
 
-  const { loading, error: detailsError, refetch: refetchDetails } = useAsync(async () => {
-    const attempt = await getAttemptDetails(attemptId);
-    if (attempt) {
+  const { loading, error: detailsError, refetch: refetchDetails } = useAsync(async (signal) => {
+    const attempt = await getAttemptDetails(attemptId, signal);
+    if (attempt && !signal.aborted) {
       const serverData = {
         score: attempt.score,
         correct: attempt.correct_answers,
@@ -136,6 +148,7 @@ export default function QuizResult() {
   const challengeToken = data?.challengeToken || searchParams.get('challenge');
 
   useEffect(() => {
+    setChallengeShare(null);
     if (!challengeToken) return;
     let cancelled = false;
     getPublicQuizShare(challengeToken)

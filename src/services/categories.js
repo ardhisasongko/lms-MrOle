@@ -1,19 +1,21 @@
 import { supabase } from './supabase';
 
-export async function getCategories() {
+export async function getCategories(signal) {
   const { data, error } = await supabase
     .from('categories')
     .select('id, name, slug, description, icon, display_order')
-    .order('display_order');
+    .order('display_order')
+    .abortSignal(signal);
   if (error) throw error;
   return data || [];
 }
 
-export async function getCategorySummary() {
+export async function getCategorySummary(signal) {
   const { data, error } = await supabase
     .from('categories')
     .select('id, name')
-    .order('display_order');
+    .order('display_order')
+    .abortSignal(signal);
   if (error) throw error;
   return data || [];
 }
