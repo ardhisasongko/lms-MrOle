@@ -1,27 +1,42 @@
 import { useState, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { submitQuiz as submitQuizService } from '../services/quiz';
+import {
+  saveQuizSessionAnswer,
+  startQuizSession,
+  submitQuizSession,
+} from '../services/quiz';
 
 export function useQuiz() {
   const { user } = useAuth();
+  const [starting, setStarting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const submitQuiz = useCallback(async ({ categoryId, difficulty, questions, answers }) => {
+  const startSession = useCallback(async (options) => {
+    if (!user) throw new Error('Not authenticated');
+    setStarting(true);
+
+    try {
+      return await startQuizSession(options);
+    } finally {
+      setStarting(false);
+    }
+  }, [user]);
+
+  const saveAnswer = useCallback(async (options) => {
+    if (!user) throw new Error('Not authenticated');
+    return saveQuizSessionAnswer(options);
+  }, [user]);
+
+  const submitSession = useCallback(async (options) => {
     if (!user) throw new Error('Not authenticated');
     setSubmitting(true);
 
     try {
-      return await submitQuizService({
-        userId: user.id,
-        categoryId,
-        difficulty,
-        questions,
-        answers,
-      });
+      return await submitQuizSession(options);
     } finally {
       setSubmitting(false);
     }
   }, [user]);
 
-  return { submitQuiz, submitting };
+  return { startSession, saveAnswer, submitSession, starting, submitting };
 }

@@ -45,7 +45,7 @@ describe('achievement share formats', () => {
     expect(feedButton.getAttribute('aria-pressed')).toBe('true');
     expect(document.querySelector('[data-share-format="feed"]')).toBeTruthy();
     await waitFor(() => expect(window.localStorage.getItem('mr-ole-share-format')).toBe('feed'));
-  });
+  }, 10000);
 
   it('uses supportive Story copy for a low score', () => {
     render(

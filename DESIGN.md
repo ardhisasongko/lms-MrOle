@@ -142,6 +142,17 @@ All spacing derives from a base of **4px**.
 - **Structure**: next-step recommendation, answer-type insight, all/correct/wrong segmented filter, one focused question card, discussion, and previous/next navigation
 - **Loading**: the score renders immediately from navigation state while answer details load into shaped skeletons; recoverable fetch errors preserve the score and expose retry
 
+### Quiz Session
+- **Structure**: one server-assigned question at a time, stable 20-question navigator, progress, elapsed/deadline timer, optional supporting stimulus, prompt, and answer controls
+- **Persistence**: server snapshots own question and option order; lightweight local progress is keyed by session ID and never stores answer keys
+- **Modes**: normal, adaptive, and timed use 20 questions; retry is a non-streak remediation set; challenge reproduces the source question set
+- **States**: starting/resuming, active, locally saved, server saved, submitting, submitted, expired, insufficient pool, and recoverable network error
+
+### Supporting Stimulus
+- **Structure**: optional quiet inset block above the prompt with preserved whitespace and no visible "Teks", "Transkrip", or "Pertanyaan" labels
+- **Content**: plain text only in the initial implementation; transcript semantics remain available to assistive technology through an accessible name
+- **Accessibility**: semantic section, readable line height, escaped React text, and no HTML injection
+
 ## 6. Motion & Interaction
 
 ### Timing

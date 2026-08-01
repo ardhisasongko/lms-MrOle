@@ -57,7 +57,7 @@ export default function Practice() {
           try {
             const rec = await getRecommendedDifficulty(user.id, cat.id);
             if (rec) adaptiveResults[cat.id] = rec;
-          } catch { }
+          } catch { /* recommendation is optional */ }
         }
         setAdaptiveScores(adaptiveResults);
       }
@@ -86,6 +86,14 @@ export default function Practice() {
       return;
     }
     const params = [];
+    const targetDifficulty = useAdaptive && adaptiveScores[selectedCategory]
+      ? adaptiveScores[selectedCategory]
+      : selectedDifficulty || 'easy';
+    const available = questionCounts[`${selectedCategory}:${targetDifficulty}`];
+    if (available !== undefined && available < 20) {
+      toast.error(`Bank soal ${DIFFICULTY_LABEL[targetDifficulty]} belum memiliki 20 soal terpublikasi.`);
+      return;
+    }
     if (useAdaptive && adaptiveScores[selectedCategory]) {
       params.push(`difficulty=${adaptiveScores[selectedCategory]}`, 'adaptive=true');
     } else if (useTimed) {
@@ -186,8 +194,9 @@ export default function Practice() {
             const isSelected = selectedCategory === cat.id;
 
             const scoreKey = (d) => `${cat.id}:${d}`;
-            const lastScore = lastScores[scoreKey()];
-
+            const targetDifficulty = useAdaptive ? adaptiveScores[cat.id] : selectedDifficulty;
+            const targetCount = targetDifficulty ? questionCounts[scoreKey(targetDifficulty)] : undefined;
+            const poolReady = targetCount === undefined || targetCount >= 20;
             return (
               <Card
                 key={cat.id}
@@ -291,7 +300,7 @@ export default function Practice() {
                       )}
                       <Button
                         onClick={(e) => { e.stopPropagation(); handleStart(); }}
-                        disabled={!useAdaptive && !selectedDifficulty}
+                        disabled={(!useAdaptive && !selectedDifficulty) || !poolReady}
                         size="sm"
                         className="gap-2"
                       >

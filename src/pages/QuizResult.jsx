@@ -15,6 +15,7 @@ import { sanitize } from '../utils/sanitize';
 import { handleError } from '../utils/errors';
 import toast from 'react-hot-toast';
 import ShareResultModal from '../components/share/ShareResultModal';
+import Stimulus from '../components/quiz/Stimulus';
 import { createQuizShare, getPublicQuizShare, revokeQuizShare } from '../services/shares';
 import { useTranslation } from 'react-i18next';
 
@@ -120,6 +121,8 @@ export default function QuizResult() {
       setAnswers(attempt.quiz_answers.filter((a) => a.questions).map((a) => ({
         id: a.questions.id,
         question: a.questions.question,
+        stimulus: a.questions.stimulus,
+        prompt: a.questions.prompt,
         options: a.questions.options,
         type: a.questions.type,
         userAnswer: a.user_answer,
@@ -214,23 +217,13 @@ export default function QuizResult() {
   };
 
   const handleRetryWrong = () => {
-    const retryQuestions = answers
-      .filter((a) => !a.isCorrect)
-      .map((a) => ({
-        id: a.id,
-        type: a.type || 'multiple_choice',
-        question: a.question,
-        options: a.options,
-        correct_answer: a.correctAnswer,
-        explanation: a.explanation || '',
-      }));
-    if (retryQuestions.length === 0) {
+    if (!answers.some((a) => !a.isCorrect)) {
       toast.error(t('result.nextStep.retryUnavailable'));
       return;
     }
-    navigate('/practice/retry', {
+    navigate(`/practice/retry?source=${encodeURIComponent(attemptId)}`, {
       state: {
-        retryQuestions,
+        sourceAttemptId: attemptId,
         retryMeta: { categoryId: data?.categoryId, difficulty: data?.difficulty },
       },
     });
@@ -581,18 +574,21 @@ export default function QuizResult() {
 
           <Card key={`${filter}-${currentIndex}`}>
             <CardContent className="space-y-5">
+              <Stimulus>{current.stimulus}</Stimulus>
+
               {/* Soal */}
               <p className="text-[1.0625rem] font-medium text-gray-900 dark:text-gray-100 leading-relaxed">
-                {sanitize(current.question)}
+                {sanitize(current.prompt || current.question)}
               </p>
 
               {/* Opsi Pilihan (khusus multiple_choice) */}
               {current.type === 'multiple_choice' && Array.isArray(current.options) && (
                 <div className="space-y-2">
-                  {current.options.map((opt) => {
+                  {current.options.map((opt, optionIndex) => {
                     const isUserAnswer = current.userAnswer === opt.label;
                     const isCorrectAnswer = current.correctAnswer === opt.label;
                     const isWrongSelection = isUserAnswer && !current.isCorrect;
+                    const displayLabel = String.fromCharCode(65 + optionIndex);
 
                     let borderStyle = 'border-gray-100 dark:border-gray-700/50 bg-white dark:bg-gray-800/50';
                     let labelStyle = 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400';
@@ -623,7 +619,7 @@ export default function QuizResult() {
                           transition-all duration-200
                           ${labelStyle}
                         `.trim()}>
-                          {opt.label}
+                          {displayLabel}
                         </span>
                         <span className="flex-1 min-w-0 break-words text-gray-700 dark:text-gray-300">{opt.text}</span>
                         {icon && (

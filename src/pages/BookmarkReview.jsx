@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react';
 import { BookmarkSimple, MagnifyingGlass, Trash, CaretDown, CaretUp, GraduationCap, BookOpen, PenNib } from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
-import Button from '../components/common/Button';
 import Badge from '../components/common/Badge';
 import EmptyState from '../components/feedback/EmptyState';
 import Skeleton from '../components/common/Skeleton';
+import Stimulus from '../components/quiz/Stimulus';
 import { useBookmarks } from '../hooks/useBookmarks';
 import { DIFFICULTY_LABEL } from '../utils/constants';
 import toast from 'react-hot-toast';
@@ -22,6 +22,19 @@ const difficultyBadge = {
   hard: 'danger',
 };
 
+function getOptions(options) {
+  if (Array.isArray(options)) return options;
+  if (typeof options === 'string') {
+    try {
+      const parsed = JSON.parse(options);
+      return Array.isArray(parsed) ? parsed : Object.values(parsed);
+    } catch {
+      return [];
+    }
+  }
+  return options ? Object.values(options) : [];
+}
+
 export default function BookmarkReview() {
   const { bookmarks, loading, error, toggleBookmark } = useBookmarks();
   const [search, setSearch] = useState('');
@@ -32,7 +45,8 @@ export default function BookmarkReview() {
     const q = b.questions;
     if (!q) return false;
     const matchesSearch = !search ||
-      q.question.toLowerCase().includes(search.toLowerCase()) ||
+      (q.prompt || q.question || '').toLowerCase().includes(search.toLowerCase()) ||
+      (q.stimulus || '').toLowerCase().includes(search.toLowerCase()) ||
       q.categories?.name?.toLowerCase().includes(search.toLowerCase());
     const matchesDifficulty = !filterDifficulty || q.difficulty === filterDifficulty;
     return matchesSearch && matchesDifficulty;
@@ -142,17 +156,22 @@ export default function BookmarkReview() {
                         <span className="text-xs text-gray-400 min-w-0 break-words">{q.categories?.name}</span>
                       </div>
                       <p className="text-sm text-gray-900 dark:text-gray-100 line-clamp-2">
-                        {q.question}
+                         {q.prompt || q.question}
                       </p>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
                       <button
+                        type="button"
+                        aria-label={isExpanded ? 'Tutup rincian soal' : 'Buka rincian soal'}
+                        aria-expanded={isExpanded}
                         onClick={() => setExpandedId(isExpanded ? null : b.id)}
                         className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 transition-colors"
                       >
                         {isExpanded ? <CaretUp className="w-4 h-4" /> : <CaretDown className="w-4 h-4" />}
                       </button>
                       <button
+                        type="button"
+                        aria-label="Hapus bookmark"
                         onClick={() => handleRemove(q.id)}
                         className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors"
                       >
@@ -163,10 +182,11 @@ export default function BookmarkReview() {
 
                   {isExpanded && (
                     <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 space-y-3">
+                      <Stimulus>{q.stimulus}</Stimulus>
                       {/* Full question */}
                       <div>
-                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Soal:</p>
-                        <p className="text-sm text-gray-900 dark:text-gray-100 leading-relaxed">{q.question}</p>
+                        <p className="sr-only">Soal</p>
+                        <p className="text-sm text-gray-900 dark:text-gray-100 leading-relaxed">{q.prompt || q.question}</p>
                       </div>
 
                       {/* Options if MCQ */}
@@ -174,8 +194,11 @@ export default function BookmarkReview() {
                         <div>
                           <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pilihan:</p>
                           <div className="space-y-1.5">
-                            {(Array.isArray(q.options) ? q.options : Object.values(q.options)).map((opt, i) => {
-                              const isCorrect = opt === q.correct_answer;
+                            {getOptions(q.options).map((opt, i) => {
+                              const isObjectOption = opt && typeof opt === 'object';
+                              const label = isObjectOption ? opt.label : String.fromCharCode(65 + i);
+                              const text = isObjectOption ? opt.text : opt;
+                              const isCorrect = isObjectOption ? label === q.correct_answer : opt === q.correct_answer;
                               return (
                                 <div
                                   key={i}
@@ -185,7 +208,7 @@ export default function BookmarkReview() {
                                       : 'bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
                                   }`}
                                 >
-                                  {String.fromCharCode(65 + i)}. {opt}
+                                  {label}. {text}
                                 </div>
                               );
                             })}

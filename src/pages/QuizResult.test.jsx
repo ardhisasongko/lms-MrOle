@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import i18n from '../i18n';
 import QuizResult from './QuizResult';
 
@@ -67,9 +67,15 @@ function renderResult() {
     >
       <Routes>
         <Route path="/practice/:attemptId/result" element={<QuizResult />} />
+        <Route path="/practice/retry" element={<RetryDestination />} />
       </Routes>
     </MemoryRouter>,
   );
+}
+
+function RetryDestination() {
+  const location = useLocation();
+  return <pre data-testid="retry-state">{JSON.stringify(location.state)}</pre>;
 }
 
 describe('QuizResult', () => {
@@ -105,6 +111,41 @@ describe('QuizResult', () => {
 
     resolveAttempt(attempt);
     await waitFor(() => expect(retry.disabled).toBe(false));
+  });
+
+  it('renders structured stimulus above the mapped question prompt', async () => {
+    mocks.getAttemptDetails.mockResolvedValue({
+      ...attempt,
+      quiz_answers: attempt.quiz_answers.map((answer, index) => index === 0 ? {
+        ...answer,
+        questions: {
+          ...answer.questions,
+          stimulus: 'Rina studies every evening.\nShe enjoys grammar practice.',
+          prompt: 'Which verb completes the sentence?',
+        },
+      } : answer),
+    });
+    renderResult();
+
+    const stimulus = await screen.findByText(/Rina studies every evening/);
+    const prompt = screen.getByText('Which verb completes the sentence?');
+
+    expect(stimulus.compareDocumentPosition(prompt) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('retries by attempt id without exposing question or answer data in navigation state', async () => {
+    mocks.getAttemptDetails.mockResolvedValue(attempt);
+    renderResult();
+
+    fireEvent.click(await screen.findByRole('button', { name: /Ulangi soal yang salah/i }));
+
+    const state = JSON.parse((await screen.findByTestId('retry-state')).textContent);
+    expect(state).toEqual({
+      sourceAttemptId: 'attempt-id',
+      retryMeta: { categoryId: 'category-id', difficulty: 'easy' },
+    });
+    expect(JSON.stringify(state)).not.toContain('correct_answer');
+    expect(JSON.stringify(state)).not.toContain('retryQuestions');
   });
 
   it('creates the first public share anonymously', async () => {

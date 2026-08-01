@@ -58,12 +58,13 @@ export default function CrudTable({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    let succeeded;
     if (editing) {
-      await onUpdate(editing, form);
+      succeeded = await onUpdate(editing, form);
     } else {
-      await onCreate(form);
+      succeeded = await onCreate(form);
     }
-    handleCancel();
+    if (succeeded !== false) handleCancel();
   };
 
   const handleDelete = async () => {

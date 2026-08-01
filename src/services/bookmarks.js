@@ -1,26 +1,45 @@
 import { supabase } from './supabase';
 
+const bookmarkFields = `
+  id,
+  question_id,
+  created_at,
+  questions (
+    id,
+    question,
+    stimulus,
+    prompt,
+    options,
+    correct_answer,
+    explanation,
+    difficulty,
+    type,
+    category_id,
+    categories (name)
+  )
+`;
+
+const legacyBookmarkFields = bookmarkFields
+  .replace('    stimulus,\n', '')
+  .replace('    prompt,\n', '');
+
+function isMissingStructuredColumn(error) {
+  return error?.code === '42703' || error?.code === 'PGRST204';
+}
+
 export async function getBookmarksByUser(userId) {
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from('bookmarks')
-    .select(`
-      id,
-      question_id,
-      created_at,
-      questions (
-        id,
-        question,
-        options,
-        correct_answer,
-        explanation,
-        difficulty,
-        type,
-        category_id,
-        categories (name)
-      )
-    `)
+    .select(bookmarkFields)
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
+  if (error && isMissingStructuredColumn(error)) {
+    ({ data, error } = await supabase
+      .from('bookmarks')
+      .select(legacyBookmarkFields)
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false }));
+  }
   if (error) throw error;
   return data || [];
 }

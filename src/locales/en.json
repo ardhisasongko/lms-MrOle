@@ -297,6 +297,8 @@
   "landing.cta.button": "Register Free",
   "landing.footer.copyright": "© {{year}} Mr Ole. Making English fun to learn.",
   "share.brandName": "Mr Ole",
+  "quiz.stimulus.transcriptAria": "Audio transcript",
+  "quiz.stimulus.textAria": "Supporting passage",
   "share.fallbackCategory": "English Practice",
   "share.difficulty.easy": "Easy",
   "share.difficulty.medium": "Medium",

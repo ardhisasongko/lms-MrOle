@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import {
   ArrowLeft, ArrowRight, CheckCircle, Clock, GridFour,
@@ -6,8 +6,9 @@ import {
 } from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
 import Button from '../components/common/Button';
-import { useQuestions } from '../hooks/useQuestions';
 import { useQuiz } from '../hooks/useQuiz';
+import { useBookmarks } from '../hooks/useBookmarks';
+import Stimulus from '../components/quiz/Stimulus';
 import Skeleton from '../components/common/Skeleton';
 import ErrorState from '../components/feedback/ErrorState';
 import { handleError } from '../utils/errors';
@@ -16,21 +17,13 @@ import toast from 'react-hot-toast';
 
 import { saveDailyProgress } from '../services/gamification';
 
-const STORAGE_KEY = (catId, diff, isAdaptive) => `quiz_progress_${catId}_${diff}${isAdaptive ? '_adaptive' : ''}`;
+const STORAGE_KEY = (sessionId) => `mr_ole_quiz_session_v2:${sessionId}`;
+const EMPTY_QUESTIONS = [];
 
 function formatTimer(seconds) {
   const m = String(Math.floor(seconds / 60)).padStart(2, '0');
   const s = String(seconds % 60).padStart(2, '0');
   return `${m}:${s}`;
-}
-
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
 }
 
 export default function Quiz() {
@@ -41,19 +34,26 @@ export default function Quiz() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const retryQuestions = location.state?.retryQuestions;
+  const sourceAttemptId = location.state?.sourceAttemptId || searchParams.get('source') || null;
   const retryMeta = location.state?.retryMeta;
-  const effectiveCategoryId = retryQuestions ? retryMeta?.categoryId : categoryId;
-  const effectiveDifficulty = retryQuestions ? retryMeta?.difficulty : difficulty;
   const timedMode = searchParams.get('timed') === 'true';
   const challengeToken = searchParams.get('challenge');
-  const [timeLeft, setTimeLeft] = useState(timedMode ? 300 : null);
-  const { questions: fetchedQuestions, loading, error } = useQuestions(
-    retryQuestions ? null : categoryId,
-    retryQuestions ? null : difficulty,
-  );
-  const questions = retryQuestions || fetchedQuestions;
-  const { submitQuiz, submitting } = useQuiz();
+  const requestedMode = sourceAttemptId
+    ? 'retry'
+    : challengeToken
+      ? 'challenge'
+      : timedMode
+        ? 'timed'
+        : isAdaptive
+          ? 'adaptive'
+          : 'normal';
+  const { startSession, saveAnswer, submitSession, starting, submitting } = useQuiz();
+  const { bookmarks: persistedBookmarks, toggleBookmark: persistBookmark } = useBookmarks();
+  const [session, setSession] = useState(null);
+  const [sessionError, setSessionError] = useState('');
+  const [requestKey, setRequestKey] = useState(0);
+  const questions = session?.questions ?? EMPTY_QUESTIONS;
+  const [timeLeft, setTimeLeft] = useState(null);
   const [answers, setAnswers] = useState({});
   const [bookmarked, setBookmarked] = useState({});
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -63,54 +63,85 @@ export default function Quiz() {
   const [confirmSubmit, setConfirmSubmit] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const timerRef = useRef(null);
-  const quizStartRef = useRef(Date.now());
   const submitRef = useRef(null);
+  const submittingRef = useRef(false);
+  const saveTimersRef = useRef(new Map());
+  const submitRetryRef = useRef(null);
 
-  // Restore saved progress on mount (skip for retry mode)
+  // The RPC is idempotent for an active matching session, which also makes
+  // React StrictMode and page refreshes safe.
   useEffect(() => {
-    if (retryQuestions || !categoryId || !difficulty) return;
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY(categoryId, difficulty, isAdaptive));
-      if (saved) {
-        const { answers: savedAnswers, bookmarked: savedBookmarked } = JSON.parse(saved);
-        if (savedAnswers && Object.keys(savedAnswers).length > 0) {
-          setAnswers(savedAnswers);
-        }
-        if (savedBookmarked) setBookmarked(savedBookmarked);
+    if (!sourceAttemptId && !challengeToken && (!categoryId || !difficulty)) return undefined;
+    let cancelled = false;
+    setSessionError('');
+    startSession({
+      categoryId: sourceAttemptId ? retryMeta?.categoryId || null : categoryId || null,
+      difficulty: sourceAttemptId ? retryMeta?.difficulty || null : difficulty || null,
+      mode: requestedMode,
+      sourceAttemptId,
+      challengeToken: challengeToken || null,
+    }).then((nextSession) => {
+      if (cancelled) return;
+      setSession(nextSession);
+      const validIds = new Set(nextSession.questions.map((question) => question.id));
+      const serverAnswers = Object.fromEntries(nextSession.questions
+        .filter((question) => question.userAnswer !== null && question.userAnswer !== undefined)
+        .map((question) => [question.id, question.userAnswer]));
+      let saved = {};
+      try {
+        saved = JSON.parse(localStorage.getItem(STORAGE_KEY(nextSession.sessionId)) || '{}');
+      } catch {
+        saved = {};
       }
-    } catch { /* ignore corrupt storage */ }
-  }, [categoryId, difficulty, isAdaptive, retryQuestions]);
+      const savedAnswers = Object.fromEntries(Object.entries(saved.answers || {})
+        .filter(([questionId]) => validIds.has(questionId)));
+      setAnswers({ ...savedAnswers, ...serverAnswers });
+      setBookmarked(Object.fromEntries(Object.entries(saved.bookmarked || {})
+        .filter(([questionId]) => validIds.has(questionId))));
+      setCurrentIndex(Math.min(Math.max(Number(saved.currentIndex) || 0, 0), nextSession.questions.length - 1));
+    }).catch((error) => {
+      if (!cancelled) setSessionError(error?.message || 'Sesi kuis belum dapat dimulai.');
+    });
+    return () => { cancelled = true; };
+  }, [categoryId, challengeToken, difficulty, requestKey, requestedMode, retryMeta?.categoryId, retryMeta?.difficulty, sourceAttemptId, startSession]);
 
-  // Auto-save answers + bookmarked to localStorage (skip for retry mode)
+  // Keep only lightweight progress locally; the authoritative question and
+  // option order remain in the server snapshot.
   useEffect(() => {
-    if (retryQuestions || !categoryId || !difficulty || questions.length === 0) return;
+    if (!session?.sessionId || questions.length === 0) return;
     try {
       localStorage.setItem(
-        STORAGE_KEY(categoryId, difficulty, isAdaptive),
-        JSON.stringify({ answers, bookmarked }),
+        STORAGE_KEY(session.sessionId),
+        JSON.stringify({ version: 2, answers, bookmarked, currentIndex, savedAt: new Date().toISOString() }),
       );
-    } catch { /* storage full — silent */ }
-  }, [answers, bookmarked, categoryId, difficulty, isAdaptive, questions.length, retryQuestions]);
+    } catch { /* storage full or unavailable */ }
+  }, [answers, bookmarked, currentIndex, questions.length, session?.sessionId]);
 
-  // Timer
   useEffect(() => {
-    if (timedMode) return;
-    timerRef.current = setInterval(() => {
-      setElapsed(Math.floor((Date.now() - quizStartRef.current) / 1000));
-    }, 1000);
+    if (!questions.length || !persistedBookmarks.length) return;
+    const questionIds = new Set(questions.map((question) => question.id));
+    setBookmarked((current) => ({
+      ...current,
+      ...Object.fromEntries(persistedBookmarks
+        .filter((bookmark) => questionIds.has(bookmark.question_id))
+        .map((bookmark) => [bookmark.question_id, true])),
+    }));
+  }, [persistedBookmarks, questions]);
+
+  // Derive timing from server timestamps so refresh cannot reset timed mode.
+  useEffect(() => {
+    if (!session?.startedAt) return undefined;
+    const tick = () => {
+      const now = Date.now();
+      setElapsed(Math.max(0, Math.floor((now - new Date(session.startedAt).getTime()) / 1000)));
+      const remaining = Math.max(0, Math.ceil((new Date(session.expiresAt).getTime() - now) / 1000));
+      setTimeLeft(remaining);
+      if (session.mode === 'timed' && remaining === 0 && !submittingRef.current) submitRef.current?.(true);
+    };
+    tick();
+    timerRef.current = setInterval(tick, 1000);
     return () => clearInterval(timerRef.current);
-  }, [timedMode]);
-
-  // Countdown timer for timed mode
-  useEffect(() => {
-    if (!timedMode || timeLeft === null) return;
-    if (timeLeft <= 0) {
-      submitRef.current?.();
-      return;
-    }
-    const id = setTimeout(() => setTimeLeft((t) => t - 1), 1000);
-    return () => clearTimeout(id);
-  }, [timedMode, timeLeft]);
+  }, [session?.expiresAt, session?.mode, session?.startedAt]);
 
   const stopTimer = useCallback(() => {
     clearInterval(timerRef.current);
@@ -125,15 +156,34 @@ export default function Quiz() {
 
   const handleAnswer = useCallback((questionId, value) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
+    if (!session?.sessionId || !value) return;
+    clearTimeout(saveTimersRef.current.get(questionId));
+    const timer = setTimeout(() => {
+      saveAnswer({ sessionId: session.sessionId, questionId, userAnswer: value })
+        .catch(() => toast.error('Jawaban tersimpan di perangkat dan akan dikirim saat pengumpulan.'));
+      saveTimersRef.current.delete(questionId);
+    }, 600);
+    saveTimersRef.current.set(questionId, timer);
+  }, [saveAnswer, session?.sessionId]);
+
+  useEffect(() => () => {
+    for (const timer of saveTimersRef.current.values()) clearTimeout(timer);
+    saveTimersRef.current.clear();
+    clearTimeout(submitRetryRef.current);
   }, []);
 
-  const toggleBookmark = useCallback(() => {
-    setBookmarked((prev) => {
-      const c = questions[currentIndex];
-      if (!c) return prev;
-      return { ...prev, [c.id]: !prev[c.id] };
-    });
-  }, [questions, currentIndex]);
+  const toggleBookmark = useCallback(async () => {
+    const question = questions[currentIndex];
+    if (!question) return;
+    const previous = Boolean(bookmarked[question.id]);
+    setBookmarked((current) => ({ ...current, [question.id]: !previous }));
+    try {
+      await persistBookmark(question.id);
+    } catch {
+      setBookmarked((current) => ({ ...current, [question.id]: previous }));
+      toast.error('Bookmark belum dapat diperbarui.');
+    }
+  }, [bookmarked, currentIndex, persistBookmark, questions]);
 
   const goToQuestion = useCallback((idx) => {
     setCurrentIndex(idx);
@@ -158,44 +208,56 @@ export default function Quiz() {
     setCurrentIndex((i) => i - 1);
   }, [currentIndex]);
 
-  const handleSubmit = useCallback(async () => {
+  const handleSubmit = useCallback(async (fromTimer = false) => {
+    if (!session?.sessionId || submittingRef.current) return;
     const unanswered = questions.filter((q) => !answers[q.id]);
-    if (!timedMode && unanswered.length > 0) {
+    if (session.mode !== 'timed' && unanswered.length > 0) {
       toast.error(`Masih ada ${unanswered.length} soal belum dijawab`);
       setConfirmSubmit(false);
       return;
     }
+    submittingRef.current = true;
     stopTimer();
     try {
-      if (!retryQuestions) localStorage.removeItem(STORAGE_KEY(categoryId, difficulty, isAdaptive));
-      const result = await submitQuiz({
-        categoryId: effectiveCategoryId || categoryId,
-        difficulty: effectiveDifficulty || difficulty,
-        questions,
-        answers,
+      const result = await submitSession({
+        sessionId: session.sessionId,
+        answers: questions.map((question) => ({
+          questionId: question.id,
+          userAnswer: answers[question.id] || '',
+        })),
       });
-      saveDailyProgress({ answered: questions.length, correct: result?.correct || 0 });
+      if (session.mode !== 'retry' && !result.alreadySubmitted) {
+        saveDailyProgress({ answered: questions.length, correct: result?.correct || 0 });
+      }
       if (!result?.attemptId) throw new Error('Gagal mendapatkan hasil');
+      localStorage.removeItem(STORAGE_KEY(session.sessionId));
       const resultQuery = challengeToken
         ? `?challenge=${encodeURIComponent(challengeToken)}`
         : '';
       navigate(`/practice/${result.attemptId}/result${resultQuery}`, {
         state: {
           ...result,
-          categoryId: effectiveCategoryId || categoryId,
-          difficulty: effectiveDifficulty || difficulty,
+          categoryId: session.categoryId,
+          difficulty: session.difficulty,
           isAdaptive,
-          timed: timedMode,
-          durationSeconds: timedMode ? 300 - (timeLeft ?? 300) : elapsed,
+          timed: session.mode === 'timed',
+          durationSeconds: elapsed,
           challengeToken,
+          sessionId: session.sessionId,
+          mode: session.mode,
         },
       });
     } catch (err) {
-      handleError(err, 'Gagal mengirim jawaban');
+      handleError(err, fromTimer ? 'Waktu habis, tetapi jawaban belum dapat dikirim' : 'Gagal mengirim jawaban');
+      if (fromTimer && Date.now() <= new Date(session.expiresAt).getTime() + 25_000) {
+        clearTimeout(submitRetryRef.current);
+        submitRetryRef.current = setTimeout(() => submitRef.current?.(true), 2000);
+      }
     } finally {
+      submittingRef.current = false;
       setConfirmSubmit(false);
     }
-  }, [questions, answers, categoryId, difficulty, isAdaptive, retryQuestions, effectiveCategoryId, effectiveDifficulty, timedMode, timeLeft, elapsed, challengeToken, stopTimer, submitQuiz, navigate]);
+  }, [answers, challengeToken, elapsed, isAdaptive, navigate, questions, session, stopTimer, submitSession]);
 
   // Keyboard shortcuts effect deps: add handleNext for stable closure
   useEffect(() => {
@@ -224,19 +286,11 @@ export default function Quiz() {
   }, [currentIndex, questions, answers, handleAnswer, handleNext]);
 
   const current = questions[currentIndex];
-  const rawOptions = current?.options
+  const options = current?.options
     ? (Array.isArray(current.options) ? current.options : current.options.options)
     : null;
 
-  const shuffledOptions = useMemo(() => {
-    if (!rawOptions) return null;
-    return shuffle(rawOptions);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [current?.id]);
-
-  const options = shuffledOptions || rawOptions;
-
-  if (!difficulty && !retryQuestions) return <Navigate to="/practice" replace />;
+  if (!difficulty && !sourceAttemptId && !challengeToken) return <Navigate to="/practice" replace />;
 
   const isLast = currentIndex === questions.length - 1;
   const isFirst = currentIndex === 0;
@@ -255,7 +309,7 @@ export default function Quiz() {
 
   submitRef.current = handleSubmit;
 
-  if (loading) {
+  if (starting || (!session && !sessionError)) {
     return (
       <div className="max-w-2xl mx-auto space-y-5">
         <Skeleton className="h-2 rounded-full w-full" />
@@ -268,7 +322,15 @@ export default function Quiz() {
     );
   }
 
-  if (error) return <ErrorState message={error} />;
+  if (sessionError) {
+    return (
+      <ErrorState
+        title="Sesi Belum Dapat Dimulai"
+        message={sessionError}
+        onRetry={() => setRequestKey((key) => key + 1)}
+      />
+    );
+  }
 
   if (questions.length === 0 || !current) {
     return (
@@ -308,11 +370,11 @@ export default function Quiz() {
           </span>
           <div className="flex items-center gap-3 shrink-0">
             <span className={`inline-flex items-center gap-1 tabular-nums ${
-              timedMode && timeLeft !== null && timeLeft <= 60
+               timeLeft !== null && timeLeft <= 60
                 ? 'text-red-500 dark:text-red-400 font-semibold'
                 : 'text-gray-400 dark:text-gray-500'
             }`}>
-              {timedMode && timeLeft !== null ? (
+              {(session?.mode === 'timed' || (timeLeft !== null && timeLeft <= 300)) && timeLeft !== null ? (
                 <><Timer className="w-3.5 h-3.5" weight="regular" />{formatTimer(timeLeft)}</>
               ) : (
                 <><Clock className="w-3.5 h-3.5" weight="regular" />{formatTimer(elapsed)}</>
@@ -464,14 +526,20 @@ export default function Quiz() {
                   </span>
                 </div>
 
+                <Stimulus
+                  content={current.stimulus}
+                  type={current.contentMetadata?.stimulus_type}
+                />
+
                 <p className="text-[1.0625rem] font-medium text-gray-900 dark:text-gray-100 leading-relaxed">
                   {current.question}
                 </p>
 
                 {current.type === 'multiple_choice' && options ? (
                   <div className="space-y-2.5">
-                    {options.map((opt) => {
+                    {options.map((opt, optionIndex) => {
                       const isSelected = answers[current.id] === opt.label;
+                      const displayLabel = String.fromCharCode(65 + optionIndex);
 
                       let borderClass = 'ring-1 ring-black/[0.06] dark:ring-white/[0.08] bg-white dark:bg-gray-800/50 text-gray-700 dark:text-gray-300';
                       let labelClass = 'bg-primary-100/50 dark:bg-gray-700 text-gray-500 dark:text-gray-400';
@@ -496,7 +564,7 @@ export default function Quiz() {
                               w-7 h-7 rounded-full flex items-center justify-center text-sm font-semibold
                               transition-all duration-300 ease-spring ${labelClass}
                             `.trim()}>
-                              {opt.label}
+                              {displayLabel}
                             </span>
                             <span className={isSelected ? 'font-medium' : ''}>
                               {opt.text}
