@@ -20,36 +20,37 @@ beforeEach(() => {
 
 describe('quiz sessions', () => {
   it('starts a session with exact RPC params and maps sanitized questions', async () => {
+    const questions = Array.from({ length: 20 }, (_, index) => ({
+      question_id: `question-${index + 1}`,
+      position: index + 1,
+      type: 'multiple_choice',
+      question: 'Legacy question',
+      prompt: index === 0 ? 'Mapped prompt' : `Mapped prompt ${index + 1}`,
+      stimulus: index === 0 ? 'Read this first.' : null,
+      options: [{ label: 'A', text: 'Answer A' }],
+      content_metadata: index === 0 ? {
+        stimulus_type: 'text',
+        correct_answer: 'A',
+        correctAnswer: 'A',
+        explanation: 'Secret explanation',
+      } : {},
+      user_answer: index === 0 ? 'A' : null,
+      correct_answer: 'A',
+      explanation: 'Secret explanation',
+    }));
     supabase.rpc.mockResolvedValue({
       data: {
         session_id: 'session-1',
         category_id: 'cat-1',
         difficulty: 'hard',
         mode: 'challenge',
-        question_count: 1,
+        question_count: 20,
         source_attempt_id: 'attempt-source',
         challenge_token: 'challenge-token',
         status: 'active',
         started_at: '2026-08-01T10:00:00Z',
         expires_at: '2026-08-01T10:30:00Z',
-        questions: [{
-          question_id: 'question-1',
-          position: 1,
-          type: 'multiple_choice',
-          question: 'Legacy question',
-          prompt: 'Mapped prompt',
-          stimulus: 'Read this first.',
-          options: [{ label: 'A', text: 'Answer A' }],
-          content_metadata: {
-            stimulus_type: 'text',
-            correct_answer: 'A',
-            correctAnswer: 'A',
-            explanation: 'Secret explanation',
-          },
-          user_answer: 'A',
-          correct_answer: 'A',
-          explanation: 'Secret explanation',
-        }],
+        questions,
       },
       error: null,
     });
@@ -69,18 +70,18 @@ describe('quiz sessions', () => {
       p_source_attempt_id: null,
       p_challenge_token: 'challenge-token',
     });
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       sessionId: 'session-1',
       categoryId: 'cat-1',
       difficulty: 'hard',
       mode: 'challenge',
-      questionCount: 1,
+      questionCount: 20,
       sourceAttemptId: 'attempt-source',
       challengeToken: 'challenge-token',
       status: 'active',
       startedAt: '2026-08-01T10:00:00Z',
       expiresAt: '2026-08-01T10:30:00Z',
-      questions: [{
+      questions: expect.arrayContaining([{
         id: 'question-1',
         position: 1,
         type: 'multiple_choice',
@@ -89,15 +90,25 @@ describe('quiz sessions', () => {
         options: [{ label: 'A', text: 'Answer A' }],
         contentMetadata: { stimulus_type: 'text' },
         userAnswer: 'A',
-      }],
+      }]),
     });
+    expect(result.questions).toHaveLength(20);
     expect(JSON.stringify(result)).not.toContain('correct_answer');
     expect(JSON.stringify(result)).not.toContain('correctAnswer');
     expect(JSON.stringify(result)).not.toContain('Secret explanation');
   });
 
   it('uses standard session defaults', async () => {
-    supabase.rpc.mockResolvedValue({ data: { questions: [] }, error: null });
+    supabase.rpc.mockResolvedValue({
+      data: {
+        mode: 'normal',
+        question_count: 20,
+        questions: Array.from({ length: 20 }, (_, index) => ({
+          question_id: `question-${index + 1}`,
+        })),
+      },
+      error: null,
+    });
 
     await startQuizSession({ categoryId: 'cat-1', difficulty: 'easy' });
 
@@ -108,6 +119,43 @@ describe('quiz sessions', () => {
       p_source_attempt_id: null,
       p_challenge_token: null,
     });
+  });
+
+  it('rejects a non-retry session that contains more than 20 questions', async () => {
+    supabase.rpc.mockResolvedValue({
+      data: {
+        mode: 'normal',
+        question_count: 251,
+        questions: Array.from({ length: 251 }, (_, index) => ({
+          question_id: `question-${index + 1}`,
+        })),
+      },
+      error: null,
+    });
+
+    await expect(startQuizSession({ categoryId: 'cat-1', difficulty: 'easy' }))
+      .rejects.toThrow('Sesi kuis tidak valid. Silakan mulai sesi baru.');
+  });
+
+  it('allows retry sessions with up to 20 questions', async () => {
+    supabase.rpc.mockResolvedValue({
+      data: {
+        mode: 'retry',
+        question_count: 2,
+        questions: [
+          { question_id: 'question-1' },
+          { question_id: 'question-2' },
+        ],
+      },
+      error: null,
+    });
+
+    const result = await startQuizSession({
+      mode: 'retry',
+      sourceAttemptId: 'attempt-1',
+    });
+
+    expect(result.questions).toHaveLength(2);
   });
 
   it('saves one session answer and maps its response', async () => {

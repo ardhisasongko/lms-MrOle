@@ -53,18 +53,29 @@ export async function startQuizSession({
 
   if (error) throw error;
 
+  const questions = Array.isArray(data?.questions) ? data.questions : [];
+  const questionCount = Number(data?.question_count);
+  const sessionMode = data?.mode || mode;
+  const validCount = sessionMode === 'retry'
+    ? Number.isInteger(questionCount) && questionCount >= 1 && questionCount <= 20
+    : questionCount === 20;
+
+  if (!validCount || questions.length !== questionCount) {
+    throw new Error('Sesi kuis tidak valid. Silakan mulai sesi baru.');
+  }
+
   return {
     sessionId: data?.session_id,
     categoryId: data?.category_id,
     difficulty: data?.difficulty,
-    mode: data?.mode,
-    questionCount: data?.question_count,
+    mode: sessionMode,
+    questionCount,
     sourceAttemptId: data?.source_attempt_id,
     challengeToken: data?.challenge_token,
     status: data?.status,
     startedAt: data?.started_at,
     expiresAt: data?.expires_at,
-    questions: (data?.questions || []).map(mapQuestion),
+    questions: questions.map(mapQuestion),
   };
 }
 
