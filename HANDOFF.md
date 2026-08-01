@@ -302,6 +302,27 @@ WORK COMPLETED
 - Live source map Questions-ClL-5xQS.js terverifikasi tidak mengandung content_hash:null, batch_id:null, atau source_key:null pada payload editor
 - Pekerjaan berikutnya: perbaiki useAsync dalam sesi khusus dengan tests refetch completion, overlapping request, stale response, dan unmount safety
 
+=== Sesi 22 (Race-Safe useAsync dan Scoped Read Lifecycle) ===
+- Audit menyeluruh menemukan 10 production consumer useAsync dan masalah utama: refetch mengembalikan cleanup function, overlap request saling menimpa, loading/error dapat diselesaikan request lama, manual refetch tidak terlindungi saat unmount
+- useAsync diperdalam tanpa mengubah interface publik { loading, error, refetch }; error tetap string dan event-handler argument tetap diabaikan aman
+- refetch sekarang Promise yang benar-benar menunggu operasi; latest execution wins melalui request generation + AbortController
+- Promise.race dengan abort sentinel memastikan refetch lama tetap settle meskipun callback/transport lama hang
+- Dependency cleanup, manual overlap, StrictMode discarded read, dan unmount membatalkan active signal tanpa menampilkan abort sebagai error pengguna
+- AbortSignal diteruskan ke seluruh read service terkait menggunakan Supabase .abortSignal(signal): categories, questions, bookmarks, quiz result/recent attempts, streaks, leaderboard, admin stats/activity
+- Seluruh consumer memeriksa signal sebelum menulis React state atau session cache; mutation create/update/delete tetap berada di luar read cancellation
+- Admin Categories/Questions await refetch sekarang benar-benar menunggu refresh list selesai
+- User-scoped progress/streak/bookmarks/bookmark count dikosongkan saat identity berubah; transport user lama dibatalkan
+- Bookmark memakai loaded scope ownership; klik sebelum scope siap reject agar optimistic UI rollback, dan mutation user lama tidak dapat mengubah/refetch list user baru setelah await
+- QuizResult membersihkan summary, answers, filter, challenge/share state ketika attempt route berubah; request attempt lama tidak dapat menimpa route baru
+- Menambahkan useAsync tests untuk awaitable refetch, overlapping latest-wins, hung superseded settlement, dependency/unmount abort, dan string error contract
+- Menambahkan useBookmarks ownership tests untuk loading-time rejection dan account switch selama pending mutation
+- Review independen dilakukan tiga putaran: blocker transport abort dan auth ownership ditemukan, diperbaiki, lalu final review menyatakan merge-ready tanpa blocker/high-risk regression
+- Verifikasi final: focused affected suite 29/29, full suite 44/44 saat dijalankan sendiri, lint 0 error (10 warning lama), service seam lulus, production build lulus, git diff --check lulus
+- Catatan test runner: menjalankan full suite paralel dengan lint/build pernah menyebabkan dua timeout UI 5 detik tanpa assertion failure; rerun npm test sendiri lulus 44/44
+- Commit cfeb9df (fix: make async reads race safe) sudah dipush ke main dan auto-deploy aktif
+- Live source maps: useAsync-bIEXAxw-.js memuat Promise.race + AbortController; useBookmarks-Cby6frsP.js memuat loadedScope dan operationScope post-await guard
+- Pekerjaan berikutnya sesuai roadmap: harden functions/api/delete-user.js (apikey headers, UUID validation, self-delete/last-admin governance, function tests, trusted audit)
+
 CURRENT STATE
 -------------
 - Semua 5 architecture candidate SELESAI
@@ -321,7 +342,7 @@ CURRENT STATE
 - Bank aktif berisi tepat 2.000 soal v2 published; setiap cell category+difficulty 111-112 soal
 - Quiz memakai snapshot server-side yang aman; mode non-retry tepat 20 soal dan retry 1-20 soal
 - Guard jumlah soal sudah aktif di live deployment pada commit c630fd8
-- HEAD aplikasi terbaru yang sudah live: 7acd52c
+- HEAD aplikasi terbaru yang sudah live: cfeb9df
 - Candidate 01 bookmark answer leak sudah ditutup pada database remote dan frontend locked-review sudah live
 - Open Graph/Twitter social preview sudah live untuk homepage dan public quiz share; gambar memakai public/social-preview.png
 
@@ -476,11 +497,12 @@ CONTEXT FOR CONTINUATION
 - Secure quiz session aktif di produksi: server snapshot, jawaban terkunci sebelum submit, cooldown 5 menit, submit idempotent
 - Bank aktif: 2.000 soal v2 published, source_key unik, 111-112 soal per category+difficulty
 - Kontrak jumlah soal: non-retry tepat 20; retry 1-20; client menolak payload yang tidak cocok dengan question_count
-- Commit aplikasi terbaru 7acd52c sudah di main, origin/main, dan live Cloudflare Pages
-- Unit suite terbaru 37/37 lulus; build production dan service seam lulus; lint tidak memiliki error
+- Commit aplikasi terbaru cfeb9df sudah di main, origin/main, dan live Cloudflare Pages
+- Unit suite terbaru 44/44 lulus; build production dan service seam lulus; lint tidak memiliki error
 - Artefak untracked .opencode/opencode-vision.json, Front Err/, dan stitch_website_redesign_project.zip tidak termasuk commit aplikasi
 - Candidate 01 status: complete melalui commit 64920d7; backend migration 009+010 remote, adversarial test 3/3, frontend/tests committed dan bundle live terverifikasi
 - Verification Candidate 01 lokal: full unit suite 31/31, focused 7/7, lint 0 error (10 warning lama), service seam lulus, build production lulus, db lint remote lulus
 - Quiz timer failure fix status: complete dan live melalui 5e7d67a; regression test fake timer termasuk dalam full suite 32/32
 - Social link preview status: complete dan live melalui d2fcb4a; static OG image + server-rendered /s/:token metadata, cache/revocation hardening, dan 3 function regression tests
 - Generated question provenance fix: complete dan live melalui 7acd52c; generator check 2.000/2.000 dan create/update payload regression tests lulus
+- Race-safe useAsync refactor: complete dan live melalui cfeb9df; 10 consumers scoped, Supabase reads abortable, auth/bookmark ownership races covered
