@@ -209,10 +209,35 @@ WORK COMPLETED
 - Commit c630fd8 sudah di-push ke main; local main sinkron dengan origin/main
 - Live https://lms-mrole.pages.dev sudah diverifikasi memuat quiz service chunk dengan guard terbaru aktif
 
+=== Sesi 17 (Candidate 01 Architecture Audit - Secure Bookmark Reviews) ===
+- Scope dipilih dari docs/architecture-review-2026-08-01.html: menutup answer leak melalui bookmark tanpa menghilangkan fitur bookmark saat quiz aktif
+- Root cause terkonfirmasi: policy questions_select_authorized memberi SELECT base questions kepada pemilik bookmark, sementara base row berisi correct_answer dan explanation
+- Menambahkan migration additive 202608010009_secure_bookmark_reviews.sql; migration lama tidak diubah
+- Policy questions_select_authorized baru hanya mengizinkan admin atau pengguna yang sudah memiliki quiz_answer dari attempt miliknya; cabang bookmark dihapus
+- Menambahkan SECURITY DEFINER RPC get_bookmark_reviews() dengan search_path terkunci dan EXECUTE hanya untuk authenticated
+- RPC mengembalikan prompt/stimulus/opsi bookmark, tetapi correct_answer dan explanation NULL sampai pengguna memiliki completed attempt untuk question tersebut
+- Quiz sekarang mengambil bookmark ID ringan saja; halaman BookmarkReview memakai RPC review khusus melalui useBookmarks({ review: true })
+- UI BookmarkReview menampilkan locked state dan tidak memberi highlight jawaban sebelum answer_available=true
+- Regression tests baru: src/services/bookmarks.test.js dan src/pages/BookmarkReview.test.jsx
+- Verifikasi checkpoint: focused tests 7/7, full suite 31/31, lint 0 error (10 warning lama), service seam lulus, production build lulus, git diff --check lulus
+- supabase db push --dry-run lulus dan hanya mendeteksi migration 202608010009 sebagai pending
+- Migration 202608010009 sudah diterapkan ke remote; remote sempat aman tetapi review independen menemukan completion lama masih dapat membuka jawaban ketika question yang sama muncul di sesi aktif baru
+- Blocker ditangani tanpa mengubah migration applied: migration baru 202608010010_block_active_bookmark_answers.sql menolak akses base question dan answer release jika question berada di sesi aktif pengguna
+- RPC revisi memakai correct_answer dari snapshot sesi submitted terbaru; current explanation masih fallback live karena snapshot saat ini belum menyimpan explanation
+- Migration 010 memakai index quiz_session_questions(question_id, session_id) yang sudah ada dan helper SECURITY DEFINER has_active_quiz_question() agar policy tidak membutuhkan grant SELECT ke snapshot table
+- Migration 202608010010 sudah diterapkan ke remote; supabase db push --dry-run sesudahnya menyatakan remote database up to date
+- Anonymous invocation untuk get_bookmark_reviews dan has_active_quiz_question sama-sama ditolak HTTP 401
+- Adversarial integration test dijalankan transaksional di remote dan seluruh fixture di-ROLLBACK: active_direct_answer_blocked=true, active_review_locked=true, submitted_snapshot_unlocked=true
+- supabase db lint --linked: No schema errors found
+- Catatan operasional: satu pemanggilan migration list terakhir gagal koneksi dan meminta SUPABASE_DB_PASSWORD, tetapi migration list sebelumnya menampilkan local/remote 202608010009 sinkron, migration 010 berhasil applied, dry-run sesudah push up to date, dan query integration terhadap fungsi 010 lulus
+- Candidate 01 di-commit sebagai 64920d7 (fix: secure bookmark answer reviews) dan dipush ke main
+- Cloudflare auto-deploy terverifikasi aktif: index-DZmSsTO3.js memuat BookmarkReview-CnkGcSVg.js dengan locked-state dan bookmarks-BjbiaLSw.js dengan get_bookmark_reviews
+- Candidate 01 selesai end-to-end pada database remote, repository, dan frontend live; residual verification hanya journey authenticated manual jika kredensial test tersedia
+
 CURRENT STATE
 -------------
 - Semua 5 architecture candidate SELESAI
-- Migration legacy 001-013 dan secure quiz migrations 202608010001-202608010008 tersedia; remote database sudah up to date
+- Migration legacy 001-013 dan secure quiz migrations 202608010001-202608010010 tersedia; remote database sudah up to date pada dry-run terakhir
 - AUTO-DEPLOY GitHub → Cloudflare Pages SUDAH AKTIF (workflow deploy.yml, run success) — tidak perlu wrangler manual lagi
 - Build produksi SUDAH diberi env vars VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY dari GitHub secrets (deploy.yml) — error Supabase di produksi hilang
 - SMTP Brevo AKTIF (gratis, 300 email/hari, kirim ke siapa pun): smtp-relay.brevo.com:587, sender Mr Ole <ardhisasongko71@gmail.com>. IP blocking SMTP deactivated
@@ -228,7 +253,8 @@ CURRENT STATE
 - Bank aktif berisi tepat 2.000 soal v2 published; setiap cell category+difficulty 111-112 soal
 - Quiz memakai snapshot server-side yang aman; mode non-retry tepat 20 soal dan retry 1-20 soal
 - Guard jumlah soal sudah aktif di live deployment pada commit c630fd8
-- HEAD local dan origin/main: c630fd8
+- HEAD aplikasi Candidate 01 yang sudah live: 64920d7
+- Candidate 01 bookmark answer leak sudah ditutup pada database remote dan frontend locked-review sudah live
 
 PENDING TASKS
 -------------
@@ -271,6 +297,8 @@ PENDING TASKS
 - ~~Secure server-side quiz sessions~~ ✅
 - ~~Bank soal v2 tepat 2.000 published~~ ✅
 - ~~Batas keras sesi non-retry 20 soal dan retry 1-20~~ ✅
+- ~~Candidate 01: tutup bookmark answer leak pada RLS/RPC remote~~ ✅
+- ~~Deploy frontend secure bookmark review dan verifikasi bundle live~~ ✅
 - Domain sendiri untuk sender produksi (noreply@domainmu.com) — belum, butuh dana
 - Jika laporan 250+ soal muncul lagi, ambil screenshot teks "Soal X dari Y", URL lengkap, dan response Network start_quiz_session untuk memastikan sumber browser
 - Workflow CI + Auto-Fix pernah merah hanya pada langkah pembuatan failure-report PR; build, Playwright, Lighthouse, dan deploy tetap berhasil
@@ -315,6 +343,8 @@ KEY FILES
 - supabase/migrations/202608010005_lock_down_question_answers.sql - Lockdown akses jawaban
 - supabase/migrations/202608010006_harden_quiz_session_submission.sql - Submit aman dan idempotent
 - supabase/migrations/202608010008_question_bank_2000_v2.sql - Bank soal aktif v2
+- supabase/migrations/202608010009_secure_bookmark_reviews.sql - Menghapus bookmark access dari base questions dan menambah controlled review RPC
+- supabase/migrations/202608010010_block_active_bookmark_answers.sql - Memblokir historical completion saat question aktif dan memakai submitted snapshot answer
 
 IMPORTANT DECISIONS
 -------------------
@@ -377,6 +407,8 @@ CONTEXT FOR CONTINUATION
 - Secure quiz session aktif di produksi: server snapshot, jawaban terkunci sebelum submit, cooldown 5 menit, submit idempotent
 - Bank aktif: 2.000 soal v2 published, source_key unik, 111-112 soal per category+difficulty
 - Kontrak jumlah soal: non-retry tepat 20; retry 1-20; client menolak payload yang tidak cocok dengan question_count
-- Commit terbaru c630fd8 sudah di main, origin/main, dan live Cloudflare Pages
-- Unit suite terbaru 27/27 lulus; build production dan service seam lulus; lint tidak memiliki error
+- Commit aplikasi terbaru 64920d7 sudah di main, origin/main, dan live Cloudflare Pages
+- Unit suite terbaru 31/31 lulus; build production dan service seam lulus; lint tidak memiliki error
 - Artefak untracked .opencode/opencode-vision.json, Front Err/, dan stitch_website_redesign_project.zip tidak termasuk commit aplikasi
+- Candidate 01 status: complete melalui commit 64920d7; backend migration 009+010 remote, adversarial test 3/3, frontend/tests committed dan bundle live terverifikasi
+- Verification Candidate 01 lokal: full unit suite 31/31, focused 7/7, lint 0 error (10 warning lama), service seam lulus, build production lulus, db lint remote lulus
