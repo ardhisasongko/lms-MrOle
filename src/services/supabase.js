@@ -1,8 +1,19 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+let supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+let supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const isDemo = import.meta.env.VITE_DEMO === 'true';
+
+if ((!supabaseUrl || !supabaseAnonKey) && !isDemo && typeof window !== 'undefined') {
+  try {
+    const response = await fetch('/api/config');
+    if (response.ok) {
+      ({ supabaseUrl, supabaseAnonKey } = await response.json());
+    }
+  } catch {
+    // The configuration check below provides the actionable error.
+  }
+}
 
 if (!supabaseUrl || !supabaseAnonKey) {
   if (isDemo) {
