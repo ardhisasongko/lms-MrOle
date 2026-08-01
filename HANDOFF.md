@@ -234,6 +234,17 @@ WORK COMPLETED
 - Cloudflare auto-deploy terverifikasi aktif: index-DZmSsTO3.js memuat BookmarkReview-CnkGcSVg.js dengan locked-state dan bookmarks-BjbiaLSw.js dengan get_bookmark_reviews
 - Candidate 01 selesai end-to-end pada database remote, repository, dan frontend live; residual verification hanya journey authenticated manual jika kredensial test tersedia
 
+=== Sesi 18 (Quiz Timer Tetap Berjalan Setelah Submit Gagal) ===
+- Memperbaiki bug timer yang berhenti permanen setelah submit manual gagal karena network/server error
+- Root cause pertama: handleSubmit selalu memanggil stopTimer() sebelum request selesai
+- Root cause tambahan ditemukan regression test: Button onClick={handleSubmit} meneruskan React click event sebagai argumen fromTimer, sehingga submit manual selalu dianggap auto-submit
+- Fix minimal: tombol manual memanggil handleSubmit() tanpa event; timer hanya dihentikan sebelum request untuk auto-submit fromTimer dan dihentikan setelah submit sukses
+- Jika submit manual gagal, interval tetap aktif; pada timed mode expiry tetap dapat memicu auto-submit/retry yang sudah ada
+- Menambahkan fake-timer regression test yang memulai pada 00:10, memaksa submit gagal, maju 2 detik, dan memastikan UI menjadi 00:12 tanpa duplicate submit
+- Verifikasi: focused Quiz tests 4/4, full suite 32/32, lint 0 error (10 warning lama), service seam lulus, git diff --check lulus, production build lulus
+- Commit 5e7d67a (fix: keep quiz timer running after submit failure) sudah dipush ke main dan auto-deploy aktif
+- Live source map Quiz-RRbk4gu9.js memuat manual submit wrapper, conditional fromTimer stop, dan stopTimer setelah submit sukses
+
 CURRENT STATE
 -------------
 - Semua 5 architecture candidate SELESAI
@@ -253,7 +264,7 @@ CURRENT STATE
 - Bank aktif berisi tepat 2.000 soal v2 published; setiap cell category+difficulty 111-112 soal
 - Quiz memakai snapshot server-side yang aman; mode non-retry tepat 20 soal dan retry 1-20 soal
 - Guard jumlah soal sudah aktif di live deployment pada commit c630fd8
-- HEAD aplikasi Candidate 01 yang sudah live: 64920d7
+- HEAD aplikasi terbaru yang sudah live: 5e7d67a
 - Candidate 01 bookmark answer leak sudah ditutup pada database remote dan frontend locked-review sudah live
 
 PENDING TASKS
@@ -407,8 +418,9 @@ CONTEXT FOR CONTINUATION
 - Secure quiz session aktif di produksi: server snapshot, jawaban terkunci sebelum submit, cooldown 5 menit, submit idempotent
 - Bank aktif: 2.000 soal v2 published, source_key unik, 111-112 soal per category+difficulty
 - Kontrak jumlah soal: non-retry tepat 20; retry 1-20; client menolak payload yang tidak cocok dengan question_count
-- Commit aplikasi terbaru 64920d7 sudah di main, origin/main, dan live Cloudflare Pages
-- Unit suite terbaru 31/31 lulus; build production dan service seam lulus; lint tidak memiliki error
+- Commit aplikasi terbaru 5e7d67a sudah di main, origin/main, dan live Cloudflare Pages
+- Unit suite terbaru 32/32 lulus; build production dan service seam lulus; lint tidak memiliki error
 - Artefak untracked .opencode/opencode-vision.json, Front Err/, dan stitch_website_redesign_project.zip tidak termasuk commit aplikasi
 - Candidate 01 status: complete melalui commit 64920d7; backend migration 009+010 remote, adversarial test 3/3, frontend/tests committed dan bundle live terverifikasi
 - Verification Candidate 01 lokal: full unit suite 31/31, focused 7/7, lint 0 error (10 warning lama), service seam lulus, build production lulus, db lint remote lulus
+- Quiz timer failure fix status: complete dan live melalui 5e7d67a; regression test fake timer termasuk dalam full suite 32/32
