@@ -245,6 +245,22 @@ WORK COMPLETED
 - Commit 5e7d67a (fix: keep quiz timer running after submit failure) sudah dipush ke main dan auto-deploy aktif
 - Live source map Quiz-RRbk4gu9.js memuat manual submit wrapper, conditional fromTimer stop, dan stopTimer setelah submit sukses
 
+=== Sesi 19 (Open Graph dan WhatsApp Link Preview, IN PROGRESS) ===
+- Tujuan: URL homepage dan public quiz share menampilkan gambar preview saat ditempel ke WhatsApp Status atau media sosial
+- Menambahkan Social Link Preview specification ke DESIGN.md
+- Menambahkan metadata statis canonical, Open Graph, Twitter Card, image dimensions/type/alt ke index.html
+- Membuat generator reproducible scripts/generate-social-preview.mjs dan npm script social:generate tanpa dependency baru
+- Menghasilkan public/social-preview.png: PNG RGB 1200x630, 245773 bytes, memakai visual soft structuralism Mr Ole dan safe area social crop
+- Menambahkan Cloudflare Pages Function functions/s/[token].js untuk mengganti metadata sebelum React dimuat; title/description mengikuti score, correct/total, category, dan display_name yang diizinkan snapshot share
+- Metadata database di-escape; token dibatasi format 22 karakter; Supabase RPC dibatasi timeout 2.5 detik; invalid/revoked/error memakai generic fallback
+- Halaman public share diberi noindex,nofollow agar nama/skor tidak masuk mesin pencari tetapi crawler sosial tetap dapat membaca OG metadata
+- Cache hardening: conditional asset headers dibuang, ETag/Last-Modified root asset tidak diteruskan, response metadata memakai max-age 300 + must-revalidate agar revocation tidak dilewati oleh 304 SPA asset
+- Menambahkan tests functions/s/[token].test.js untuk dynamic escaped metadata, generic invalid-token fallback, Twitter alt/robots, dan ETag regression
+- Cloudflare Pages runtime lokal terverifikasi: /s/invalid-token HTTP 200 dengan metadata dinamis dan /social-preview.png HTTP 200 image/png
+- Verifikasi checkpoint: related social tests 7/7 dan final function tests 3/3, full suite final 35/35, lint 0 error (10 warning lama), service seam lulus, production build lulus, git diff --check lulus
+- Review independen menemukan blocker ETag dan timeout; keduanya sudah diperbaiki sebelum commit
+- Pending: commit/push, tunggu auto-deploy, verifikasi homepage OG tags, PNG public, dan /s/:token generic metadata live; valid personalized token membutuhkan share aktif untuk smoke test
+
 CURRENT STATE
 -------------
 - Semua 5 architecture candidate SELESAI

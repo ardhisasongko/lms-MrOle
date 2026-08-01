@@ -133,6 +133,13 @@ All spacing derives from a base of **4px**.
 - **Format behavior**: Story is the initial format below the 768px breakpoint, Feed is the initial format on larger screens, and the most recent explicit choice is stored locally
 - **Accessibility**: focus trap, Escape close, restored focus, scroll lock, labelled dialog, and minimum 44px controls
 
+### Social Link Preview
+- **Canvas**: 1200x630 PNG using the light surface, salmon atmospheric glow, blue supporting glow, and green CTA accent from the core palette
+- **Composition**: brand promise on the left; tactile 20-question learning-session card on the right; all essential text remains inside a 64px safe area
+- **Metadata**: homepage uses static Open Graph and Twitter Card fields; public quiz links receive server-rendered title, description, canonical URL, and the same public image before React loads
+- **Delivery**: image is generated reproducibly by Playwright, publicly accessible without authentication, and kept below 1MB
+- **Constraint**: social crawlers must not depend on client-side metadata mutation
+
 ### Quiz Result Hero
 - **Structure**: score ring and contextual encouragement lead the page, followed by a three-cell correct/accuracy/duration insight bar and one full-width share CTA
 - **Progress states**: low scores use supportive salmon, medium scores use warning amber, and mastered scores use success green; red remains reserved for individual wrong answers

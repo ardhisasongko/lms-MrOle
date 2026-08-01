@@ -17,6 +17,7 @@
     "test:lighthouse": "lhci autorun",
     "questions:generate": "node scripts/generate-question-bank.mjs generate",
     "questions:check": "node scripts/generate-question-bank.mjs check",
+    "social:generate": "node scripts/generate-social-preview.mjs",
     "fix:auto": "node scripts/auto-fix.mjs"
   },
   "dependencies": {
