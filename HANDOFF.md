@@ -339,9 +339,10 @@ WORK COMPLETED
 - Verifikasi: focused 9/9, full suite 53/53 pada rerun, production build lulus, lint 0 error (10 warning lama), service seam lulus, remote db lint bersih, diff check lulus
 - Migration 202608020001 dan 202608020002 sudah aktif di database remote sebelum function deploy
 - Commit 6c32102 (fix: secure admin user deletion) sudah di main/origin; function code live terverifikasi melalui invalid UUID 400
-- Cloudflare production bindings SUPABASE_URL, SUPABASE_ANON_KEY, dan SUPABASE_SERVICE_ROLE_KEY ditambahkan manual; deployment baru diperlukan agar bindings terpasang
+- Cloudflare production bindings SUPABASE_URL, SUPABASE_ANON_KEY, dan SUPABASE_SERVICE_ROLE_KEY ditambahkan manual dan aktif setelah redeploy
 - Residual risk diterima: Storage cleanup dan database transaction tidak dapat atomic lintas layanan; final RPC tetap fail-closed untuk account/admin governance
-- Pekerjaan berikutnya: verifikasi deployment baru mengembalikan 401 untuk UUID valid tanpa token, lalu lanjutkan roadmap database constraints/admin transactions/read models
+- Live verification: invalid UUID menghasilkan 400 sebelum auth; UUID valid tanpa token menghasilkan 401 Unauthorized, membuktikan function baru dan runtime bindings aktif
+- Pekerjaan berikutnya: lanjutkan roadmap database constraints/admin transactions/read models
 
 CURRENT STATE
 -------------
@@ -526,4 +527,4 @@ CONTEXT FOR CONTINUATION
 - Social link preview status: complete dan live melalui d2fcb4a; static OG image + server-rendered /s/:token metadata, cache/revocation hardening, dan 3 function regression tests
 - Generated question provenance fix: complete dan live melalui 7acd52c; generator check 2.000/2.000 dan create/update payload regression tests lulus
 - Race-safe useAsync refactor: complete dan live melalui cfeb9df; 10 consumers scoped, Supabase reads abortable, auth/bookmark ownership races covered
-- Admin user deletion hardening: code live melalui 6c32102 dan migrations 202608020001-002 remote; menunggu redeploy sesudah Pages Function bindings ditambahkan
+- Admin user deletion hardening: complete dan live melalui 6c32102 + migrations 202608020001-002; Pages Function bindings aktif dan probe auth 401 lulus
