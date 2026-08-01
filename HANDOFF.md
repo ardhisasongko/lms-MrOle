@@ -289,6 +289,19 @@ WORK COMPLETED
 - Setelah provenance selesai, lakukan useAsync pada sesi khusus; jangan digabung karena useAsync memiliki leverage ke banyak halaman dan memerlukan concurrency/unmount tests
 - Residual social-preview verification: static/generic live sudah terbukti; personalized metadata memerlukan satu token share aktif. Jika WhatsApp menunjukkan preview lama, uji URL/token baru karena cache crawler
 
+=== Sesi 21 (Preserve Generated Question Provenance) ===
+- Memperbaiki admin question editor yang sebelumnya selalu mengirim content_hash=null, batch_id=null, batch_metadata={}, dan source_key=null pada create maupun update
+- Fix minimal: payload editor sekarang hanya berisi field yang memang dapat diedit; create manual memakai default database dan update generated tidak menyentuh provenance
+- Default database terverifikasi: content_hash/batch_id/source_key nullable dan batch_metadata default {}
+- Menambahkan src/pages/admin/Questions.test.jsx yang menguji payload create dan update aktual melalui interface CrudTable
+- Test update memakai fixture source key format generator english-bank:grammar:easy:001 dan memastikan empat field provenance tidak dikirim
+- Review independen: no blocking findings; satu temuan low tentang realism fixture diperbaiki sebelum final verification
+- npm run questions:check lulus: 2.000 valid questions, 2.000 unique content hashes, dan 2.000 unique source keys
+- Verifikasi: focused tests 2/2, full suite 37/37, lint 0 error (10 warning lama), service seam lulus, production build lulus, git diff --check lulus
+- Commit 7acd52c (fix: preserve generated question provenance) sudah dipush ke main dan auto-deploy aktif
+- Live source map Questions-ClL-5xQS.js terverifikasi tidak mengandung content_hash:null, batch_id:null, atau source_key:null pada payload editor
+- Pekerjaan berikutnya: perbaiki useAsync dalam sesi khusus dengan tests refetch completion, overlapping request, stale response, dan unmount safety
+
 CURRENT STATE
 -------------
 - Semua 5 architecture candidate SELESAI
@@ -308,7 +321,7 @@ CURRENT STATE
 - Bank aktif berisi tepat 2.000 soal v2 published; setiap cell category+difficulty 111-112 soal
 - Quiz memakai snapshot server-side yang aman; mode non-retry tepat 20 soal dan retry 1-20 soal
 - Guard jumlah soal sudah aktif di live deployment pada commit c630fd8
-- HEAD aplikasi terbaru yang sudah live: d2fcb4a
+- HEAD aplikasi terbaru yang sudah live: 7acd52c
 - Candidate 01 bookmark answer leak sudah ditutup pada database remote dan frontend locked-review sudah live
 - Open Graph/Twitter social preview sudah live untuk homepage dan public quiz share; gambar memakai public/social-preview.png
 
@@ -463,10 +476,11 @@ CONTEXT FOR CONTINUATION
 - Secure quiz session aktif di produksi: server snapshot, jawaban terkunci sebelum submit, cooldown 5 menit, submit idempotent
 - Bank aktif: 2.000 soal v2 published, source_key unik, 111-112 soal per category+difficulty
 - Kontrak jumlah soal: non-retry tepat 20; retry 1-20; client menolak payload yang tidak cocok dengan question_count
-- Commit aplikasi terbaru d2fcb4a sudah di main, origin/main, dan live Cloudflare Pages
-- Unit suite terbaru 35/35 lulus; build production dan service seam lulus; lint tidak memiliki error
+- Commit aplikasi terbaru 7acd52c sudah di main, origin/main, dan live Cloudflare Pages
+- Unit suite terbaru 37/37 lulus; build production dan service seam lulus; lint tidak memiliki error
 - Artefak untracked .opencode/opencode-vision.json, Front Err/, dan stitch_website_redesign_project.zip tidak termasuk commit aplikasi
 - Candidate 01 status: complete melalui commit 64920d7; backend migration 009+010 remote, adversarial test 3/3, frontend/tests committed dan bundle live terverifikasi
 - Verification Candidate 01 lokal: full unit suite 31/31, focused 7/7, lint 0 error (10 warning lama), service seam lulus, build production lulus, db lint remote lulus
 - Quiz timer failure fix status: complete dan live melalui 5e7d67a; regression test fake timer termasuk dalam full suite 32/32
 - Social link preview status: complete dan live melalui d2fcb4a; static OG image + server-rendered /s/:token metadata, cache/revocation hardening, dan 3 function regression tests
+- Generated question provenance fix: complete dan live melalui 7acd52c; generator check 2.000/2.000 dan create/update payload regression tests lulus
