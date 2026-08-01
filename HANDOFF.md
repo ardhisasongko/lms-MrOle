@@ -323,6 +323,26 @@ WORK COMPLETED
 - Live source maps: useAsync-bIEXAxw-.js memuat Promise.race + AbortController; useBookmarks-Cby6frsP.js memuat loadedScope dan operationScope post-await guard
 - Pekerjaan berikutnya sesuai roadmap: harden functions/api/delete-user.js (apikey headers, UUID validation, self-delete/last-admin governance, function tests, trusted audit)
 
+=== Sesi 23 (Atomic Admin User Deletion) ===
+- Audit endpoint menemukan auth/profile requests tanpa apikey, target tanpa UUID validation, self-delete dan last-admin deletion tidak dicegah, serta audit delete hanya fire-and-forget dari browser
+- Endpoint kini memvalidasi body/UUID, membedakan invalid credentials dari auth outage, menormalisasi UUID, mengirim anon apikey saat validasi token, dan menyimpan service-role key hanya di Pages Function
+- Self-delete ditolak dan seluruh authorization target diulang di database berdasarkan actor JWT yang tervalidasi
+- Migration remote 202608020001 membuat delete_user_as_admin service-role-only: advisory lock, actor admin recheck, last-admin guard, trusted audit insert, dan DELETE auth.users berada dalam satu transaksi
+- Migration remote 202608020002 menambah statement-level advisory lock untuk menghindari lock inversion serta menjaga invariant last-admin pada role demotion concurrent
+- prepare_user_deletion service-role-only mengotorisasi actor/target dan mengembalikan seluruh storage.objects milik target sebelum deletion
+- Endpoint membersihkan owned Storage objects melalui Storage API resmi per bucket dalam batch 100, kemudian atomic RPC mengulang governance sebelum delete
+- admin_logs tidak lagi cascade-delete saat actor dihapus; actor_id dibackfill/disimpan dalam details untuk audit attribution yang durable
+- Client-side logAdmin delete dihapus agar tidak ada audit duplikat/non-atomic
+- FULL_SCHEMA.sql baseline 001-007 yang obsolete dipensiunkan fail-fast; setup baru wajib memakai seluruh versioned migrations
+- Menambahkan 9 function tests: malformed/invalid UUID, anon apikey, self-delete, trusted RPC auth, last-admin mapping, UUID normalization, storage cleanup, atomic RPC contract, sanitized failures
+- Tiga putaran independent security review menutup authorization bypass, concurrent admin race, audit durability, lock inversion, dan avatar-owner deletion; final review merge-ready tanpa blocker/high-risk regression
+- Verifikasi: focused 9/9, full suite 53/53 pada rerun, production build lulus, lint 0 error (10 warning lama), service seam lulus, remote db lint bersih, diff check lulus
+- Migration 202608020001 dan 202608020002 sudah aktif di database remote sebelum function deploy
+- Commit 6c32102 (fix: secure admin user deletion) sudah di main/origin; function code live terverifikasi melalui invalid UUID 400
+- Cloudflare production bindings SUPABASE_URL, SUPABASE_ANON_KEY, dan SUPABASE_SERVICE_ROLE_KEY ditambahkan manual; deployment baru diperlukan agar bindings terpasang
+- Residual risk diterima: Storage cleanup dan database transaction tidak dapat atomic lintas layanan; final RPC tetap fail-closed untuk account/admin governance
+- Pekerjaan berikutnya: verifikasi deployment baru mengembalikan 401 untuk UUID valid tanpa token, lalu lanjutkan roadmap database constraints/admin transactions/read models
+
 CURRENT STATE
 -------------
 - Semua 5 architecture candidate SELESAI
@@ -342,7 +362,7 @@ CURRENT STATE
 - Bank aktif berisi tepat 2.000 soal v2 published; setiap cell category+difficulty 111-112 soal
 - Quiz memakai snapshot server-side yang aman; mode non-retry tepat 20 soal dan retry 1-20 soal
 - Guard jumlah soal sudah aktif di live deployment pada commit c630fd8
-- HEAD aplikasi terbaru yang sudah live: cfeb9df
+- HEAD aplikasi terbaru yang sudah live: 6c32102
 - Candidate 01 bookmark answer leak sudah ditutup pada database remote dan frontend locked-review sudah live
 - Open Graph/Twitter social preview sudah live untuk homepage dan public quiz share; gambar memakai public/social-preview.png
 
@@ -497,8 +517,8 @@ CONTEXT FOR CONTINUATION
 - Secure quiz session aktif di produksi: server snapshot, jawaban terkunci sebelum submit, cooldown 5 menit, submit idempotent
 - Bank aktif: 2.000 soal v2 published, source_key unik, 111-112 soal per category+difficulty
 - Kontrak jumlah soal: non-retry tepat 20; retry 1-20; client menolak payload yang tidak cocok dengan question_count
-- Commit aplikasi terbaru cfeb9df sudah di main, origin/main, dan live Cloudflare Pages
-- Unit suite terbaru 44/44 lulus; build production dan service seam lulus; lint tidak memiliki error
+- Commit aplikasi terbaru 6c32102 sudah di main, origin/main, dan live Cloudflare Pages
+- Unit suite terbaru 53/53 lulus pada rerun; build production dan service seam lulus; lint tidak memiliki error
 - Artefak untracked .opencode/opencode-vision.json, Front Err/, dan stitch_website_redesign_project.zip tidak termasuk commit aplikasi
 - Candidate 01 status: complete melalui commit 64920d7; backend migration 009+010 remote, adversarial test 3/3, frontend/tests committed dan bundle live terverifikasi
 - Verification Candidate 01 lokal: full unit suite 31/31, focused 7/7, lint 0 error (10 warning lama), service seam lulus, build production lulus, db lint remote lulus
@@ -506,3 +526,4 @@ CONTEXT FOR CONTINUATION
 - Social link preview status: complete dan live melalui d2fcb4a; static OG image + server-rendered /s/:token metadata, cache/revocation hardening, dan 3 function regression tests
 - Generated question provenance fix: complete dan live melalui 7acd52c; generator check 2.000/2.000 dan create/update payload regression tests lulus
 - Race-safe useAsync refactor: complete dan live melalui cfeb9df; 10 consumers scoped, Supabase reads abortable, auth/bookmark ownership races covered
+- Admin user deletion hardening: code live melalui 6c32102 dan migrations 202608020001-002 remote; menunggu redeploy sesudah Pages Function bindings ditambahkan
