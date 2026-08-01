@@ -263,6 +263,32 @@ WORK COMPLETED
 - Verifikasi live: homepage mengandung og:image absolut; /s/invalid-token mengandung generic server-rendered metadata + noindex dan header X-Social-Preview=generic; /social-preview.png HTTP 200 image/png 245773 bytes
 - Fitur selesai untuk static image preview dan dynamic title/description. Personalized smoke test masih membutuhkan satu token share aktif; WhatsApp dapat mempertahankan cache preview lama sehingga URL/token baru disarankan saat pengujian
 
+=== Sesi 20 (Architecture Roadmap Continuation Checkpoint) ===
+- Tidak ada perubahan aplikasi pada sesi perencanaan ini; checkpoint dibuat agar agent berikutnya dapat langsung melanjutkan tanpa audit ulang
+- Pekerjaan arsitektur yang sudah selesai dan live:
+  1. Secure server-side quiz sessions + bank 2.000 soal: 15d5667
+  2. Guard jumlah soal non-retry 20 dan retry 1-20: c630fd8
+  3. Candidate 01 bookmark answer leak: 64920d7, migration 202608010009 + 202608010010 remote
+  4. Quiz timer tetap berjalan setelah submit manual gagal: 5e7d67a
+  5. Open Graph/WhatsApp social preview: d2fcb4a; rollout dicatat di 9d9c056
+- Verification baseline terbaru: unit tests 35/35, production build lulus, lint 0 error (10 warning lama), service seam lulus
+- Estimasi program arsitektur tersisa: sekitar 16-27 hari engineer, dikerjakan bertahap dan tidak sebagai satu rewrite besar
+- Urutan pekerjaan tersisa yang disetujui untuk dibahas/dikerjakan:
+  1. Pertahankan provenance soal saat admin mengedit (0.5-1 hari, risiko rendah)
+  2. Perbaiki kontrak/refetch/race condition useAsync (1.5-2.5 hari, risiko menengah karena banyak consumer)
+  3. Perbaiki delete-user Cloudflare Function (0.5-1.5 hari, risiko menengah)
+  4. Jadikan migration satu-satunya schema authority dan pisahkan legacy seed (2-4 hari)
+  5. Tambahkan database constraints inti secara additive + data profiling (3-5 hari)
+  6. Jadikan admin mutation dan audit transaksional (4-7 hari)
+  7. Bentuk server-owned learner summary/history read models (5-8 hari)
+  8. Perkeras AI quota dan avatar storage policies (3-5 hari)
+  9. Jadikan unit/lint/service-seam/migration replay/RLS/E2E sebagai release gate (4-7 hari)
+- NEXT ACTION yang direkomendasikan: provenance soal admin
+- Root cause provenance: prepareQuestion() di src/pages/admin/Questions.jsx selalu mengirim content_hash=null, batch_id=null, batch_metadata={}, dan source_key=null untuk create maupun update; edit soal generated menghapus identitas sumber
+- Rencana provenance: pisahkan payload create/update, update biasa tidak mengirim field provenance, tambah regression test, jalankan questions:check + full tests/build, update handoff/report, commit/push, verifikasi live
+- Setelah provenance selesai, lakukan useAsync pada sesi khusus; jangan digabung karena useAsync memiliki leverage ke banyak halaman dan memerlukan concurrency/unmount tests
+- Residual social-preview verification: static/generic live sudah terbukti; personalized metadata memerlukan satu token share aktif. Jika WhatsApp menunjukkan preview lama, uji URL/token baru karena cache crawler
+
 CURRENT STATE
 -------------
 - Semua 5 architecture candidate SELESAI
