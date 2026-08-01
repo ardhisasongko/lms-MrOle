@@ -5,6 +5,22 @@ import QRCode from 'qrcode';
 import toast from 'react-hot-toast';
 import AchievementCard from './AchievementCard';
 
+const FORMAT_STORAGE_KEY = 'mr-ole-share-format';
+const FORMAT_CONFIG = {
+  feed: { width: 360, height: 450, outputWidth: 1080, outputHeight: 1350 },
+  story: { width: 360, height: 640, outputWidth: 1080, outputHeight: 1920 },
+};
+
+function getInitialFormat() {
+  try {
+    const savedFormat = window.localStorage.getItem(FORMAT_STORAGE_KEY);
+    if (FORMAT_CONFIG[savedFormat]) return savedFormat;
+  } catch {
+    // Storage can be unavailable in private browsing contexts.
+  }
+  return window.matchMedia?.('(max-width: 767px)').matches ? 'story' : 'feed';
+}
+
 function downloadBlob(blob, filename) {
   const objectUrl = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -34,7 +50,9 @@ export default function ShareResultModal({
   const [qrDataUrl, setQrDataUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [confirmRevoke, setConfirmRevoke] = useState(false);
+  const [format, setFormat] = useState(getInitialFormat);
   const shareUrl = share.url || '';
+  const formatConfig = FORMAT_CONFIG[format];
 
   useEffect(() => {
     if (!open || !shareUrl) {
@@ -44,9 +62,9 @@ export default function ShareResultModal({
 
     let cancelled = false;
     QRCode.toDataURL(shareUrl, {
-      errorCorrectionLevel: 'M',
+      errorCorrectionLevel: 'H',
       margin: 2,
-      width: 240,
+      width: 320,
       color: { dark: '#1A1D26', light: '#FFFFFF' },
     })
       .then((dataUrl) => {
@@ -63,7 +81,15 @@ export default function ShareResultModal({
     blobRef.current = null;
     generationRef.current = null;
     setConfirmRevoke(false);
-  }, [qrDataUrl, share]);
+  }, [format, qrDataUrl, share]);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(FORMAT_STORAGE_KEY, format);
+    } catch {
+      // The selected format still works for the current session.
+    }
+  }, [format]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -114,13 +140,13 @@ export default function ShareResultModal({
       const { default: html2canvas } = await import('html2canvas');
       const canvas = await html2canvas(exportRef.current, {
         backgroundColor: null,
-        width: 360,
-        height: 450,
+        width: formatConfig.width,
+        height: formatConfig.height,
         scale: 3,
         useCORS: true,
         logging: false,
       });
-      if (canvas.width !== 1080 || canvas.height !== 1350) {
+      if (canvas.width !== formatConfig.outputWidth || canvas.height !== formatConfig.outputHeight) {
         throw new Error(t('share.modal.error.invalidImageSize'));
       }
       const blob = await new Promise((resolve, reject) => {
@@ -138,7 +164,8 @@ export default function ShareResultModal({
     }
   };
 
-  const filename = t('share.modal.filename', { score: Math.round(Number(share.score) || 0) });
+  const score = Math.round(Number(share.score) || 0);
+  const filename = t('share.modal.filename', { score, format });
 
   const handleDownload = async () => {
     try {
@@ -159,7 +186,7 @@ export default function ShareResultModal({
       if (navigator.share && navigator.canShare?.({ files })) {
         await navigator.share({
           title: t('share.modal.native.title'),
-          text: t('share.modal.native.text'),
+          text: t(`share.modal.native.text.${score >= 80 ? 'high' : score >= 50 ? 'medium' : 'low'}`),
           url: shareUrl || undefined,
           files,
         });
@@ -229,11 +256,37 @@ export default function ShareResultModal({
         </div>
 
         <div className="mt-5 grid items-center gap-5 md:grid-cols-[minmax(0,360px)_1fr] md:gap-8">
-          <div className="mx-auto w-full max-w-[360px] overflow-hidden rounded-3xl shadow-clay-xl ring-1 ring-black/5">
-            <AchievementCard share={share} shareUrl={shareUrl} qrDataUrl={qrDataUrl} />
+          <div className={`mx-auto overflow-hidden rounded-3xl shadow-clay-xl ring-1 ring-black/5 ${format === 'story' ? 'h-[480px] w-[270px]' : 'w-full max-w-[360px]'}`}>
+            {format === 'story' ? (
+              <div className="h-[640px] w-[360px] origin-top-left scale-75">
+                <AchievementCard share={share} shareUrl={shareUrl} qrDataUrl={qrDataUrl} format="story" className="h-full" />
+              </div>
+            ) : (
+              <AchievementCard share={share} shareUrl={shareUrl} qrDataUrl={qrDataUrl} />
+            )}
           </div>
 
           <div className="space-y-3">
+            <fieldset>
+              <legend className="mb-2 text-xs font-semibold uppercase tracking-[0.06em] text-gray-500 dark:text-gray-400">
+                {t('share.modal.formatLabel')}
+              </legend>
+              <div className="grid grid-cols-2 rounded-xl bg-gray-100 p-1 dark:bg-gray-900/60">
+                {['feed', 'story'].map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    aria-pressed={format === option}
+                    disabled={loading}
+                    onClick={() => setFormat(option)}
+                    className={`min-h-[44px] rounded-lg px-3 py-2 text-sm font-semibold transition-all duration-200 ease-spring active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 disabled:cursor-not-allowed disabled:opacity-50 ${format === option ? 'bg-white text-gray-900 shadow-clay dark:bg-gray-700 dark:text-white' : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200'}`}
+                  >
+                    <span className="block">{t(`share.modal.format.${option}`)}</span>
+                    <span className="block text-[0.6875rem] font-medium text-gray-400">{t(`share.modal.format.${option}Size`)}</span>
+                  </button>
+                ))}
+              </div>
+            </fieldset>
             <label className="flex min-h-[44px] cursor-pointer items-center justify-between gap-4 rounded-xl border border-black/[0.08] px-4 py-2.5 text-sm text-gray-700 dark:border-white/[0.12] dark:text-gray-200">
               <span>
                 <span className="block font-semibold">{t('share.modal.showFirstName')}</span>
@@ -275,7 +328,7 @@ export default function ShareResultModal({
               {t('share.modal.downloadPng')}
             </button>
             <p className="text-center text-xs leading-relaxed text-gray-400 dark:text-gray-500">
-              {t('share.modal.pngHint')}
+              {t(`share.modal.pngHint.${format}`)}
             </p>
             {onRevoke && (
               <div className="border-t border-black/[0.06] pt-3 dark:border-white/[0.08]">
@@ -317,13 +370,14 @@ export default function ShareResultModal({
         </div>
       </div>
 
-      <div className="pointer-events-none fixed left-[-10000px] top-0 h-[450px] w-[360px]" aria-hidden="true">
+      <div className={`pointer-events-none fixed left-[-10000px] top-0 w-[360px] ${format === 'story' ? 'h-[640px]' : 'h-[450px]'}`} aria-hidden="true">
         <AchievementCard
           ref={exportRef}
           share={share}
           shareUrl={shareUrl}
           qrDataUrl={qrDataUrl}
-          className="h-[450px] w-[360px]"
+          format={format}
+          className={format === 'story' ? 'h-[640px] w-[360px]' : 'h-[450px] w-[360px]'}
         />
       </div>
     </div>

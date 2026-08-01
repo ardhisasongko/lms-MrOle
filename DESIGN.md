@@ -121,13 +121,16 @@ All spacing derives from a base of **4px**.
 - **Structure**: animate-pulse rounded-xl bg-gray-200 dark:bg-gray-700
 
 ### Achievement Share Card
-- **Structure**: fixed 4:5 canvas with atmospheric primary/secondary/lavender gradient, verified score focal point, compact result metadata, green challenge CTA, and high-contrast QR quiet zone
-- **Export**: canonical 1080x1350 PNG generated on demand; responsive preview reuses the same component
+- **Structure**: two fixed-canvas variants sharing the atmospheric primary/secondary/lavender gradient, verified score focal point, compact result metadata, green challenge CTA, and high-contrast QR quiet zone
+- **Feed variant**: 4:5 composition for social feeds with the score, two-column metadata, CTA, and compact QR
+- **Story variant**: 9:16 composition for WhatsApp and Instagram stories; content stays inside 168px top and 144px bottom export safe areas, the QR renders at least 288px in the exported image, and score-aware copy frames low scores as completed practice, medium scores as progress, and high scores as mastery
+- **Export**: canonical 1080x1350 Feed PNG or 1080x1920 Story PNG generated on demand; responsive previews reuse the same component without letterboxing
 - **Privacy**: first-name display is opt-in per share, answers and account identifiers never appear, and every public token is revocable
 - **States**: preparing, preview, native share, download fallback, copied, and revoked
 
 ### Share Result Modal
-- **Structure**: bottom sheet on mobile and centered dialog on desktop, with achievement preview and three primary actions: share image, copy link, and download PNG
+- **Structure**: bottom sheet on mobile and centered dialog on desktop, with a Feed/Story segmented format control, achievement preview, and three primary actions: share image, copy link, and download PNG
+- **Format behavior**: Story is the initial format below the 768px breakpoint, Feed is the initial format on larger screens, and the most recent explicit choice is stored locally
 - **Accessibility**: focus trap, Escape close, restored focus, scroll lock, labelled dialog, and minimum 44px controls
 
 ### Quiz Result Hero
