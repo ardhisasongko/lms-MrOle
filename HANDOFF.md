@@ -245,7 +245,7 @@ WORK COMPLETED
 - Commit 5e7d67a (fix: keep quiz timer running after submit failure) sudah dipush ke main dan auto-deploy aktif
 - Live source map Quiz-RRbk4gu9.js memuat manual submit wrapper, conditional fromTimer stop, dan stopTimer setelah submit sukses
 
-=== Sesi 19 (Open Graph dan WhatsApp Link Preview, IN PROGRESS) ===
+=== Sesi 19 (Open Graph dan WhatsApp Link Preview) ===
 - Tujuan: URL homepage dan public quiz share menampilkan gambar preview saat ditempel ke WhatsApp Status atau media sosial
 - Menambahkan Social Link Preview specification ke DESIGN.md
 - Menambahkan metadata statis canonical, Open Graph, Twitter Card, image dimensions/type/alt ke index.html
@@ -259,7 +259,9 @@ WORK COMPLETED
 - Cloudflare Pages runtime lokal terverifikasi: /s/invalid-token HTTP 200 dengan metadata dinamis dan /social-preview.png HTTP 200 image/png
 - Verifikasi checkpoint: related social tests 7/7 dan final function tests 3/3, full suite final 35/35, lint 0 error (10 warning lama), service seam lulus, production build lulus, git diff --check lulus
 - Review independen menemukan blocker ETag dan timeout; keduanya sudah diperbaiki sebelum commit
-- Pending: commit/push, tunggu auto-deploy, verifikasi homepage OG tags, PNG public, dan /s/:token generic metadata live; valid personalized token membutuhkan share aktif untuk smoke test
+- Commit d2fcb4a (feat: add social link previews) sudah dipush ke main dan auto-deploy aktif
+- Verifikasi live: homepage mengandung og:image absolut; /s/invalid-token mengandung generic server-rendered metadata + noindex dan header X-Social-Preview=generic; /social-preview.png HTTP 200 image/png 245773 bytes
+- Fitur selesai untuk static image preview dan dynamic title/description. Personalized smoke test masih membutuhkan satu token share aktif; WhatsApp dapat mempertahankan cache preview lama sehingga URL/token baru disarankan saat pengujian
 
 CURRENT STATE
 -------------
@@ -280,8 +282,9 @@ CURRENT STATE
 - Bank aktif berisi tepat 2.000 soal v2 published; setiap cell category+difficulty 111-112 soal
 - Quiz memakai snapshot server-side yang aman; mode non-retry tepat 20 soal dan retry 1-20 soal
 - Guard jumlah soal sudah aktif di live deployment pada commit c630fd8
-- HEAD aplikasi terbaru yang sudah live: 5e7d67a
+- HEAD aplikasi terbaru yang sudah live: d2fcb4a
 - Candidate 01 bookmark answer leak sudah ditutup pada database remote dan frontend locked-review sudah live
+- Open Graph/Twitter social preview sudah live untuk homepage dan public quiz share; gambar memakai public/social-preview.png
 
 PENDING TASKS
 -------------
@@ -434,9 +437,10 @@ CONTEXT FOR CONTINUATION
 - Secure quiz session aktif di produksi: server snapshot, jawaban terkunci sebelum submit, cooldown 5 menit, submit idempotent
 - Bank aktif: 2.000 soal v2 published, source_key unik, 111-112 soal per category+difficulty
 - Kontrak jumlah soal: non-retry tepat 20; retry 1-20; client menolak payload yang tidak cocok dengan question_count
-- Commit aplikasi terbaru 5e7d67a sudah di main, origin/main, dan live Cloudflare Pages
-- Unit suite terbaru 32/32 lulus; build production dan service seam lulus; lint tidak memiliki error
+- Commit aplikasi terbaru d2fcb4a sudah di main, origin/main, dan live Cloudflare Pages
+- Unit suite terbaru 35/35 lulus; build production dan service seam lulus; lint tidak memiliki error
 - Artefak untracked .opencode/opencode-vision.json, Front Err/, dan stitch_website_redesign_project.zip tidak termasuk commit aplikasi
 - Candidate 01 status: complete melalui commit 64920d7; backend migration 009+010 remote, adversarial test 3/3, frontend/tests committed dan bundle live terverifikasi
 - Verification Candidate 01 lokal: full unit suite 31/31, focused 7/7, lint 0 error (10 warning lama), service seam lulus, build production lulus, db lint remote lulus
 - Quiz timer failure fix status: complete dan live melalui 5e7d67a; regression test fake timer termasuk dalam full suite 32/32
+- Social link preview status: complete dan live melalui d2fcb4a; static OG image + server-rendered /s/:token metadata, cache/revocation hardening, dan 3 function regression tests
