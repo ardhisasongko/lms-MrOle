@@ -9,9 +9,10 @@ export default defineConfig({
     },
   },
   resolve: {
-    alias: {
-      '@': '/src',
-    },
+    alias: [
+      { find: /^@phosphor-icons\/react$/, replacement: '/src/icons.js' },
+      { find: '@', replacement: '/src' },
+    ],
   },
   build: {
     target: 'esnext',

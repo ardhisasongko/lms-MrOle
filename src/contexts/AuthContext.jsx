@@ -56,7 +56,7 @@ export function AuthProvider({ children }) {
     if (error) throw error;
   }, []);
 
-  const register = useCallback(async (email, password, fullName) => {
+  const register = useCallback(async (email, password, fullName, emailRedirectTo) => {
     if (IS_DEMO) {
       const demoUser = { id: 'demo-user-id', email, user_metadata: { full_name: fullName } };
       sessionStorage.setItem('demo_user', JSON.stringify(demoUser));
@@ -66,7 +66,10 @@ export function AuthProvider({ children }) {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName } },
+      options: {
+        data: { full_name: fullName },
+        ...(emailRedirectTo ? { emailRedirectTo } : {}),
+      },
     });
     if (error) throw error;
   }, []);

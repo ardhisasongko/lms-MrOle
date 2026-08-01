@@ -1,32 +1,38 @@
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Translate } from '@phosphor-icons/react';
 
-const LanguageSwitcher = memo(function LanguageSwitcher({ isMobile }) {
-  const { i18n } = useTranslation();
+const languages = ['id', 'en'];
 
-  const toggle = () => {
-    const next = i18n.language === 'id' ? 'en' : 'id';
-    i18n.changeLanguage(next);
-    localStorage.setItem('mr-ole-lang', next);
-  };
-
-  const base = 'flex items-center gap-2 rounded-lg transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900';
-
-  if (isMobile) {
-    return (
-      <button onClick={toggle} className={`${base} w-full px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300`}>
-        <Translate className="w-4 h-4" />
-        {i18n.language === 'id' ? 'English' : 'Indonesia'}
-      </button>
-    );
-  }
+const LanguageSwitcher = memo(function LanguageSwitcher() {
+  const { t, i18n } = useTranslation();
+  const currentLanguage = i18n.resolvedLanguage?.startsWith('en') ? 'en' : 'id';
 
   return (
-    <button onClick={toggle} className={`${base} px-3 py-1.5 text-xs font-medium border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300`}>
-      <Translate className="w-3.5 h-3.5" />
-      {i18n.language === 'id' ? 'EN' : 'ID'}
-    </button>
+    <div
+      role="group"
+      aria-label={t('nav.language')}
+      className="flex rounded-xl bg-black/[0.04] ring-1 ring-black/[0.04] dark:bg-white/[0.06] dark:ring-white/[0.06]"
+    >
+      {languages.map((language) => {
+        const active = currentLanguage === language;
+        return (
+          <button
+            key={language}
+            type="button"
+            onClick={() => i18n.changeLanguage(language)}
+            aria-label={t(`nav.language.${language}`)}
+            aria-pressed={active}
+            className={`h-11 min-h-[44px] min-w-[44px] rounded-xl px-2 text-xs font-semibold transition-all duration-150 ease-spring focus-visible:ring-2 focus-visible:ring-primary-500 ${
+              active
+                ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-white'
+                : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
+            }`}
+          >
+            {language.toUpperCase()}
+          </button>
+        );
+      })}
+    </div>
   );
 });
 

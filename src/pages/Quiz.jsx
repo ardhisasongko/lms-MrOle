@@ -46,6 +46,7 @@ export default function Quiz() {
   const effectiveCategoryId = retryQuestions ? retryMeta?.categoryId : categoryId;
   const effectiveDifficulty = retryQuestions ? retryMeta?.difficulty : difficulty;
   const timedMode = searchParams.get('timed') === 'true';
+  const challengeToken = searchParams.get('challenge');
   const [timeLeft, setTimeLeft] = useState(timedMode ? 300 : null);
   const { questions: fetchedQuestions, loading, error } = useQuestions(
     retryQuestions ? null : categoryId,
@@ -175,13 +176,18 @@ export default function Quiz() {
       });
       saveDailyProgress({ answered: questions.length, correct: result?.correct || 0 });
       if (!result?.attemptId) throw new Error('Gagal mendapatkan hasil');
-      navigate(`/practice/${result.attemptId}/result`, {
+      const resultQuery = challengeToken
+        ? `?challenge=${encodeURIComponent(challengeToken)}`
+        : '';
+      navigate(`/practice/${result.attemptId}/result${resultQuery}`, {
         state: {
           ...result,
           categoryId: effectiveCategoryId || categoryId,
           difficulty: effectiveDifficulty || difficulty,
           isAdaptive,
           timed: timedMode,
+          durationSeconds: timedMode ? 300 - (timeLeft ?? 300) : elapsed,
+          challengeToken,
         },
       });
     } catch (err) {
@@ -189,7 +195,7 @@ export default function Quiz() {
     } finally {
       setConfirmSubmit(false);
     }
-  }, [questions, answers, categoryId, difficulty, isAdaptive, retryQuestions, effectiveCategoryId, effectiveDifficulty, timedMode, stopTimer, submitQuiz, navigate]);
+  }, [questions, answers, categoryId, difficulty, isAdaptive, retryQuestions, effectiveCategoryId, effectiveDifficulty, timedMode, timeLeft, elapsed, challengeToken, stopTimer, submitQuiz, navigate]);
 
   // Keyboard shortcuts effect deps: add handleNext for stable closure
   useEffect(() => {

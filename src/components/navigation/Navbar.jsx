@@ -14,9 +14,9 @@ const Navbar = memo(function Navbar({ user, onLogout }) {
   const { isAdmin } = useAdmin();
 
   return (
-    <nav className="sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 px-5 backdrop-blur-xl bg-white/20 dark:bg-gray-950/40">
+    <nav className="fixed inset-x-0 top-0 z-50 safe-area-top px-4 pointer-events-none">
+      <div className="max-w-7xl mx-auto pointer-events-auto">
+        <div className="flex items-center justify-between h-16 px-3 sm:px-5 rounded-2xl border border-white/20 dark:border-white/10 bg-white/70 dark:bg-gray-900/70 shadow-clay backdrop-blur-xl">
           <Link to="/" className="flex items-center gap-2 text-xl font-bold text-primary-500">
             <GraduationCap className="w-7 h-7" weight="fill" />
             <span>Mr Ole</span>
@@ -26,8 +26,9 @@ const Navbar = memo(function Navbar({ user, onLogout }) {
             <LanguageSwitcher />
             <button
               onClick={toggle}
-              aria-label={isDark ? 'Aktifkan mode terang' : 'Aktifkan mode gelap'}
-              className="p-2 rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring"
+              aria-label={isDark ? t('nav.lightMode') : t('nav.darkMode')}
+              aria-pressed={isDark}
+              className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring active:scale-[0.98]"
             >
               {isDark ? <Sun className="w-5 h-5 text-gray-400" weight="regular" /> : <Moon className="w-5 h-5 text-gray-600" weight="regular" />}
             </button>
@@ -77,8 +78,9 @@ const Navbar = memo(function Navbar({ user, onLogout }) {
             <LanguageSwitcher />
             <button
               onClick={toggle}
-              aria-label={isDark ? 'Aktifkan mode terang' : 'Aktifkan mode gelap'}
-              className="p-2 rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring"
+              aria-label={isDark ? t('nav.lightMode') : t('nav.darkMode')}
+              aria-pressed={isDark}
+              className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring active:scale-[0.98]"
             >
               {isDark ? <Sun className="w-5 h-5 text-gray-400" weight="regular" /> : <Moon className="w-5 h-5 text-gray-600" weight="regular" />}
             </button>
@@ -86,7 +88,7 @@ const Navbar = memo(function Navbar({ user, onLogout }) {
               <button
                 onClick={() => setIsOpen(!isOpen)}
                 aria-label={isOpen ? 'Tutup menu' : 'Buka menu'}
-                className="relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring"
+                className="relative w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring active:scale-[0.98]"
               >
                 <div className="relative w-5 h-5">
                   <span className={`absolute block w-5 h-px bg-gray-600 dark:bg-gray-400 transition-all duration-300 ease-spring ${isOpen ? 'top-1/2 rotate-45' : 'top-1'}`} />

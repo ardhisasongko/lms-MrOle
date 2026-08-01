@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Eye, EyeSlash, UserPlus } from '@phosphor-icons/react';
 import { useAuth } from '../contexts/AuthContext';
 import Button from '../components/common/Button';
@@ -9,6 +9,7 @@ import { handleError } from '../utils/errors';
 
 export default function Register() {
   const { register } = useAuth();
+  const [searchParams] = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ fullName: '', email: '', password: '', confirmPassword: '' });
@@ -29,7 +30,13 @@ export default function Register() {
     }
     setLoading(true);
     try {
-      await register(form.email, form.password, form.fullName);
+      const requestedNext = searchParams.get('next');
+      const next = requestedNext?.startsWith('/') && !requestedNext.startsWith('//')
+        ? requestedNext
+        : '';
+      const verifyUrl = new URL('/verify', window.location.origin);
+      if (next) verifyUrl.searchParams.set('next', next);
+      await register(form.email, form.password, form.fullName, verifyUrl.toString());
       toast.success('Akun berhasil dibuat! Cek email untuk verifikasi.');
     } catch (err) {
       handleError(err, 'Gagal mendaftar.');
@@ -97,7 +104,7 @@ export default function Register() {
 
       <p className="text-center text-sm text-gray-600 dark:text-gray-400">
         Sudah punya akun?{' '}
-        <Link to="/login" className="text-primary-600 hover:text-primary-700 font-medium">
+        <Link to={`/login${searchParams.toString() ? `?${searchParams.toString()}` : ''}`} className="text-primary-600 hover:text-primary-700 font-medium">
           Masuk
         </Link>
       </p>

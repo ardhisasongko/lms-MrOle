@@ -29,7 +29,7 @@ export default function DashboardLayout() {
   useEffect(() => { setSidebarOpen(false); }, [location.pathname]);
 
   const linkClass = (to) => cn(
-    'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ease-spring',
+    'flex min-h-[44px] items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ease-spring',
     location.pathname === to
       ? 'bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-clay'
       : 'text-gray-600 dark:text-gray-300 hover:bg-black/[0.03] dark:hover:bg-white/[0.05]'
@@ -55,7 +55,7 @@ export default function DashboardLayout() {
               <GraduationCap className="w-8 h-8" weight="fill" />
               <span>Mr Ole</span>
             </Link>
-            <button onClick={() => setSidebarOpen(false)} aria-label="Tutup menu" className="md:hidden p-1.5 rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring">
+            <button onClick={() => setSidebarOpen(false)} aria-label="Tutup menu" className="md:hidden flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring">
               <X className="w-5 h-5 text-gray-500" weight="regular" />
             </button>
           </div>
@@ -78,13 +78,13 @@ export default function DashboardLayout() {
           <div className="p-3 border-t border-black/[0.04] dark:border-white/[0.06] space-y-0.5">
             <button
               onClick={toggle}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-black/[0.03] dark:hover:bg-white/[0.05] w-full transition-all duration-200 ease-spring"
+              className="flex min-h-[44px] items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-black/[0.03] dark:hover:bg-white/[0.05] w-full transition-all duration-200 ease-spring"
             >
               {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />} {isDark ? 'Mode Terang' : 'Mode Gelap'}
             </button>
             <button
               onClick={logout}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-black/[0.03] dark:hover:bg-white/[0.05] w-full transition-all duration-200 ease-spring"
+              className="flex min-h-[44px] items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-black/[0.03] dark:hover:bg-white/[0.05] w-full transition-all duration-200 ease-spring"
             >
               <SignOut className="w-4 h-4" /> {t('nav.logout')}
             </button>
@@ -98,10 +98,10 @@ export default function DashboardLayout() {
               <span>Mr Ole</span>
             </Link>
             <div className="flex items-center gap-1">
-              <button onClick={toggle} aria-label={isDark ? 'Aktifkan mode terang' : 'Aktifkan mode gelap'} className="p-2 rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring">
+              <button onClick={toggle} aria-label={isDark ? 'Aktifkan mode terang' : 'Aktifkan mode gelap'} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring active:scale-[0.98]">
                 {isDark ? <Sun className="w-5 h-5 text-gray-500 dark:text-gray-400" weight="regular" /> : <Moon className="w-5 h-5 text-gray-600 dark:text-gray-400" weight="regular" />}
               </button>
-              <button onClick={() => setSidebarOpen(true)} aria-label="Buka menu navigasi" className="p-2 rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring">
+              <button onClick={() => setSidebarOpen(true)} aria-label="Buka menu navigasi" className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring active:scale-[0.98]">
                 <List className="w-6 h-6 text-gray-600 dark:text-gray-400" weight="regular" />
               </button>
             </div>

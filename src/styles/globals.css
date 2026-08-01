@@ -97,3 +97,9 @@
     @apply animate-pulse bg-gray-200 dark:bg-gray-700 rounded;
   }
 }
+
+@layer utilities {
+  .safe-area-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+}

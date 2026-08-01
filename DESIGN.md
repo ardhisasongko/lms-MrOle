@@ -114,9 +114,30 @@ All spacing derives from a base of **4px**.
 ### Navbar
 - **Structure**: floating glass pill — mt-4 mx-auto w-[95%] max-w-7xl rounded-2xl backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 border border-white/20 dark:border-white/10 shadow-clay
 - **Responsive**: horizontal links on desktop, hamburger drawer on mobile
+- **Safe area**: fixed above page content with the greater of the 16px top inset or `env(safe-area-inset-top)` on notched devices; page backgrounds continue behind the glass surface
+- **Controls**: language uses a two-option segmented control; language, theme, and menu targets remain at least 44px with visible active and focus states
 
 ### Skeleton
 - **Structure**: animate-pulse rounded-xl bg-gray-200 dark:bg-gray-700
+
+### Achievement Share Card
+- **Structure**: fixed 4:5 canvas with atmospheric primary/secondary/lavender gradient, verified score focal point, compact result metadata, green challenge CTA, and high-contrast QR quiet zone
+- **Export**: canonical 1080x1350 PNG generated on demand; responsive preview reuses the same component
+- **Privacy**: first-name display is opt-in per share, answers and account identifiers never appear, and every public token is revocable
+- **States**: preparing, preview, native share, download fallback, copied, and revoked
+
+### Share Result Modal
+- **Structure**: bottom sheet on mobile and centered dialog on desktop, with achievement preview and three primary actions: share image, copy link, and download PNG
+- **Accessibility**: focus trap, Escape close, restored focus, scroll lock, labelled dialog, and minimum 44px controls
+
+### Quiz Result Hero
+- **Structure**: score ring and contextual encouragement lead the page, followed by a three-cell correct/accuracy/duration insight bar and one full-width share CTA
+- **Progress states**: low scores use supportive salmon, medium scores use warning amber, and mastered scores use success green; red remains reserved for individual wrong answers
+- **Responsive**: centered stack on mobile, horizontal score-and-message composition from small tablet upward
+
+### Answer Review
+- **Structure**: next-step recommendation, answer-type insight, all/correct/wrong segmented filter, one focused question card, discussion, and previous/next navigation
+- **Loading**: the score renders immediately from navigation state while answer details load into shaped skeletons; recoverable fetch errors preserve the score and expose retry
 
 ## 6. Motion & Interaction
 

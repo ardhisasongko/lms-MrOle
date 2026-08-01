@@ -1,5 +1,5 @@
 import { lazy, Suspense, Component } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useAdmin } from './hooks/useAdmin';
@@ -27,6 +27,7 @@ const Leaderboard = lazy(() => import('./pages/Leaderboard'));
 const BookmarkReview = lazy(() => import('./pages/BookmarkReview'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const ErrorPage = lazy(() => import('./pages/ErrorPage'));
+const PublicQuizShare = lazy(() => import('./pages/PublicQuizShare'));
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
 const AdminUsers = lazy(() => import('./pages/admin/Users'));
 const AdminQuestions = lazy(() => import('./pages/admin/Questions'));
@@ -68,8 +69,23 @@ function ProtectedRoute({ children }) {
 
 function PublicRoute({ children }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
   if (loading) return null;
-  if (user) return <Navigate to="/dashboard" replace />;
+  if (user) {
+    const queryNext = new URLSearchParams(location.search).get('next');
+    let storedNext = null;
+    try {
+      storedNext = sessionStorage.getItem('mr-ole-next');
+      sessionStorage.removeItem('mr-ole-next');
+    } catch {
+      // Query-string fallback still preserves the challenge destination.
+    }
+    const requestedNext = queryNext || storedNext;
+    const next = requestedNext?.startsWith('/') && !requestedNext.startsWith('//')
+      ? requestedNext
+      : '/dashboard';
+    return <Navigate to={next} replace />;
+  }
   return children;
 }
 
@@ -87,12 +103,13 @@ function AppRoutes() {
     <Routes>
       <Route element={<MainLayout />}>
         <Route index element={<Landing />} />
+        <Route path="s/:token" element={<SuspenseWrapper><PublicQuizShare /></SuspenseWrapper>} />
         <Route element={<AuthLayout />}>
           <Route path="login" element={<PublicRoute><Login /></PublicRoute>} />
           <Route path="register" element={<PublicRoute><Register /></PublicRoute>} />
           <Route path="forgot-password" element={<PublicRoute><SuspenseWrapper><ForgotPassword /></SuspenseWrapper></PublicRoute>} />
           <Route path="reset-password" element={<SuspenseWrapper><ResetPassword /></SuspenseWrapper>} />
-          <Route path="verify" element={<SuspenseWrapper><Verify /></SuspenseWrapper>} />
+          <Route path="verify" element={<PublicRoute><SuspenseWrapper><Verify /></SuspenseWrapper></PublicRoute>} />
         </Route>
         <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
           <Route path="dashboard" element={<SuspenseWrapper><Dashboard /></SuspenseWrapper>} />
