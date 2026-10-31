@@ -1,26 +1,26 @@
 import { Link, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
-  GraduationCap, BookOpen, ArrowRight,
-  Sparkle, Star, Target, Lightning, Heart, Brain, Globe,
-  CheckCircle, Flame,
+  GraduationCap, ArrowRight,
+  Sparkle, Star, CheckCircle, Flame,
+  TextAa, Translate, BookOpenText, Headphones, Microphone, PencilLine,
 } from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
 import Badge from '../components/common/Badge';
 import { useAuth } from '../contexts/AuthContext';
 
 const courses = [
-  { icon: BookOpen, titleKey: 'landing.courses.grammar.title', descKey: 'landing.courses.grammar.desc', colorClass: 'text-primary-300', bgClass: 'bg-primary-50' },
-  { icon: Globe, titleKey: 'landing.courses.vocabulary.title', descKey: 'landing.courses.vocabulary.desc', colorClass: 'text-secondary-300', bgClass: 'bg-secondary-50' },
-  { icon: Brain, titleKey: 'landing.courses.reading.title', descKey: 'landing.courses.reading.desc', colorClass: 'text-lavender-400', bgClass: 'bg-lavender-50' },
-  { icon: Target, titleKey: 'landing.courses.listening.title', descKey: 'landing.courses.listening.desc', colorClass: 'text-mint-400', bgClass: 'bg-mint-50' },
-  { icon: Lightning, titleKey: 'landing.courses.speaking.title', descKey: 'landing.courses.speaking.desc', colorClass: 'text-peach-300', bgClass: 'bg-peach-50' },
-  { icon: Heart, titleKey: 'landing.courses.writing.title', descKey: 'landing.courses.writing.desc', colorClass: 'text-rose-300', bgClass: 'bg-rose-50' },
+  { icon: TextAa, titleKey: 'landing.courses.grammar.title', descKey: 'landing.courses.grammar.desc', colorClass: 'text-violet-600 dark:text-violet-300', bgClass: 'bg-violet-100 dark:bg-violet-500/15', barClass: 'from-violet-500' },
+  { icon: Translate, titleKey: 'landing.courses.vocabulary.title', descKey: 'landing.courses.vocabulary.desc', colorClass: 'text-amber-600 dark:text-amber-300', bgClass: 'bg-amber-100 dark:bg-amber-500/15', barClass: 'from-amber-500' },
+  { icon: BookOpenText, titleKey: 'landing.courses.reading.title', descKey: 'landing.courses.reading.desc', colorClass: 'text-sky-600 dark:text-sky-300', bgClass: 'bg-sky-100 dark:bg-sky-500/15', barClass: 'from-sky-500' },
+  { icon: Headphones, titleKey: 'landing.courses.listening.title', descKey: 'landing.courses.listening.desc', colorClass: 'text-teal-600 dark:text-teal-300', bgClass: 'bg-teal-100 dark:bg-teal-500/15', barClass: 'from-teal-500' },
+  { icon: Microphone, titleKey: 'landing.courses.speaking.title', descKey: 'landing.courses.speaking.desc', colorClass: 'text-rose-600 dark:text-rose-300', bgClass: 'bg-rose-100 dark:bg-rose-500/15', barClass: 'from-rose-500' },
+  { icon: PencilLine, titleKey: 'landing.courses.writing.title', descKey: 'landing.courses.writing.desc', colorClass: 'text-indigo-600 dark:text-indigo-300', bgClass: 'bg-indigo-100 dark:bg-indigo-500/15', barClass: 'from-indigo-500' },
 ];
 
 const testimonials = [
-  { nameKey: 'landing.testimonials.siti.name', roleKey: 'landing.testimonials.siti.role', avatarKey: 'landing.testimonials.siti.avatar', colorClass: 'bg-primary-300', textKey: 'landing.testimonials.siti.text' },
-  { nameKey: 'landing.testimonials.budi.name', roleKey: 'landing.testimonials.budi.role', avatarKey: 'landing.testimonials.budi.avatar', colorClass: 'bg-secondary-300', textKey: 'landing.testimonials.budi.text' },
+  { nameKey: 'landing.testimonials.siti.name', roleKey: 'landing.testimonials.siti.role', avatarKey: 'landing.testimonials.siti.avatar', colorClass: 'bg-primary-400', textKey: 'landing.testimonials.siti.text' },
+  { nameKey: 'landing.testimonials.budi.name', roleKey: 'landing.testimonials.budi.role', avatarKey: 'landing.testimonials.budi.avatar', colorClass: 'bg-secondary-400', textKey: 'landing.testimonials.budi.text' },
   { nameKey: 'landing.testimonials.dewi.name', roleKey: 'landing.testimonials.dewi.role', avatarKey: 'landing.testimonials.dewi.avatar', colorClass: 'bg-lavender-400', textKey: 'landing.testimonials.dewi.text' },
 ];
 
@@ -38,7 +38,7 @@ export default function Landing() {
     <div className="min-h-screen overflow-x-hidden">
 
       {/* ─── HERO ─── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary-300 via-secondary-300 to-lavender-400">
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary-400 via-lavender-400 to-fuchsia-400">
         <div className="absolute inset-0 opacity-20 pointer-events-none">
           <div className="absolute -top-20 -left-20 w-80 h-80 bg-white rounded-full blur-3xl" />
           <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-white rounded-full blur-3xl" />
@@ -46,7 +46,7 @@ export default function Landing() {
         </div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16 sm:pt-32 sm:pb-28 lg:py-36">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
+            <div className="animate-fade-up">
               <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/70 dark:bg-gray-800/70 text-gray-700 dark:text-gray-200 text-sm font-medium backdrop-blur-sm mb-8 shadow-sm">
                  <Sparkle className="w-4 h-4 text-primary-400" weight="fill" /> {t('landing.hero.badge')}
               </div>
@@ -60,7 +60,7 @@ export default function Landing() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   to="/register"
-                  className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg text-white shadow-clay-lg hover:shadow-clay-xl transition-all duration-300 ease-spring active:scale-[0.98] w-full sm:w-auto bg-gradient-to-r from-cta-500 to-cta-700"
+                  className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg text-white shadow-brand-lg hover:shadow-clay-xl hover:brightness-110 transition-all duration-300 ease-spring active:scale-[0.98] w-full sm:w-auto bg-gradient-to-r from-primary-500 via-cta-500 to-fuchsia-500"
                 >
                   {t('landing.hero.cta')} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" weight="bold" />
                 </Link>
@@ -80,8 +80,8 @@ export default function Landing() {
                     <div className="text-4xl font-bold text-gray-800">{t('app.name')}</div>
                     <div className="text-gray-500 mt-2">{t('landing.hero.cardTagline')}</div>
                     <div className="mt-6 flex gap-2">
-                      <div className="w-3 h-3 rounded-full bg-primary-300" />
-                      <div className="w-3 h-3 rounded-full bg-secondary-300" />
+                      <div className="w-3 h-3 rounded-full bg-primary-400" />
+                      <div className="w-3 h-3 rounded-full bg-secondary-400" />
                       <div className="w-3 h-3 rounded-full bg-lavender-400" />
                     </div>
                   </div>
@@ -126,21 +126,23 @@ export default function Landing() {
             </p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {courses.map((course) => {
+            {courses.map((course, idx) => {
               const Icon = course.icon;
               return (
-                <Card key={course.titleKey} className="p-6 group cursor-pointer">
-                  <div
-                    className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 ease-spring ${course.bgClass}`}
-                  >
-                    <Icon className={`w-7 h-7 ${course.colorClass}`} weight="fill" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">{t(course.titleKey)}</h3>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">{t(course.descKey)}</p>
-                  <div
-                    className={`mt-4 h-1.5 rounded-full w-0 group-hover:w-full transition-all duration-500 ease-spring bg-gradient-to-r ${course.colorClass} to-transparent opacity-50`}
-                  />
-                </Card>
+                <div key={course.titleKey} className="animate-fade-up" style={{ animationDelay: `${idx * 80}ms` }}>
+                  <Card className="p-6 group cursor-pointer h-full hover:-translate-y-1 transition-transform duration-300 ease-spring">
+                    <div
+                      className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 ease-spring ${course.bgClass}`}
+                    >
+                      <Icon className={`w-7 h-7 ${course.colorClass}`} weight="fill" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">{t(course.titleKey)}</h3>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">{t(course.descKey)}</p>
+                    <div
+                      className={`mt-4 h-1.5 rounded-full w-0 group-hover:w-full transition-all duration-500 ease-spring bg-gradient-to-r ${course.barClass} to-transparent opacity-70`}
+                    />
+                  </Card>
+                </div>
               );
             })}
           </div>
@@ -170,7 +172,7 @@ export default function Landing() {
                     <span className="w-8 text-sm font-semibold text-gray-500 dark:text-gray-400">{t(d.dayKey)}</span>
                     <div className="flex-1 h-5 rounded-full bg-black/[0.04] dark:bg-white/[0.06]">
                       <div
-                        className="h-full rounded-full transition-all duration-500 ease-spring bg-gradient-to-r from-primary-300 to-secondary-300"
+                        className="h-full rounded-full transition-all duration-700 ease-spring bg-gradient-to-r from-primary-400 to-lavender-400"
                         style={{ width: `${d.pct}%` }}
                       />
                     </div>
@@ -212,7 +214,7 @@ export default function Landing() {
               <Card key={testimonial.nameKey} className="p-6">
                 <div className="flex items-center gap-1 mb-4">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className="w-4 h-4 text-primary-400" weight="fill" />
+                    <Star key={i} className="w-4 h-4 text-amber-400" weight="fill" />
                   ))}
                 </div>
                 <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-6 italic">
@@ -258,7 +260,7 @@ export default function Landing() {
       </section>
 
       {/* ─── CTA ─── */}
-      <section className="py-20 sm:py-28 relative overflow-hidden bg-gradient-to-br from-primary-300 via-secondary-300 to-lavender-400">
+      <section className="py-20 sm:py-28 relative overflow-hidden bg-gradient-to-br from-primary-400 via-lavender-400 to-fuchsia-400">
         <div className="absolute inset-0 opacity-15 pointer-events-none">
           <div className="absolute top-10 right-10 w-72 h-72 bg-white rounded-full blur-3xl" />
           <div className="absolute bottom-10 left-10 w-80 h-80 bg-white rounded-full blur-3xl" />
@@ -272,7 +274,7 @@ export default function Landing() {
           </p>
           <Link
             to="/register"
-            className="group inline-flex items-center justify-center gap-2 px-6 sm:px-10 py-4 sm:py-5 rounded-2xl font-bold text-lg sm:text-xl text-white shadow-clay-lg hover:shadow-clay-xl transition-all duration-300 ease-spring active:scale-[0.98] bg-gradient-to-r from-cta-500 to-cta-700"
+            className="group inline-flex items-center justify-center gap-2 px-6 sm:px-10 py-4 sm:py-5 rounded-2xl font-bold text-lg sm:text-xl text-white shadow-brand-lg hover:shadow-clay-xl hover:brightness-110 transition-all duration-300 ease-spring active:scale-[0.98] bg-gradient-to-r from-primary-500 via-cta-500 to-fuchsia-500"
           >
             {t('landing.cta.button')} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" weight="bold" />
           </Link>
