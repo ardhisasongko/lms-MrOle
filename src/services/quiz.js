@@ -191,6 +191,63 @@ export async function getAttemptDetails(attemptId, signal) {
   };
 }
 
+// Jawaban salah dari attempt yang SUDAH selesai, untuk deck ulangan
+// terjadwal. quiz_answers hanya tercipta saat sesi disubmit, dan RLS
+// questions hanya membuka correct_answer untuk soal yang attempt-nya
+// selesai serta tidak sedang aktif di sesi lain — jadi jawaban sesi
+// aktif tidak pernah bocor lewat jalur ini. Baris yang pertanyaannya
+// tidak terbaca (terblokir RLS) dibuang.
+export async function getWrongAnswers(userId, signal) {
+  const { data, error } = await supabase
+    .from('quiz_answers')
+    .select('question_id, user_answer, created_at, quiz_attempts!inner(user_id, completed_at), questions(*, categories(name))')
+    .eq('is_correct', false)
+    .eq('quiz_attempts.user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(500)
+    .abortSignal(signal);
+  if (error) throw error;
+
+  const seen = new Set();
+  const items = [];
+  for (const row of data || []) {
+    if (!row?.question_id || !row.questions || seen.has(row.question_id)) continue;
+    seen.add(row.question_id);
+    const q = row.questions;
+    items.push({
+      questionId: row.question_id,
+      lastWrongAt: row.quiz_attempts?.completed_at || row.created_at,
+      userAnswer: row.user_answer,
+      question: {
+        id: q.id,
+        question: q.question,
+        prompt: q.prompt,
+        stimulus: q.stimulus,
+        options: q.options,
+        type: q.type,
+        difficulty: q.difficulty,
+        correctAnswer: q.correct_answer,
+        explanation: q.explanation,
+        categoryName: q.categories?.name || null,
+      },
+    });
+  }
+  return items;
+}
+
+// Attempt mentah per kategori+level untuk peta level bertahap.
+export async function getLevelAttempts(userId, signal) {
+  const { data, error } = await supabase
+    .from('quiz_attempts')
+    .select('category_id, difficulty, score')
+    .eq('user_id', userId)
+    .order('completed_at', { ascending: false })
+    .limit(500)
+    .abortSignal(signal);
+  if (error) throw error;
+  return data || [];
+}
+
 export async function getRecentAttempts(userId, limit = 100, signal) {
   const { data, error } = await supabase
     .from('quiz_attempts')
