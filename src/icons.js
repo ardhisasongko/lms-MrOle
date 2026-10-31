@@ -2,6 +2,7 @@
 export { ArrowLeft } from '@phosphor-icons/react/ArrowLeft';
 export { ArrowRight } from '@phosphor-icons/react/ArrowRight';
 export { ArrowSquareOut } from '@phosphor-icons/react/ArrowSquareOut';
+export { Bell } from '@phosphor-icons/react/Bell';
 export { ArrowsClockwise } from '@phosphor-icons/react/ArrowsClockwise';
 export { ArrowsIn } from '@phosphor-icons/react/ArrowsIn';
 export { ArrowsOut } from '@phosphor-icons/react/ArrowsOut';
