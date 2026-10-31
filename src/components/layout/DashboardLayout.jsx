@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { GraduationCap, Shield, X, List, SquaresFour, NotePencil, ClockCounterClockwise, Trophy, ChatCircleDots, User, Gear, SignOut, BookmarkSimple, Sun, Moon } from '@phosphor-icons/react';
+import { GraduationCap, Shield, X, List, SquaresFour, NotePencil, ClockCounterClockwise, Trophy, ChatCircleDots, User, Gear, SignOut, BookmarkSimple, ArrowsCounterClockwise, Sun, Moon } from '@phosphor-icons/react';
 import { cn } from '../../utils/cn';
 import { useAdmin } from '../../hooks/useAdmin';
 import { useAuth } from '../../contexts/AuthContext';
@@ -13,6 +13,7 @@ const sidebarLinks = [
   { to: '/history', key: 'nav.history', icon: ClockCounterClockwise },
   { to: '/leaderboard', key: 'nav.leaderboard', icon: Trophy },
   { to: '/bookmarks', key: 'nav.bookmarks', icon: BookmarkSimple },
+  { to: '/review', key: 'nav.review', icon: ArrowsCounterClockwise },
   { to: '/chat', key: 'nav.chat', icon: ChatCircleDots },
   { to: '/profile', key: 'nav.profile', icon: User },
   { to: '/settings', key: 'nav.settings', icon: Gear },
