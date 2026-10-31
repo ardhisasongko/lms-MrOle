@@ -1,10 +1,11 @@
-import { BookOpen, TrendUp, Medal, BookmarkSimple, Target, Star, Lightbulb, PlayCircle } from '@phosphor-icons/react';
+import { BookOpen, TrendUp, Medal, BookmarkSimple, Target, Star, Lightbulb, PlayCircle, Flame, CheckCircle, Bell } from '@phosphor-icons/react';
 import Card, { CardContent, CardHeader } from '../components/common/Card';
 import EmptyState from '../components/feedback/EmptyState';
 import Skeleton from '../components/common/Skeleton';
 import StreakCard from '../components/common/StreakCard';
 import { useProgress } from '../hooks/useProgress';
 import { useStreak } from '../hooks/useStreak';
+import { useDailyMissions } from '../hooks/useDailyMissions';
 import { useAuth } from '../contexts/AuthContext';
 import { getBookmarkCount } from '../services/bookmarks';
 import { getLocale } from '../utils/format';
@@ -18,6 +19,27 @@ export default function Dashboard() {
   const { user } = useAuth();
   const { stats, scoreByCategory, chartData, loading } = useProgress();
   const streakData = useStreak();
+  const dailyMissions = useDailyMissions();
+  const [reminderSet, setReminderSet] = useState(false);
+  const notificationsSupported = typeof window !== 'undefined' && 'Notification' in window;
+
+  // Pengingat lokal sederhana: izin diminta saat tombol diklik, lalu satu
+  // notifikasi dijadwalkan 1 jam kemudian selama halaman masih terbuka.
+  // Tanpa service worker / push server.
+  const handleStreakReminder = async () => {
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') return;
+      setReminderSet(true);
+      setTimeout(() => {
+        try {
+          new Notification('Mr Ole — jaga streak-mu! 🔥', {
+            body: 'Kamu belum latihan hari ini. Selesaikan 1 kuis singkat agar streak tidak putus.',
+          });
+        } catch { /* notifikasi gagal tampil tidak boleh mengganggu halaman */ }
+      }, 60 * 60 * 1000);
+    } catch { /* abaikan: banner tetap berfungsi tanpa notifikasi */ }
+  };
   const [bookmarkCount, setBookmarkCount] = useState(0);
   const [showConfetti, setShowConfetti] = useState(false);
   const [prevLevel, setPrevLevel] = useState(1);
@@ -139,6 +161,39 @@ export default function Dashboard() {
           <p className="text-sm font-medium text-green-800 dark:text-green-300">
             Skormu naik {improvement} poin dibanding kemarin. Pertahankan momentummu!
           </p>
+        </div>
+      )}
+
+      {/* Pengingat streak: muncul hanya bila streak aktif tapi hari ini belum latihan */}
+      {!loading && streakData.currentStreak > 0 && !streakData.todayDone && (
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-5 py-4 rounded-2xl bg-orange-50 dark:bg-orange-900/20 ring-1 ring-orange-200 dark:ring-orange-800/30">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shrink-0">
+              <Flame className="w-5 h-5 text-white" weight="fill" />
+            </div>
+            <p className="text-sm font-medium text-orange-800 dark:text-orange-300">
+              Streak {streakData.currentStreak} harimu belum aman — kamu belum latihan hari ini. Selesaikan 1 kuis singkat agar tidak putus!
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Link
+              to="/practice"
+              className="inline-flex items-center justify-center px-4 py-2 bg-orange-500 text-white text-sm font-medium rounded-xl hover:bg-orange-600 transition-colors min-h-[40px]"
+            >
+              Latihan Sekarang
+            </Link>
+            {notificationsSupported && (
+              <button
+                type="button"
+                onClick={handleStreakReminder}
+                disabled={reminderSet}
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium rounded-xl ring-1 ring-orange-300 dark:ring-orange-700 text-orange-700 dark:text-orange-300 hover:bg-orange-100 dark:hover:bg-orange-900/30 transition-colors min-h-[40px] disabled:opacity-60"
+              >
+                <Bell className="w-4 h-4" />
+                {reminderSet ? 'Pengingat Aktif' : 'Ingatkan Saya'}
+              </button>
+            )}
+          </div>
         </div>
       )}
 
@@ -331,6 +386,59 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* Misi Hari Ini */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Target className="w-5 h-5 text-primary-500" weight="fill" />
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100">Misi Hari Ini</h3>
+            </div>
+            {!dailyMissions.loading && dailyMissions.missions.length > 0 && (
+              <span className="text-xs font-medium text-gray-400 dark:text-gray-500">
+                {dailyMissions.completedCount}/{dailyMissions.missions.length} selesai
+              </span>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {dailyMissions.loading ? (
+            <Skeleton className="h-32 rounded-lg" />
+          ) : dailyMissions.allDone ? (
+            <div className="flex items-center gap-3 py-2">
+              <span className="text-2xl">🎉</span>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Semua misi hari ini selesai. Kerja bagus — kembali besok untuk misi baru!
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {dailyMissions.missions.map((mission) => (
+                <div key={mission.id}>
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <span className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 min-w-0">
+                      {mission.done
+                        ? <CheckCircle className="w-4 h-4 text-cta-500 shrink-0" weight="fill" />
+                        : <Target className="w-4 h-4 text-gray-300 dark:text-gray-600 shrink-0" />}
+                      <span className={mission.done ? 'line-through opacity-60' : ''}>{mission.title}</span>
+                    </span>
+                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400 tabular-nums shrink-0">
+                      {mission.progress}/{mission.target}
+                    </span>
+                  </div>
+                  <div className="w-full bg-black/[0.04] dark:bg-white/[0.06] rounded-full h-2 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ease-spring ${mission.done ? 'bg-cta-500' : 'bg-gradient-to-r from-primary-300 to-primary-500'}`}
+                      style={{ width: `${mission.percent}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Daily Quest */}
       <Card>
