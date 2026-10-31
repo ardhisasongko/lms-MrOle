@@ -27,6 +27,8 @@ const Leaderboard = lazy(() => import('./pages/Leaderboard'));
 const BookmarkReview = lazy(() => import('./pages/BookmarkReview'));
 const ReviewDeck = lazy(() => import('./pages/ReviewDeck'));
 const Speaking = lazy(() => import('./pages/Speaking'));
+const Classes = lazy(() => import('./pages/Classes'));
+const ClassDetail = lazy(() => import('./pages/ClassDetail'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const ErrorPage = lazy(() => import('./pages/ErrorPage'));
 const PublicQuizShare = lazy(() => import('./pages/PublicQuizShare'));
@@ -126,6 +128,8 @@ function AppRoutes() {
           <Route path="bookmarks" element={<SuspenseWrapper><BookmarkReview /></SuspenseWrapper>} />
           <Route path="review" element={<SuspenseWrapper><ReviewDeck /></SuspenseWrapper>} />
           <Route path="speaking" element={<SuspenseWrapper><Speaking /></SuspenseWrapper>} />
+          <Route path="classes" element={<SuspenseWrapper><Classes /></SuspenseWrapper>} />
+          <Route path="classes/:id" element={<SuspenseWrapper><ClassDetail /></SuspenseWrapper>} />
         </Route>
         <Route element={<AdminRoute><AdminLayout /></AdminRoute>}>
           <Route path="admin" element={<SuspenseWrapper><AdminDashboard /></SuspenseWrapper>} />
