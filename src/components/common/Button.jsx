@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { cn } from '../../utils/cn';
 
 const variants = {
-  primary: 'bg-cta-500 text-white hover:bg-cta-600 focus:ring-cta-500 shadow-clay',
+  primary: 'bg-gradient-to-r from-primary-500 via-cta-500 to-fuchsia-500 text-white shadow-brand hover:shadow-brand-lg hover:brightness-110 focus:ring-cta-500',
   secondary: 'bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-200 hover:bg-primary-200 dark:hover:bg-primary-900/50',
   outline: 'border border-black/[0.08] dark:border-white/[0.12] text-gray-700 dark:text-gray-300 hover:bg-black/[0.02] dark:hover:bg-white/[0.04] shadow-clay',
   ghost: 'text-gray-700 dark:text-gray-300 hover:bg-black/[0.03] dark:hover:bg-white/[0.05]',
