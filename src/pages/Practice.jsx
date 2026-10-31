@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  BookOpen, Book, FileText, Headphones, Microphone, PenNib,
+  BookOpen, PenNib,
   CaretRight, GraduationCap, MagnifyingGlass, Star, MagicWand, Timer,
   LockSimple, CheckCircle,
 } from '@phosphor-icons/react';
@@ -12,16 +12,13 @@ import { useAuth } from '../contexts/AuthContext';
 import { getQuestionCountsByCategory } from '../services/questions';
 import { getLastScores, getLevelAttempts } from '../services/quiz';
 import { buildLevelMap, PASS_SCORE } from '../utils/levelMap';
+import { getCategoryTheme } from '../utils/categoryTheme';
 import { getRecommendedDifficulty } from '../services/adaptive';
 import { DIFFICULTY_LABEL } from '../utils/constants';
 import Skeleton from '../components/common/Skeleton';
 import ErrorState from '../components/feedback/ErrorState';
 import EmptyState from '../components/feedback/EmptyState';
 import toast from 'react-hot-toast';
-
-const iconMap = {
-  BookOpen, Book, FileText, Headphones, Microphone, PenNib,
-};
 
 const difficulties = ['easy', 'medium', 'hard'];
 
@@ -211,7 +208,8 @@ export default function Practice() {
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {filtered.map((cat, idx) => {
-            const Icon = iconMap[cat.icon] || BookOpen;
+            const theme = getCategoryTheme(cat.slug || cat.name);
+            const Icon = theme.icon;
             const isSelected = selectedCategory === cat.id;
 
             const scoreKey = (d) => `${cat.id}:${d}`;
@@ -222,12 +220,12 @@ export default function Practice() {
               <Card
                 key={cat.id}
                 className={`
-                  cursor-pointer select-none
+                  cursor-pointer select-none animate-fade-up
                   transition-all duration-300 ease-spring
-                  hover:-translate-y-0.5
-                  ${isSelected ? 'ring-2 ring-primary-400/70' : 'ring-1 ring-black/[0.03] dark:ring-white/[0.05]'}
+                  hover:-translate-y-1 hover:shadow-clay-lg
+                  ${isSelected ? `ring-2 ${theme.ring}` : 'ring-1 ring-black/[0.03] dark:ring-white/[0.05]'}
                 `.trim()}
-                style={{ transitionDelay: `${idx * 40}ms` }}
+                style={{ animationDelay: `${idx * 60}ms` }}
                 hover={false}
               >
                 <div onClick={() => handleSelectCategory(cat.id)}>
@@ -236,8 +234,8 @@ export default function Practice() {
                       w-11 h-11 rounded-xl flex items-center justify-center shrink-0
                       transition-all duration-300 ease-spring
                       ${isSelected
-                        ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-600 scale-110'
-                        : 'bg-primary-50/50 dark:bg-gray-700/50 text-gray-400 dark:text-gray-500'
+                        ? `${theme.chipActive} scale-110`
+                        : theme.chip
                       }
                     `.trim()}>
                       <Icon className="w-5.5 h-5.5" weight={isSelected ? 'fill' : 'regular'} />
@@ -304,14 +302,14 @@ export default function Practice() {
                                       w-12 h-12 rounded-full flex items-center justify-center
                                       transition-all duration-300 ease-spring
                                       ${level.completed
-                                        ? 'bg-cta-500 text-white shadow-clay'
+                                        ? `${theme.solid} text-white shadow-clay animate-pop`
                                         : level.locked
                                           ? 'bg-gray-100 dark:bg-gray-700/50 text-gray-400 dark:text-gray-500'
                                           : isActive
-                                            ? 'bg-primary-500 text-white shadow-clay-lg scale-110'
-                                            : 'bg-primary-50 dark:bg-gray-700/40 text-primary-600 dark:text-primary-300 group-hover:bg-primary-100 dark:group-hover:bg-gray-600/40'
+                                            ? `${theme.chipActive} scale-110 animate-pop`
+                                            : `${theme.chip} group-hover:scale-105`
                                       }
-                                      ${isActive && !level.completed ? 'ring-4 ring-primary-200/60 dark:ring-primary-800/40' : ''}
+                                      ${isActive && !level.completed ? `ring-4 ${theme.ringSoft}` : ''}
                                     `.trim()}>
                                       {level.completed
                                         ? <CheckCircle className="w-6 h-6" weight="fill" />
@@ -331,7 +329,7 @@ export default function Practice() {
                                     </span>
                                   </button>
                                   {li < arr.length - 1 && (
-                                    <div className={`flex-1 h-1 rounded-full mt-6 mx-1 ${level.completed ? 'bg-cta-400' : 'bg-gray-200 dark:bg-gray-700'}`} />
+                                    <div className={`flex-1 h-1 rounded-full mt-6 mx-1 ${level.completed ? theme.solid : 'bg-gray-200 dark:bg-gray-700'}`} />
                                   )}
                                 </div>
                               );
