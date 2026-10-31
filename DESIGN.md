@@ -2,7 +2,7 @@
 
 ## 1. Atmosphere & Identity
 
-A quiet study sanctuary. Soft, dimensional surfaces that feel like molded clay — warm, tactile, and unhurried. The signature is **soft structuralism**: airy floating components with ultra-diffuse ambient shadows on a silver-grey canvas, accented by salmon-pink warmth and punctuated by vibrant green calls-to-action. Every surface breathes; nothing feels flat or sterile. The LMS is not a dashboard — it is a well-lit reading room where content floats just above the desk.
+A quiet study sanctuary. Soft, dimensional surfaces that feel like molded clay — warm, tactile, and unhurried. The signature is **soft structuralism**: airy floating components with ultra-diffuse ambient shadows on a silver-grey canvas, accented by a bright sky-blue to violet brand gradient that keeps the canvas feeling fresh and energetic. Every surface breathes; nothing feels flat or sterile. The LMS is not a dashboard — it is a well-lit reading room where content floats just above the desk.
 
 ## 2. Color
 
@@ -10,7 +10,7 @@ A quiet study sanctuary. Soft, dimensional surfaces that feel like molded clay �
 
 | Role | Token | Light | Dark | Usage |
 |------|-------|-------|------|-------|
-| Surface/primary | --surface-primary | #F7F8FA | #0F1117 | Page background |
+| Surface/primary | --surface-primary | #F0F7FF | #0F172A | Page background |
 | Surface/secondary | --surface-secondary | #FFFFFF | #1A1D26 | Cards, panels |
 | Surface/elevated | --surface-elevated | #FFFFFF | #242836 | Modals, popovers |
 | Text/primary | --text-primary | #1A1D26 | #F2F3F5 | Headlines, body |
@@ -18,18 +18,25 @@ A quiet study sanctuary. Soft, dimensional surfaces that feel like molded clay �
 | Text/tertiary | --text-tertiary | #9CA3AF | #6B7280 | Disabled, muted |
 | Border/default | --border-default | rgba(0,0,0,0.06) | rgba(255,255,255,0.06) | Dividers, outlines |
 | Border/subtle | --border-subtle | rgba(0,0,0,0.03) | rgba(255,255,255,0.03) | Soft separations |
-| Accent/primary | --accent-primary | #FDBCB4 | #FDBCB4 | Secondary CTAs, badges, links |
-| Accent/hover | --accent-hover | #F5A094 | #F5A094 | Hover state |
-| CTA/primary | --cta-primary | #22C55E | #22C55E | Primary CTAs |
-| CTA/hover | --cta-hover | #16A34A | #16A34A | CTA hover |
+| Accent/primary | --accent-primary | #38BDF8 | #38BDF8 | Secondary CTAs, badges, links |
+| Accent/brand-gradient | --gradient-cta | linear-gradient(135deg, #0EA5E9, #8B5CF6 55%, #D946EF) | same | Primary CTAs, active nav, hero |
+| Category/grammar | --cat-grammar | #8B5CF6 | #A78BFA | Grammar icon, chip, bars |
+| Category/vocabulary | --cat-vocabulary | #F59E0B | #FBBF24 | Vocabulary icon, chip, bars |
+| Category/reading | --cat-reading | #0EA5E9 | #38BDF8 | Reading icon, chip, bars |
+| Category/listening | --cat-listening | #14B8A6 | #2DD4BF | Listening icon, chip, bars |
+| Category/speaking | --cat-speaking | #F43F5E | #FB7185 | Speaking icon, chip, bars |
+| Category/writing | --cat-writing | #6366F1 | #818CF8 | Writing icon, chip, bars |
+| Accent/hover | --accent-hover | #0EA5E9 | #0EA5E9 | Hover state |
+| CTA/primary | --cta-primary | #8B5CF6 | #8B5CF6 | Primary CTAs (solid fallback of brand gradient) |
+| CTA/hover | --cta-hover | #7C3AED | #7C3AED | CTA hover |
 | Status/success | --status-success | #22C55E | #22C55E | Confirmations |
 | Status/warning | --status-warning | #F59E0B | #F59E0B | Cautions |
 | Status/error | --status-error | #EF4444 | #EF4444 | Errors, destructive |
-| Status/info | --status-info | #ADD8E6 | #ADD8E6 | Informational |
+| Status/info | --status-info | #38BDF8 | #38BDF8 | Informational |
 
 ### Rules
 - Surface hierarchy creates depth through tonal shift and ultra-diffuse shadows.
-- CTA green is ONLY for primary interactive actions. Accent pink is for secondary elements.
+- The brand gradient (sky → violet → fuchsia) is ONLY for primary interactive actions, active navigation, and hero moments. Sky accent is for secondary elements. Each learning category always uses its own category color.
 - Never introduce a color not in this table. Extend the table first.
 
 ## 3. Typography

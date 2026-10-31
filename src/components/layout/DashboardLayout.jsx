@@ -34,7 +34,7 @@ export default function DashboardLayout() {
   const linkClass = (to) => cn(
     'flex min-h-[44px] items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ease-spring',
     location.pathname === to
-      ? 'bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-clay'
+      ? 'bg-gradient-to-r from-primary-500 via-cta-500 to-fuchsia-500 text-white shadow-brand'
       : 'text-gray-600 dark:text-gray-300 hover:bg-black/[0.03] dark:hover:bg-white/[0.05]'
   );
 

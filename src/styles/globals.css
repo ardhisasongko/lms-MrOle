@@ -7,10 +7,10 @@
   :root {
     /* Background */
     --color-bg: 255 255 255;
-    --color-bg-secondary: 249 250 251;
-    --color-bg-page: #F7F8FA;
+    --color-bg-secondary: 240 247 255;
+    --color-bg-page: #F0F7FF;
     --color-bg-card: #FFFFFF;
-    --color-bg-muted: #F9FAFB;
+    --color-bg-muted: #EFF6FF;
 
     /* Text */
     --color-text: 17 24 39;
@@ -25,20 +25,20 @@
     --color-shadow: 0 0 0 0 rgb(0 0 0 / 0.05);
 
     /* Gradient */
-    --gradient-hero: linear-gradient(135deg, #FDBCB4 0%, #ADD8E6 50%, #C4A8FF 100%);
-    --gradient-cta: linear-gradient(135deg, #22C55E, #16A34A);
-    --gradient-progress: linear-gradient(90deg, #FDBCB4, #ADD8E6);
+    --gradient-hero: linear-gradient(135deg, #38BDF8 0%, #818CF8 45%, #C084FC 75%, #E879F9 100%);
+    --gradient-cta: linear-gradient(135deg, #0EA5E9 0%, #8B5CF6 55%, #D946EF 100%);
+    --gradient-progress: linear-gradient(90deg, #38BDF8, #A78BFA, #E879F9);
 
     /* Auth */
-    --gradient-auth: linear-gradient(135deg, #FFF5F3 0%, #FFFFFF 50%, #F0F8FC 100%);
+    --gradient-auth: linear-gradient(135deg, #E0F2FE 0%, #FFFFFF 50%, #FAE8FF 100%);
   }
 
   .dark {
-    --color-bg: 17 24 39;
-    --color-bg-secondary: 31 41 55;
-    --color-bg-page: #0F1117;
-    --color-bg-card: #1F2937;
-    --color-bg-muted: #111827;
+    --color-bg: 15 23 42;
+    --color-bg-secondary: 30 41 59;
+    --color-bg-page: #0F172A;
+    --color-bg-card: #1E293B;
+    --color-bg-muted: #020617;
 
     --color-text: 243 244 246;
     --color-text-secondary: 156 163 175;
@@ -49,7 +49,7 @@
 
     --color-shadow: 0 0 0 0 rgb(0 0 0 / 0.3);
 
-    --gradient-auth: linear-gradient(135deg, #030712 0%, #111827 50%, #030712 100%);
+    --gradient-auth: linear-gradient(135deg, #020617 0%, #0F172A 50%, #1E1B4B 100%);
   }
 
   html {
@@ -60,7 +60,7 @@
   }
 
   body {
-    @apply bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100;
+    @apply bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100;
     @apply transition-colors duration-200;
   }
 
@@ -98,8 +98,110 @@
   }
 }
 
+/* === ANIMATIONS — ringan, CSS saja, tanpa mengubah layout (tanpa CLS) ===
+   Blok prefers-reduced-motion di atas menonaktifkan semua animasi ini. */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+@keyframes shimmer-slide {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
 @layer utilities {
   .safe-area-top {
     padding-top: max(1rem, env(safe-area-inset-top));
+  }
+
+  /* fill-mode backwards: keyframe awal berlaku selama delay (stagger),
+     tetapi tidak menahan transform setelah animasi selesai (hover tetap jalan) */
+  .animate-fade-up {
+    animation: fade-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+
+  .animate-pop {
+    animation: pop-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+
+  .animate-pulse-soft {
+    animation: pulse-soft 1.6s ease-in-out infinite;
+  }
+
+  .anim-delay-100 {
+    animation-delay: 100ms;
+  }
+
+  .anim-delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .anim-delay-300 {
+    animation-delay: 300ms;
+  }
+
+  .anim-delay-400 {
+    animation-delay: 400ms;
+  }
+
+  .anim-delay-500 {
+    animation-delay: 500ms;
+  }
+
+  /* Kilau bergerak di atas isian progress bar; elemen isian harus
+     ber-position (relative/absolute) dan track-nya overflow-hidden */
+  .progress-shimmer {
+    overflow: hidden;
+  }
+
+  .progress-shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(
+      110deg,
+      transparent 25%,
+      rgba(255, 255, 255, 0.35) 50%,
+      transparent 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer-slide 1.8s linear infinite;
+    pointer-events: none;
   }
 }
