@@ -1,4 +1,4 @@
-import { BookOpen, TrendUp, Medal, BookmarkSimple, Target, Star, Lightbulb, PlayCircle, Flame, CheckCircle, Bell, ArrowsCounterClockwise } from '@phosphor-icons/react';
+import { BookOpen, TrendUp, BookmarkSimple, Target, Star, Lightbulb, PlayCircle, Flame, CheckCircle, Bell, ArrowsCounterClockwise } from '@phosphor-icons/react';
 import Card, { CardContent, CardHeader } from '../components/common/Card';
 import EmptyState from '../components/feedback/EmptyState';
 import Skeleton from '../components/common/Skeleton';
@@ -10,6 +10,7 @@ import { useReviewDeck } from '../hooks/useReviewDeck';
 import { useAuth } from '../contexts/AuthContext';
 import { getBookmarkCount } from '../services/bookmarks';
 import { getLocale } from '../utils/format';
+import { getCategoryTheme } from '../utils/categoryTheme';
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { checkBadges, getDailyProgress, getRecommendations } from '../services/gamification';
@@ -139,15 +140,15 @@ export default function Dashboard() {
   }
 
   const statCards = [
-    { label: 'Total Soal', value: stats.totalQuestions, icon: BookOpen, color: 'text-primary-500 bg-primary-100 dark:bg-primary-900/30', to: '/history' },
-    { label: 'Rata-rata Nilai', value: `${stats.averageScore}%`, icon: TrendUp, color: 'text-cta-500 bg-cta-100 dark:bg-cta-900/30', to: '/history' },
-    { label: 'Streak', value: `${streakData.currentStreak} hari`, icon: Medal, color: 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30', to: '/practice' },
-    { label: 'Bookmark', value: bookmarkCount, icon: BookmarkSimple, color: 'text-secondary-500 bg-secondary-100 dark:bg-secondary-900/30', to: '/bookmarks' },
+    { label: 'Total Soal', value: stats.totalQuestions, icon: BookOpen, color: 'text-sky-600 bg-sky-100 dark:text-sky-300 dark:bg-sky-500/15', to: '/history' },
+    { label: 'Rata-rata Nilai', value: `${stats.averageScore}%`, icon: TrendUp, color: 'text-violet-600 bg-violet-100 dark:text-violet-300 dark:bg-violet-500/15', to: '/history' },
+    { label: 'Streak', value: `${streakData.currentStreak} hari`, icon: Flame, color: 'text-orange-500 bg-orange-100 dark:text-orange-300 dark:bg-orange-500/15', iconAnim: 'animate-pulse-soft', to: '/practice' },
+    { label: 'Bookmark', value: bookmarkCount, icon: BookmarkSimple, color: 'text-rose-500 bg-rose-100 dark:text-rose-300 dark:bg-rose-500/15', to: '/bookmarks' },
   ];
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <div>
+      <div className="animate-fade-up">
         <h1 className="text-[1.875rem] font-semibold tracking-tight text-gray-900 dark:text-gray-100">Dashboard</h1>
         <p className="text-gray-500 dark:text-gray-400 mt-1.5">{motivation || 'Pantau perkembangan belajarmu.'}</p>
         {!loading && stats.lastSession && (
@@ -170,7 +171,7 @@ export default function Dashboard() {
       {!loading && streakData.currentStreak > 0 && !streakData.todayDone && (
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-5 py-4 rounded-2xl bg-orange-50 dark:bg-orange-900/20 ring-1 ring-orange-200 dark:ring-orange-800/30">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shrink-0 animate-pulse-soft">
               <Flame className="w-5 h-5 text-white" weight="fill" />
             </div>
             <p className="text-sm font-medium text-orange-800 dark:text-orange-300">
@@ -243,7 +244,7 @@ export default function Dashboard() {
                   </div>
                   <div className="mt-2 relative w-full h-2.5 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
                     <div
-                      className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500 ease-spring"
+                      className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-700 ease-spring progress-shimmer"
                       style={{ width: `${levelProgress}%` }}
                     />
                   </div>
@@ -264,7 +265,7 @@ export default function Dashboard() {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-up anim-delay-100">
           {statCards.map((stat) => {
             const Icon = stat.icon;
             return (
@@ -275,7 +276,7 @@ export default function Dashboard() {
               >
                 <Card hover={false} className="h-full group-hover:shadow-md transition-shadow duration-200">
                   <CardContent className="flex flex-col items-center text-center py-5">
-                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-3 ${stat.color}`}>
+                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-3 transition-transform duration-300 ease-spring group-hover:scale-110 ${stat.color} ${stat.iconAnim || ''}`}>
                       <Icon className="w-5 h-5" weight="fill" />
                     </div>
                     <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stat.value}</p>
@@ -347,11 +348,9 @@ export default function Dashboard() {
                         <span className="text-gray-600 dark:text-gray-400">{cat.name}</span>
                         <span className="font-medium text-gray-900 dark:text-gray-100">{cat.score}%</span>
                       </div>
-                      <div className="w-full bg-black/[0.04] dark:bg-white/[0.06] rounded-full h-2">
+                      <div className="relative w-full bg-black/[0.04] dark:bg-white/[0.06] rounded-full h-2 overflow-hidden">
                         <div
-                          className={`h-2 rounded-full transition-all ${
-                            cat.score >= 80 ? 'bg-cta-500' : cat.score >= 50 ? 'bg-yellow-500' : 'bg-red-500'
-                          }`}
+                          className={`relative h-2 rounded-full transition-all duration-700 ease-spring ${getCategoryTheme(cat.name).bar}`}
                           style={{ width: `${cat.score}%` }}
                         />
                       </div>
@@ -429,9 +428,9 @@ export default function Dashboard() {
                       {mission.progress}/{mission.target}
                     </span>
                   </div>
-                  <div className="w-full bg-black/[0.04] dark:bg-white/[0.06] rounded-full h-2 overflow-hidden">
+                  <div className="relative w-full bg-black/[0.04] dark:bg-white/[0.06] rounded-full h-2 overflow-hidden">
                     <div
-                      className={`h-full rounded-full transition-all duration-500 ease-spring ${mission.done ? 'bg-cta-500' : 'bg-gradient-to-r from-primary-300 to-primary-500'}`}
+                      className={`relative h-full rounded-full transition-all duration-700 ease-spring ${mission.done ? 'bg-cta-500' : 'bg-gradient-to-r from-primary-400 via-cta-400 to-fuchsia-400 progress-shimmer'}`}
                       style={{ width: `${mission.percent}%` }}
                     />
                   </div>
