@@ -1,4 +1,4 @@
-import { BookOpen, TrendUp, Medal, BookmarkSimple, Target, Star, Lightbulb, PlayCircle, Flame, CheckCircle, Bell } from '@phosphor-icons/react';
+import { BookOpen, TrendUp, Medal, BookmarkSimple, Target, Star, Lightbulb, PlayCircle, Flame, CheckCircle, Bell, ArrowsCounterClockwise } from '@phosphor-icons/react';
 import Card, { CardContent, CardHeader } from '../components/common/Card';
 import EmptyState from '../components/feedback/EmptyState';
 import Skeleton from '../components/common/Skeleton';
@@ -6,6 +6,7 @@ import StreakCard from '../components/common/StreakCard';
 import { useProgress } from '../hooks/useProgress';
 import { useStreak } from '../hooks/useStreak';
 import { useDailyMissions } from '../hooks/useDailyMissions';
+import { useReviewDeck } from '../hooks/useReviewDeck';
 import { useAuth } from '../contexts/AuthContext';
 import { getBookmarkCount } from '../services/bookmarks';
 import { getLocale } from '../utils/format';
@@ -20,6 +21,7 @@ export default function Dashboard() {
   const { stats, scoreByCategory, chartData, loading } = useProgress();
   const streakData = useStreak();
   const dailyMissions = useDailyMissions();
+  const reviewDeck = useReviewDeck();
   const [reminderSet, setReminderSet] = useState(false);
   const notificationsSupported = typeof window !== 'undefined' && 'Notification' in window;
 
@@ -439,6 +441,34 @@ export default function Dashboard() {
           )}
         </CardContent>
       </Card>
+
+      {/* Ulangan Terjadwal — hanya bila ada kartu jatuh tempo */}
+      {!reviewDeck.loading && reviewDeck.dueCount > 0 && (
+        <Card>
+          <CardContent className="py-4 px-5">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-400 to-purple-600 flex items-center justify-center shrink-0">
+                  <ArrowsCounterClockwise className="w-5 h-5 text-white" weight="fill" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Ulangan Terjadwal</h3>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">
+                    {reviewDeck.dueCount} soal perlu diulang hari ini agar tidak lupa
+                  </p>
+                </div>
+              </div>
+              <Link
+                to="/review"
+                className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-primary-500 text-white text-sm font-medium shadow-clay hover:bg-primary-600 transition-all duration-200"
+              >
+                <PlayCircle className="w-4 h-4" weight="fill" />
+                Mulai
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Daily Quest */}
       <Card>
