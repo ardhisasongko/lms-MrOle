@@ -3,7 +3,7 @@ import { useState, useRef, useMemo, useEffect } from 'react';
 import {
   CheckCircle, XCircle, ArrowLeft, ArrowRight, House, FileArrowDown,
   Trophy, TrendUp, Smiley, ArrowsClockwise, ShareNetwork, Timer,
-  Lightbulb, ChartBar, WarningCircle,
+  Lightbulb, ChartBar, WarningCircle, Sword,
 } from '@phosphor-icons/react';
 import Confetti from '../components/game/Confetti';
 import Card, { CardContent } from '../components/common/Card';
@@ -75,6 +75,7 @@ export default function QuizResult() {
   const [shareOpen, setShareOpen] = useState(false);
   const [shareData, setShareData] = useState(null);
   const [sharing, setSharing] = useState(false);
+  const [challenging, setChallenging] = useState(false);
   const [privacyLoading, setPrivacyLoading] = useState(false);
   const [revokeLoading, setRevokeLoading] = useState(false);
   const [challengeShare, setChallengeShare] = useState(null);
@@ -259,6 +260,31 @@ export default function QuizResult() {
     }
   };
 
+  // Tantangan teman memakai tautan berbagi yang sama: siapa pun yang
+  // membuka tautan mengerjakan kuis yang sama dalam mode challenge dan
+  // skornya dibandingkan dengan hasil ini (lihat blok challengeShare).
+  const handleChallengeFriend = async () => {
+    setChallenging(true);
+    try {
+      const share = await createQuizShare(attemptId, false);
+      const url = `${window.location.origin}/s/${share.token}`;
+      try {
+        await navigator.clipboard.writeText(url);
+        toast.success(t('result.challenge.linkCopied'));
+      } catch {
+        // Clipboard tidak selalu tersedia (izin browser); jatuhkan ke
+        // modal bagikan agar tautannya tetap bisa disalin manual.
+        setShareData({ ...share, durationSeconds: timeSpent, url });
+        setShareOpen(true);
+        toast.success(t('result.challenge.linkReady'));
+      }
+    } catch (err) {
+      handleError(err, t('result.error.share'));
+    } finally {
+      setChallenging(false);
+    }
+  };
+
   const handleShowNameChange = async (showName) => {
     setPrivacyLoading(true);
     try {
@@ -400,6 +426,12 @@ export default function QuizResult() {
           <Button className="mt-5 w-full gap-2" size="lg" onClick={handleShare} loading={sharing}>
             <ShareNetwork className="h-5 w-5" weight="bold" /> {t('result.shareAchievement')}
           </Button>
+          <Button variant="outline" className="mt-3 w-full gap-2" size="lg" onClick={handleChallengeFriend} loading={challenging}>
+            <Sword className="h-5 w-5" weight="bold" /> {t('result.challengeAction')}
+          </Button>
+          <p className="mt-2 text-center text-xs leading-relaxed text-gray-400 dark:text-gray-500">
+            {t('result.challengeActionHint')}
+          </p>
         </CardContent>
       </Card>
 

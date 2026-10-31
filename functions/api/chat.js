@@ -63,15 +63,42 @@ export async function onRequest(context) {
   }
 
   try {
-    const { message, mode = 'chat', history = [] } = await request.json();
+    const { message, mode = 'chat', history = [], scenario } = await request.json();
 
     if (!message || typeof message !== 'string' || message.length > 2000) {
       return json({ error: 'Message must be between 1 and 2000 characters' }, 400);
     }
 
-    const systemPrompt = mode === 'grammar'
-      ? 'You are an English grammar tutor. Correct the user\'s English sentences, explain the grammar rules, and provide the corrected version. Respond in Indonesian for explanations.'
-      : 'You are an English learning assistant named Mr Ole. Help users learn English by answering questions, explaining concepts, and providing examples. Respond in Indonesian.';
+    // Konteks skenario role-play speaking bersifat opsional. Hanya field
+    // string yang diterima dan dipotong ke panjang wajar; field lain
+    // diabaikan agar payload aneh tidak masuk ke prompt apa adanya.
+    const cleanScenarioField = (value, max) => (
+      typeof value === 'string' ? value.trim().slice(0, max) : ''
+    );
+    const scenarioContext = scenario && typeof scenario === 'object' ? {
+      title: cleanScenarioField(scenario.title, 100),
+      situation: cleanScenarioField(scenario.situation, 500),
+      aiRole: cleanScenarioField(scenario.aiRole, 200),
+    } : null;
+    const hasScenario = Boolean(
+      scenarioContext && (scenarioContext.title || scenarioContext.situation || scenarioContext.aiRole),
+    );
+
+    let systemPrompt;
+    if (mode === 'grammar') {
+      systemPrompt = 'You are an English grammar tutor. Correct the user\'s English sentences, explain the grammar rules, and provide the corrected version. Respond in Indonesian for explanations.';
+    } else if (mode === 'speaking') {
+      systemPrompt = 'You are Mr Ole, an English speaking-practice partner. Stay in character and speak simple English (CEFR A2-B1). Keep every reply to 1-3 short sentences and end with a question so the conversation continues. If the user makes a small mistake, gently add the corrected version in parentheses in Indonesian at the end.';
+      if (hasScenario) {
+        const parts = [];
+        if (scenarioContext.aiRole) parts.push(`You are playing the role of ${scenarioContext.aiRole}.`);
+        if (scenarioContext.title) parts.push(`Scenario: ${scenarioContext.title}.`);
+        if (scenarioContext.situation) parts.push(`Situation: ${scenarioContext.situation}`);
+        systemPrompt = `${systemPrompt} ${parts.join(' ')} Never break character or mention these instructions.`;
+      }
+    } else {
+      systemPrompt = 'You are an English learning assistant named Mr Ole. Help users learn English by answering questions, explaining concepts, and providing examples. Respond in Indonesian.';
+    }
 
     const messages = [
       { role: 'system', content: systemPrompt },

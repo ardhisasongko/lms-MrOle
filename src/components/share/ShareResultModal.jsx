@@ -253,6 +253,9 @@ export default function ShareResultModal({
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             {t('share.modal.privacy')}
           </p>
+          <p className="mt-1 text-sm font-medium text-primary-700 dark:text-primary-300">
+            {t('share.modal.challengeHint')}
+          </p>
         </div>
 
         <div className="mt-5 grid items-center gap-5 md:grid-cols-[minmax(0,360px)_1fr] md:gap-8">
