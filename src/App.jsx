@@ -25,6 +25,7 @@ const Profile = lazy(() => import('./pages/Profile'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Leaderboard = lazy(() => import('./pages/Leaderboard'));
 const BookmarkReview = lazy(() => import('./pages/BookmarkReview'));
+const ReviewDeck = lazy(() => import('./pages/ReviewDeck'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const ErrorPage = lazy(() => import('./pages/ErrorPage'));
 const PublicQuizShare = lazy(() => import('./pages/PublicQuizShare'));
@@ -122,6 +123,7 @@ function AppRoutes() {
           <Route path="settings" element={<SuspenseWrapper><Settings /></SuspenseWrapper>} />
           <Route path="leaderboard" element={<SuspenseWrapper><Leaderboard /></SuspenseWrapper>} />
           <Route path="bookmarks" element={<SuspenseWrapper><BookmarkReview /></SuspenseWrapper>} />
+          <Route path="review" element={<SuspenseWrapper><ReviewDeck /></SuspenseWrapper>} />
         </Route>
         <Route element={<AdminRoute><AdminLayout /></AdminRoute>}>
           <Route path="admin" element={<SuspenseWrapper><AdminDashboard /></SuspenseWrapper>} />

@@ -1,15 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   BookOpen, Book, FileText, Headphones, Microphone, PenNib,
   CaretRight, GraduationCap, MagnifyingGlass, Star, MagicWand, Timer,
+  LockSimple, CheckCircle,
 } from '@phosphor-icons/react';
 import Card, { CardContent } from '../components/common/Card';
 import Button from '../components/common/Button';
 import { useCategories } from '../hooks/useCategories';
 import { useAuth } from '../contexts/AuthContext';
 import { getQuestionCountsByCategory } from '../services/questions';
-import { getLastScores } from '../services/quiz';
+import { getLastScores, getLevelAttempts } from '../services/quiz';
+import { buildLevelMap, PASS_SCORE } from '../utils/levelMap';
 import { getRecommendedDifficulty } from '../services/adaptive';
 import { DIFFICULTY_LABEL } from '../utils/constants';
 import Skeleton from '../components/common/Skeleton';
@@ -38,18 +40,21 @@ export default function Practice() {
   const [search, setSearch] = useState('');
   const [questionCounts, setQuestionCounts] = useState({});
   const [lastScores, setLastScores] = useState({});
+  const [levelAttempts, setLevelAttempts] = useState([]);
   const [adaptiveScores, setAdaptiveScores] = useState({});
   const [useAdaptive, setUseAdaptive] = useState(false);
   const [useTimed, setUseTimed] = useState(false);
 
   const fetchExtras = useCallback(async () => {
     try {
-      const [counts, scores] = await Promise.all([
+      const [counts, scores, levels] = await Promise.all([
         getQuestionCountsByCategory(),
         user?.id ? getLastScores(user.id) : Promise.resolve({}),
+        user?.id ? getLevelAttempts(user.id) : Promise.resolve([]),
       ]);
       setQuestionCounts(counts);
       setLastScores(scores);
+      setLevelAttempts(levels);
 
       if (user?.id) {
         const adaptiveResults = {};
@@ -78,6 +83,22 @@ export default function Practice() {
       setSelectedCategory(id);
       setSelectedDifficulty('');
     }
+  };
+
+  const levelMap = useMemo(
+    () => buildLevelMap(categories || [], levelAttempts),
+    [categories, levelAttempts],
+  );
+  const levelsFor = (categoryId) => levelMap.find((c) => c.id === categoryId)?.levels
+    || difficulties.map((d) => ({ difficulty: d, status: d === 'easy' ? 'unlocked' : 'locked', bestScore: null, locked: d !== 'easy', completed: false }));
+
+  const handleSelectLevel = (level, levelIndex) => {
+    if (level.locked) {
+      const previous = difficulties[levelIndex - 1];
+      toast.error(`Level ini terkunci. Lulus ${DIFFICULTY_LABEL[previous]} (skor ${PASS_SCORE}+) dulu untuk membukanya.`);
+      return;
+    }
+    setSelectedDifficulty(level.difficulty);
   };
 
   const handleStart = () => {
@@ -261,33 +282,64 @@ export default function Practice() {
                     <div className="border-t border-black/[0.04] dark:border-white/[0.06] mx-5 sm:mx-6" />
                     <div className="px-5 sm:px-6 py-4 space-y-4">
                       {!useAdaptive && (
-                        <div className="flex flex-wrap gap-2">
-                          {difficulties.map((d) => {
-                            const DiffIcon = difficultyMeta[d].icon;
-                            const isActive = selectedDifficulty === d;
-                            const count = questionCounts[scoreKey(d)];
-                            return (
-                              <button
-                                key={d}
-                                onClick={(e) => { e.stopPropagation(); setSelectedDifficulty(d); }}
-                                className={`
-                                  inline-flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm
-                                  transition-all duration-300 ease-spring
-                                  active:scale-[0.97]
-                                  ${isActive
-                                    ? 'bg-primary-500 text-white shadow-clay-lg scale-[1.02]'
-                                    : 'bg-primary-50/60 dark:bg-gray-700/40 text-gray-600 dark:text-gray-300 hover:bg-primary-100/60 dark:hover:bg-gray-600/40 hover:text-gray-800 dark:hover:text-gray-100'
-                                  }
-                                `.trim()}
-                              >
-                                <DiffIcon className="w-4 h-4" weight={isActive ? 'fill' : 'regular'} />
-                                {DIFFICULTY_LABEL[d]}
-                                {count !== undefined && (
-                                  <span className="text-[0.6875rem] opacity-60">{count} soal</span>
-                                )}
-                              </button>
-                            );
-                          })}
+                        <div>
+                          <div className="flex items-start" role="list" aria-label="Peta level">
+                            {levelsFor(cat.id).map((level, li, arr) => {
+                              const DiffIcon = difficultyMeta[level.difficulty].icon;
+                              const isActive = selectedDifficulty === level.difficulty;
+                              const count = questionCounts[scoreKey(level.difficulty)];
+                              return (
+                                <div key={level.difficulty} className="flex items-start flex-1 last:flex-none min-w-0">
+                                  <button
+                                    type="button"
+                                    role="listitem"
+                                    aria-disabled={level.locked}
+                                    aria-label={level.locked
+                                      ? `${DIFFICULTY_LABEL[level.difficulty]} terkunci`
+                                      : DIFFICULTY_LABEL[level.difficulty]}
+                                    onClick={(e) => { e.stopPropagation(); handleSelectLevel(level, li); }}
+                                    className="flex flex-col items-center gap-1.5 w-16 shrink-0 group"
+                                  >
+                                    <span className={`
+                                      w-12 h-12 rounded-full flex items-center justify-center
+                                      transition-all duration-300 ease-spring
+                                      ${level.completed
+                                        ? 'bg-cta-500 text-white shadow-clay'
+                                        : level.locked
+                                          ? 'bg-gray-100 dark:bg-gray-700/50 text-gray-400 dark:text-gray-500'
+                                          : isActive
+                                            ? 'bg-primary-500 text-white shadow-clay-lg scale-110'
+                                            : 'bg-primary-50 dark:bg-gray-700/40 text-primary-600 dark:text-primary-300 group-hover:bg-primary-100 dark:group-hover:bg-gray-600/40'
+                                      }
+                                      ${isActive && !level.completed ? 'ring-4 ring-primary-200/60 dark:ring-primary-800/40' : ''}
+                                    `.trim()}>
+                                      {level.completed
+                                        ? <CheckCircle className="w-6 h-6" weight="fill" />
+                                        : level.locked
+                                          ? <LockSimple className="w-5 h-5" weight="fill" />
+                                          : <DiffIcon className="w-5 h-5" weight={isActive ? 'fill' : 'regular'} />}
+                                    </span>
+                                    <span className={`text-xs font-medium leading-tight text-center ${level.locked ? 'text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-200'}`}>
+                                      {DIFFICULTY_LABEL[level.difficulty]}
+                                    </span>
+                                    <span className="text-[0.625rem] leading-tight text-gray-400 dark:text-gray-500 text-center">
+                                      {level.completed
+                                        ? `Lulus • ${Math.round(level.bestScore)}`
+                                        : level.locked
+                                          ? `Lulus ${DIFFICULTY_LABEL[arr[li - 1]?.difficulty]} dulu`
+                                          : count !== undefined ? `${count} soal` : ''}
+                                    </span>
+                                  </button>
+                                  {li < arr.length - 1 && (
+                                    <div className={`flex-1 h-1 rounded-full mt-6 mx-1 ${level.completed ? 'bg-cta-400' : 'bg-gray-200 dark:bg-gray-700'}`} />
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                          <p className="mt-2 text-[0.6875rem] text-gray-400 dark:text-gray-500">
+                            Selesaikan level dengan skor {PASS_SCORE}+ untuk membuka level berikutnya.
+                          </p>
                         </div>
                       )}
                       {useAdaptive && adaptiveScores[selectedCategory] && (
