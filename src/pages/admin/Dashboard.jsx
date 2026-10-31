@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Users, BookOpen, TreeStructure, ChartBar,
   Clock, ArrowRight,
 } from '@phosphor-icons/react';
 import Card, { CardContent, CardHeader } from '../../components/common/Card';
-import Button from '../../components/common/Button';
 import Skeleton from '../../components/common/Skeleton';
 import { getStatsCounts } from '../../services/users';
 import { getAdminActivityLog } from '../../services/users';

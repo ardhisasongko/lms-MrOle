@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCategories } from './useCategories';
-import { getAttempts, HISTORY_PAGE_SIZE } from '../services/quiz';
+import { getAttempts } from '../services/quiz';
 
 export function useHistory() {
   const { user } = useAuth();

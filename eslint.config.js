@@ -26,6 +26,11 @@ export default [
     rules: {
       ...reactPlugin.configs.flat.recommended.rules,
       ...reactHooks.configs.recommended.rules,
+      // Quality gate: cegah regresi crash "X is not defined" di runtime
+      // (lihat PR #2 — komponen dipakai di JSX tanpa import sempat lolos
+      // karena aturan ini tidak aktif secara eksplisit).
+      'no-undef': 'error',
+      'react/jsx-no-undef': 'error',
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',

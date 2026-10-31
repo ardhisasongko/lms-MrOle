@@ -11,9 +11,12 @@ function json(data, status = 200) {
   });
 }
 
+// Verifikasi token Supabase. Hasil dibedakan seperti di delete-user.js:
+// token tidak ada/tidak valid -> 401, layanan auth bermasalah -> 502,
+// supaya kegagalan Supabase tidak menyamar sebagai token yang salah.
 async function verifyAuth(request, supabaseUrl, supabaseAnonKey) {
   const authHeader = request.headers.get('Authorization');
-  if (!authHeader?.startsWith('Bearer ')) return null;
+  if (!authHeader?.startsWith('Bearer ')) return { status: 'unauthorized' };
   const token = authHeader.slice(7);
   try {
     const res = await fetch(`${supabaseUrl}/auth/v1/user`, {
@@ -22,9 +25,12 @@ async function verifyAuth(request, supabaseUrl, supabaseAnonKey) {
         apikey: supabaseAnonKey,
       },
     });
-    if (!res.ok) return null;
-    return await res.json();
-  } catch { return null; }
+    if (res.status === 401 || res.status === 403) return { status: 'unauthorized' };
+    if (!res.ok) return { status: 'unavailable' };
+    const user = await res.json();
+    if (!user?.id) return { status: 'unauthorized' };
+    return { status: 'ok', user };
+  } catch { return { status: 'unavailable' }; }
 }
 
 export async function onRequest(context) {
@@ -48,8 +54,11 @@ export async function onRequest(context) {
     return json({ error: 'Supabase server configuration is missing' }, 500);
   }
 
-  const user = await verifyAuth(request, supabaseUrl, supabaseAnonKey);
-  if (!user) {
+  const auth = await verifyAuth(request, supabaseUrl, supabaseAnonKey);
+  if (auth.status === 'unavailable') {
+    return json({ error: 'Authentication service unavailable' }, 502);
+  }
+  if (auth.status !== 'ok') {
     return json({ error: 'Unauthorized' }, 401);
   }
 

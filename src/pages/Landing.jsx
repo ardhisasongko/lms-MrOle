@@ -121,7 +121,7 @@ export default function Landing() {
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 dark:text-gray-100 mb-4 tracking-tight">
               {t('landing.courses.title')}
             </h2>
-            <p className="text-gray-400 dark:text-gray-500 max-w-2xl mx-auto text-lg">
+            <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto text-lg">
               {t('landing.courses.desc')}
             </p>
           </div>
@@ -136,7 +136,7 @@ export default function Landing() {
                     <Icon className={`w-7 h-7 ${course.colorClass}`} weight="fill" />
                   </div>
                   <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">{t(course.titleKey)}</h3>
-                  <p className="text-gray-400 dark:text-gray-500 text-sm leading-relaxed">{t(course.descKey)}</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">{t(course.descKey)}</p>
                   <div
                     className={`mt-4 h-1.5 rounded-full w-0 group-hover:w-full transition-all duration-500 ease-spring bg-gradient-to-r ${course.colorClass} to-transparent opacity-50`}
                   />
@@ -154,7 +154,7 @@ export default function Landing() {
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 dark:text-gray-100 mb-4 tracking-tight">
               {t('landing.progress.title')}
             </h2>
-            <p className="text-gray-400 dark:text-gray-500 max-w-2xl mx-auto text-lg">
+            <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto text-lg">
               {t('landing.progress.desc')}
             </p>
           </div>
@@ -167,7 +167,7 @@ export default function Landing() {
               <div className="space-y-3">
                 {weeklyData.map((d) => (
                   <div key={d.dayKey} className="flex items-center gap-3">
-                    <span className="w-8 text-sm font-semibold text-gray-400 dark:text-gray-500">{t(d.dayKey)}</span>
+                    <span className="w-8 text-sm font-semibold text-gray-500 dark:text-gray-400">{t(d.dayKey)}</span>
                     <div className="flex-1 h-5 rounded-full bg-black/[0.04] dark:bg-white/[0.06]">
                       <div
                         className="h-full rounded-full transition-all duration-500 ease-spring bg-gradient-to-r from-primary-300 to-secondary-300"
@@ -180,14 +180,14 @@ export default function Landing() {
               </div>
               <div className="mt-6 pt-5 border-t border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between">
                 <div>
-                  <span className="text-sm text-gray-400 dark:text-gray-500">{t('landing.progress.streakLabel')}</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">{t('landing.progress.streakLabel')}</span>
                   <div className="flex items-center gap-2 mt-1">
                     <Flame className="w-5 h-5 text-orange-400" weight="fill" />
                     <span className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('landing.progress.streakDays', { count: 5 })}</span>
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-sm text-gray-400 dark:text-gray-500">{t('landing.progress.averageScore')}</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">{t('landing.progress.averageScore')}</span>
                   <div className="text-2xl font-bold mt-1 text-primary-400 dark:text-primary-300">{t('landing.progress.percent', { value: 76 })}</div>
                 </div>
               </div>
@@ -203,7 +203,7 @@ export default function Landing() {
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 dark:text-gray-100 mb-4 tracking-tight">
               {t('landing.testimonials.title')}
             </h2>
-            <p className="text-gray-400 dark:text-gray-500 max-w-2xl mx-auto text-lg">
+            <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto text-lg">
               {t('landing.testimonials.desc')}
             </p>
           </div>
@@ -226,7 +226,7 @@ export default function Landing() {
                   </div>
                   <div>
                     <div className="font-semibold text-gray-800 dark:text-gray-100 text-sm">{t(testimonial.nameKey)}</div>
-                    <div className="text-xs text-gray-400 dark:text-gray-500">{t(testimonial.roleKey)}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{t(testimonial.roleKey)}</div>
                   </div>
                 </div>
               </Card>
