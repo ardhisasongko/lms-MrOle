@@ -298,6 +298,20 @@ export default function PublicQuizShare() {
             </div>
           </dl>
 
+          {share.score != null && (
+            <div className="mt-7 max-w-md rounded-2xl bg-primary-600 px-5 py-4 text-white shadow-clay">
+              <p className="flex items-center gap-2 text-lg font-semibold">
+                <Trophy size={20} weight="fill" aria-hidden="true" />
+                {t('share.public.targetScore', { score: Math.round(Number(share.score) || 0) })}
+              </p>
+              {share.totalQuestions != null && share.correctAnswers != null && (
+                <p className="mt-1 text-sm leading-relaxed text-white/85">
+                  {t('share.public.targetDetail', { correct: share.correctAnswers, total: share.totalQuestions })}
+                </p>
+              )}
+            </div>
+          )}
+
           <div className="mt-8 max-w-md">
             <Button
               size="lg"
