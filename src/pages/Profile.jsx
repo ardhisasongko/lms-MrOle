@@ -37,7 +37,7 @@ export default function Profile() {
         } else {
           setForm({ fullName: user.user_metadata?.full_name || user.email?.split('@')[0] || '', avatarUrl: '' });
         }
-      } catch (err) {
+      } catch {
         if (cancelled) return;
         setForm({ fullName: user.user_metadata?.full_name || user.email?.split('@')[0] || '', avatarUrl: '' });
       } finally {
