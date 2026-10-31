@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 
-export async function sendChatMessage(message, mode = 'chat', history = []) {
+export async function sendChatMessage(message, mode = 'chat', history = [], scenario = null) {
   const { data: { session } } = await supabase.auth.getSession();
   const token = session?.access_token;
 
@@ -10,7 +10,7 @@ export async function sendChatMessage(message, mode = 'chat', history = []) {
       'Content-Type': 'application/json',
       ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
     },
-    body: JSON.stringify({ message, mode, history }),
+    body: JSON.stringify({ message, mode, history, ...(scenario ? { scenario } : {}) }),
   });
 
   const data = await res.json();
