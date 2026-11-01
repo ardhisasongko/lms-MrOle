@@ -6,6 +6,8 @@ import { cn } from '../../utils/cn';
 import { useAdmin } from '../../hooks/useAdmin';
 import { useAuth } from '../../contexts/AuthContext';
 import { useDarkMode } from '../../hooks/useDarkMode';
+import FullscreenButton from '../common/FullscreenButton';
+import InstallHint from '../common/InstallHint';
 
 const sidebarLinks = [
   { to: '/dashboard', key: 'nav.dashboard', icon: SquaresFour },
@@ -39,7 +41,11 @@ export default function DashboardLayout() {
   );
 
   return (
-    <div className="h-dvh flex flex-col overflow-hidden bg-page-light dark:bg-page-dark">
+    // Mobile: tinggi mengikuti konten agar DOKUMEN yang scroll — Chrome
+    // Android hanya menyembunyikan bilah alamat saat window scroll, bukan
+    // saat div di dalam halaman yang scroll. Desktop (md+): app-shell
+    // seperti semula (sidebar tetap, konten scroll di <main>).
+    <div className="min-h-dvh flex flex-col md:h-dvh md:overflow-hidden bg-page-light dark:bg-page-dark">
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
@@ -48,7 +54,7 @@ export default function DashboardLayout() {
         />
       )}
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 md:overflow-hidden">
         <aside className={cn(
           'fixed inset-y-0 left-0 z-50 w-64 bg-surface-light/95 dark:bg-gray-900/95 backdrop-blur-xl border-r border-black/[0.04] dark:border-white/[0.06] transform transition-transform duration-300 ease-spring md:relative md:translate-x-0 md:flex md:flex-col',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
@@ -79,6 +85,7 @@ export default function DashboardLayout() {
             )}
           </nav>
           <div className="p-3 border-t border-black/[0.04] dark:border-white/[0.06] space-y-0.5">
+            <FullscreenButton variant="row" />
             <button
               onClick={toggle}
               className="flex min-h-[44px] items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-black/[0.03] dark:hover:bg-white/[0.05] w-full transition-all duration-200 ease-spring"
@@ -94,13 +101,14 @@ export default function DashboardLayout() {
           </div>
         </aside>
 
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          <div className="md:hidden bg-surface-light/85 dark:bg-gray-900/80 backdrop-blur-xl border-b border-black/[0.04] dark:border-white/[0.06] px-4 py-3 flex items-center justify-between shrink-0">
+        <div className="flex-1 flex flex-col min-w-0 md:overflow-hidden">
+          <div className="sticky top-0 z-30 md:hidden bg-surface-light/85 dark:bg-gray-900/80 backdrop-blur-xl border-b border-black/[0.04] dark:border-white/[0.06] px-4 py-3 flex items-center justify-between shrink-0">
             <Link to="/dashboard" className="flex items-center gap-2 text-lg font-bold text-primary-500">
               <GraduationCap className="w-6 h-6" weight="fill" />
               <span>Mr Ole</span>
             </Link>
             <div className="flex items-center gap-1">
+              <FullscreenButton />
               <button onClick={toggle} aria-label={isDark ? 'Aktifkan mode terang' : 'Aktifkan mode gelap'} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 ease-spring active:scale-[0.98]">
                 {isDark ? <Sun className="w-5 h-5 text-gray-500 dark:text-gray-400" weight="regular" /> : <Moon className="w-5 h-5 text-gray-600 dark:text-gray-400" weight="regular" />}
               </button>
@@ -109,7 +117,8 @@ export default function DashboardLayout() {
               </button>
             </div>
           </div>
-          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 md:overflow-y-auto">
+            <InstallHint className="mb-4 md:mb-6" />
             <Outlet />
           </main>
         </div>
