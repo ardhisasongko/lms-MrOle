@@ -1,1 +1,20 @@
-aW1wb3J0IHsgT3V0bGV0LCBMaW5rIH0gZnJvbSAncmVhY3Qtcm91dGVyLWRvbSc7CmltcG9ydCB7IEdyYWR1YXRpb25DYXAgfSBmcm9tICdAcGhvc3Bob3ItaWNvbnMvcmVhY3QnOwoKZXhwb3J0IGRlZmF1bHQgZnVuY3Rpb24gQXV0aExheW91dCgpIHsKICByZXR1cm4gKAogICAgPGRpdiBjbGFzc05hbWU9Im1pbi1oLXNjcmVlbiBmbGV4IGZsZXgtY29sIGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWNlbnRlciBweC00IHB5LTEyIGJnLWdyYWRpZW50LXRvLWJyIGZyb20tcHJpbWFyeS0xMDAgdmlhLXBhZ2UtbGlnaHQgdG8tc2Vjb25kYXJ5LTEwMCBkYXJrOmZyb20tZ3JheS05NTAgZGFyazp2aWEtZ3JheS05MDAgZGFyazp0by1ncmF5LTk1MCI+CiAgICAgIDxMaW5rIHRvPSIvIiBjbGFzc05hbWU9ImZsZXggaXRlbXMtY2VudGVyIGdhcC0yIG1iLTgiPgogICAgICAgIDxHcmFkdWF0aW9uQ2FwIGNsYXNzTmFtZT0idy0xMCBoLTEwIHRleHQtcHJpbWFyeS00MDAiIHdlaWdodD0iZmlsbCIgLz4KICAgICAgICA8c3BhbiBjbGFzc05hbWU9InRleHQtMnhsIGZvbnQtYm9sZCB0ZXh0LXByaW1hcnktNDAwIj5NciBPbGU8L3NwYW4+CiAgICAgIDwvTGluaz4KICAgICAgPGRpdiBjbGFzc05hbWU9InJlbGF0aXZlIHctZnVsbCBtYXgtdy1tZCBwLVsxcHhdIHJvdW5kZWQtWzEuNXJlbV0iPgogICAgICAgIDxkaXYgY2xhc3NOYW1lPSJiZy1zdXJmYWNlLWxpZ2h0LzkwIGRhcms6YmctZ3JheS04MDAvODAgcC0xLjUgcm91bmRlZC1bMS41cmVtXSByaW5nLTEgcmluZy1ibGFjay9bMC4wNF0gZGFyazpyaW5nLXdoaXRlL1swLjA2XSBzaGFkb3ctY2xheSI+CiAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT0iYmctc3VyZmFjZS1saWdodCBkYXJrOmJnLWdyYXktODAwIHJvdW5kZWQtW2NhbGMoMS41cmVtLTAuMzc1cmVtKV0gc2hhZG93LVtpbnNldF8wXzFweF8wX3JnYmEoMjU1LDI1NSwyNTUsMC41KV0gZGFyazpzaGFkb3ctW2luc2V0XzBfMXB4XzBfcmdiYSgyNTUsMjU1LDI1NSwwLjA1KV0gcC02IHNtOnAtOCI+CiAgICAgICAgICAgIDxPdXRsZXQgLz4KICAgICAgICAgIDwvZGl2PgogICAgICAgIDwvZGl2PgogICAgICA8L2Rpdj4KICAgIDwvZGl2PgogICk7Cn0K
+import { Outlet, Link } from 'react-router-dom';
+import { GraduationCap } from '@phosphor-icons/react';
+
+export default function AuthLayout() {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 bg-page-alt dark:bg-page-dark">
+      <Link to="/" className="flex items-center gap-2 mb-8">
+        <GraduationCap className="w-10 h-10 text-primary-400" weight="fill" />
+        <span className="text-2xl font-bold text-primary-400">Mr Ole</span>
+      </Link>
+      <div className="relative w-full max-w-md p-[1px] rounded-[1.5rem]">
+        <div className="bg-surface-light/90 dark:bg-gray-800/80 p-1.5 rounded-[1.5rem] ring-1 ring-black/[0.04] dark:ring-white/[0.06] shadow-clay">
+          <div className="bg-surface-light dark:bg-gray-800 rounded-[calc(1.5rem-0.375rem)] shadow-[inset_0_1px_0_rgba(255,255,255,0.5)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] p-6 sm:p-8">
+            <Outlet />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

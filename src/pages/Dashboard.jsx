@@ -171,7 +171,7 @@ export default function Dashboard() {
       {!loading && streakData.currentStreak > 0 && !streakData.todayDone && (
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-5 py-4 rounded-2xl bg-orange-50 dark:bg-orange-900/20 ring-1 ring-orange-200 dark:ring-orange-800/30">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shrink-0 animate-pulse-soft">
+            <div className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center shrink-0 animate-pulse-soft">
               <Flame className="w-5 h-5 text-white" weight="fill" />
             </div>
             <p className="text-sm font-medium text-orange-800 dark:text-orange-300">
@@ -204,7 +204,7 @@ export default function Dashboard() {
         <CardContent className="py-4 px-5 sm:px-6">
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shrink-0">
+              <div className="w-11 h-11 rounded-xl bg-primary-500 flex items-center justify-center shrink-0">
                 <PlayCircle className="w-6 h-6 text-white" weight="fill" />
               </div>
               <div className="min-w-0">
@@ -234,7 +234,7 @@ export default function Dashboard() {
           <Card hover={false}>
             <CardContent className="py-5 px-6">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shrink-0 shadow-clay">
+                <div className="w-14 h-14 rounded-2xl bg-amber-500 flex items-center justify-center shrink-0 shadow-clay">
                   <Star className="w-7 h-7 text-white" weight="fill" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -244,7 +244,7 @@ export default function Dashboard() {
                   </div>
                   <div className="mt-2 relative w-full h-2.5 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
                     <div
-                      className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-700 ease-spring progress-shimmer"
+                      className="absolute inset-y-0 left-0 rounded-full bg-amber-500 transition-all duration-700 ease-spring"
                       style={{ width: `${levelProgress}%` }}
                     />
                   </div>
@@ -315,7 +315,7 @@ export default function Dashboard() {
                       </span>
                       <div className="flex-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-full h-5 overflow-hidden">
                         <div
-                          className="h-full rounded-full transition-all bg-gradient-to-r from-primary-300 to-primary-500"
+                          className="h-full rounded-full transition-all bg-primary-500"
                           style={{ width: `${pct}%` }}
                         />
                       </div>
@@ -430,7 +430,7 @@ export default function Dashboard() {
                   </div>
                   <div className="relative w-full bg-black/[0.04] dark:bg-white/[0.06] rounded-full h-2 overflow-hidden">
                     <div
-                      className={`relative h-full rounded-full transition-all duration-700 ease-spring ${mission.done ? 'bg-cta-500' : 'bg-gradient-to-r from-primary-400 via-cta-400 to-fuchsia-400 progress-shimmer'}`}
+                      className={`relative h-full rounded-full transition-all duration-700 ease-spring ${mission.done ? 'bg-cta-500' : 'bg-primary-500'}`}
                       style={{ width: `${mission.percent}%` }}
                     />
                   </div>
@@ -447,7 +447,7 @@ export default function Dashboard() {
           <CardContent className="py-4 px-5">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-400 to-purple-600 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-violet-500 flex items-center justify-center shrink-0">
                   <ArrowsCounterClockwise className="w-5 h-5 text-white" weight="fill" />
                 </div>
                 <div className="min-w-0">
@@ -474,7 +474,7 @@ export default function Dashboard() {
         <CardContent className="py-4 px-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center">
                 <Star className="w-5 h-5 text-white" weight="fill" />
               </div>
               <div>
@@ -488,7 +488,7 @@ export default function Dashboard() {
           </div>
           <div className="mt-3 w-full h-2 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-500 ease-spring"
+              className="h-full rounded-full bg-amber-500 transition-all duration-500 ease-spring"
               style={{ width: `${Math.min((dailyProgress.answered / 10) * 100, 100)}%` }}
             />
           </div>

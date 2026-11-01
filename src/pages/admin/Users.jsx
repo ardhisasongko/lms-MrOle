@@ -142,7 +142,7 @@ export default function AdminUsers() {
               <CardContent className="py-4">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4 min-w-0">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center shrink-0 overflow-hidden">
+                    <div className="w-12 h-12 rounded-2xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center shrink-0 overflow-hidden">
                       {u.avatar_url ? (
                         <img src={u.avatar_url} alt={u.full_name} className="w-full h-full object-cover" />
                       ) : (

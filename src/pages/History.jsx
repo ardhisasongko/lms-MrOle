@@ -189,9 +189,9 @@ export default function History() {
                   <CardContent className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-4">
                     <div className="flex items-center gap-4">
                       <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-lg font-bold text-white shadow-lg ${
-                        a.score >= 80 ? 'bg-gradient-to-br from-green-400 to-green-600 shadow-green-200 dark:shadow-green-900/30' :
-                        a.score >= 50 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-yellow-200 dark:shadow-yellow-900/30' :
-                        'bg-gradient-to-br from-red-400 to-red-600 shadow-red-200 dark:shadow-red-900/30'
+                        a.score >= 80 ? 'bg-green-500' :
+                        a.score >= 50 ? 'bg-yellow-500' :
+                        'bg-red-500'
                       }`}>
                         {Math.round(a.score)}
                       </div>
