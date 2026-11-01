@@ -99,6 +99,7 @@ export default {
         },
         surface: {
           light: '#F7FAFC',
+          dark: '#1E293B',
         },
       },
       fontFamily: {
