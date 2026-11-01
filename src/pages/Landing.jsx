@@ -38,10 +38,10 @@ export default function Landing() {
     <div className="min-h-screen overflow-x-hidden">
 
       {/* ─── HERO ─── */}
-      <section className="relative overflow-hidden bg-primary-100">
+      <section className="relative overflow-hidden bg-primary-100 dark:bg-primary-950">
         <div className="absolute inset-0 opacity-20 pointer-events-none">
-          <div className="absolute -top-20 -left-20 w-80 h-80 bg-white rounded-full blur-3xl" />
-          <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-white rounded-full blur-3xl" />
+          <div className="absolute -top-20 -left-20 w-80 h-80 bg-white dark:bg-primary-400 rounded-full blur-3xl" />
+          <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-white dark:bg-primary-400 rounded-full blur-3xl" />
           <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-primary-300 rounded-full blur-3xl" />
         </div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16 sm:pt-32 sm:pb-28 lg:py-36">
@@ -50,11 +50,11 @@ export default function Landing() {
               <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/70 dark:bg-gray-800/70 text-gray-700 dark:text-gray-200 text-sm font-medium backdrop-blur-sm mb-8 shadow-sm">
                  <Sparkle className="w-4 h-4 text-primary-400" weight="fill" /> {t('landing.hero.badge')}
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-gray-800 leading-tight">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-gray-800 dark:text-gray-100 leading-tight">
                 {t('landing.hero.title')}
-                <span className="block text-primary-600">{t('landing.hero.accent')}</span>
+                <span className="block text-primary-600 dark:text-primary-400">{t('landing.hero.accent')}</span>
               </h1>
-              <p className="text-lg text-gray-600 mb-10 max-w-lg leading-relaxed">
+              <p className="text-lg text-gray-600 dark:text-gray-300 mb-10 max-w-lg leading-relaxed">
                 {t('landing.hero.desc')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
@@ -74,11 +74,11 @@ export default function Landing() {
             </div>
             <div className="hidden lg:flex justify-center">
               <div className="relative w-80 h-80">
-                <div className="absolute inset-0 rounded-[40px] shadow-clay-xl bg-surface-light">
+                <div className="absolute inset-0 rounded-[40px] shadow-clay-xl bg-surface-light dark:bg-surface-dark">
                   <div className="p-8 h-full flex flex-col justify-center items-center text-center">
                     <GraduationCap className="w-20 h-20 text-primary-400 mb-4" weight="fill" />
-                    <div className="text-4xl font-bold text-gray-800">{t('app.name')}</div>
-                    <div className="text-gray-500 mt-2">{t('landing.hero.cardTagline')}</div>
+                    <div className="text-4xl font-bold text-gray-800 dark:text-gray-100">{t('app.name')}</div>
+                    <div className="text-gray-500 dark:text-gray-400 mt-2">{t('landing.hero.cardTagline')}</div>
                     <div className="mt-6 flex gap-2">
                       <div className="w-3 h-3 rounded-full bg-primary-400" />
                       <div className="w-3 h-3 rounded-full bg-secondary-400" />
@@ -259,16 +259,16 @@ export default function Landing() {
       </section>
 
       {/* ─── CTA ─── */}
-      <section className="py-20 sm:py-28 relative overflow-hidden bg-primary-100">
+      <section className="py-20 sm:py-28 relative overflow-hidden bg-primary-100 dark:bg-primary-950">
         <div className="absolute inset-0 opacity-15 pointer-events-none">
-          <div className="absolute top-10 right-10 w-72 h-72 bg-white rounded-full blur-3xl" />
-          <div className="absolute bottom-10 left-10 w-80 h-80 bg-white rounded-full blur-3xl" />
+          <div className="absolute top-10 right-10 w-72 h-72 bg-white dark:bg-primary-400 rounded-full blur-3xl" />
+          <div className="absolute bottom-10 left-10 w-80 h-80 bg-white dark:bg-primary-400 rounded-full blur-3xl" />
         </div>
         <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-5xl font-bold text-gray-800 mb-4 leading-tight tracking-tight">
+          <h2 className="text-3xl sm:text-5xl font-bold text-gray-800 dark:text-gray-100 mb-4 leading-tight tracking-tight">
             {t('landing.cta.title')}
           </h2>
-          <p className="text-gray-600 text-lg mb-10 max-w-xl mx-auto">
+          <p className="text-gray-600 dark:text-gray-300 text-lg mb-10 max-w-xl mx-auto">
             {t('landing.cta.desc')}
           </p>
           <Link
