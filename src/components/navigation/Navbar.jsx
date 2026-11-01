@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useDarkMode } from '../../hooks/useDarkMode';
 import { useAdmin } from '../../hooks/useAdmin';
 import LanguageSwitcher from './LanguageSwitcher';
+import FullscreenButton from '../common/FullscreenButton';
 
 const Navbar = memo(function Navbar({ user, onLogout }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,6 +25,7 @@ const Navbar = memo(function Navbar({ user, onLogout }) {
 
           <div className="hidden md:flex items-center gap-1">
             <LanguageSwitcher />
+            <FullscreenButton />
             <button
               onClick={toggle}
               aria-label={isDark ? t('nav.lightMode') : t('nav.darkMode')}
@@ -76,6 +78,7 @@ const Navbar = memo(function Navbar({ user, onLogout }) {
 
           <div className="md:hidden flex items-center gap-0">
             <LanguageSwitcher />
+            <FullscreenButton />
             <button
               onClick={toggle}
               aria-label={isDark ? t('nav.lightMode') : t('nav.darkMode')}
