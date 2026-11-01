@@ -54,6 +54,21 @@ describe('chat API', () => {
     await expect(response.json()).resolves.toEqual({ reply: 'Noun adalah kata benda.' });
   });
 
+  it('runs the Llama 3.1 8B (FP8) Workers AI model with unchanged parameters', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ id: 'user-1' }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    })));
+    const ai = { run: vi.fn().mockResolvedValue({ response: 'Noun adalah kata benda.' }) };
+
+    const response = await onRequest({ request: request(), env: configuredEnv(ai) });
+
+    expect(response.status).toBe(200);
+    expect(ai.run).toHaveBeenCalledTimes(1);
+    expect(ai.run.mock.calls[0][0]).toBe('@cf/meta/llama-3.1-8b-instruct-fp8');
+    expect(ai.run.mock.calls[0][1]).toMatchObject({ max_tokens: 500, temperature: 0.7 });
+  });
+
   it('rejects requests without an Authorization token', async () => {
     const ai = { run: vi.fn() };
 

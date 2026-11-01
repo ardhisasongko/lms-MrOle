@@ -28,7 +28,7 @@ soal interaktif dengan pembahasan, sambil memantau progres sendiri.
 | Frontend | React 19, Vite 6, React Router 7, Tailwind CSS 3 |
 | Backend/API | Cloudflare Pages Functions (`functions/`) |
 | Database & Auth | Supabase (PostgreSQL + Auth + RLS, lihat `supabase/migrations/`) |
-| AI | Cloudflare Workers AI (`@cf/meta/llama-3.2-3b-instruct`) |
+| AI | Cloudflare Workers AI (`@cf/meta/llama-3.1-8b-instruct-fp8`) |
 | Hosting | Cloudflare Pages (auto-deploy dari `main` via `.github/workflows/deploy.yml`) |
 | Testing | Vitest + Testing Library, Playwright (e2e), Lighthouse CI |
 

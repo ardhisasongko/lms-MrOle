@@ -4,6 +4,13 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
+// Model Workers AI untuk AI Chat & Speaking. Llama 3.1 8B Instruct (FP8)
+// adalah varian 8B Instruct yang tercantum di katalog resmi Cloudflare
+// Workers AI (dicek 2026-11-01); ID polos '@cf/meta/llama-3.1-8b-instruct'
+// sudah tidak tercantum di katalog. Ganti model berikutnya cukup ubah
+// konstanta ini — perilakunya dikunci oleh chat.test.js.
+const CHAT_MODEL = '@cf/meta/llama-3.1-8b-instruct-fp8';
+
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -106,7 +113,7 @@ export async function onRequest(context) {
       { role: 'user', content: message },
     ];
 
-    const response = await env.AI.run('@cf/meta/llama-3.2-3b-instruct', {
+    const response = await env.AI.run(CHAT_MODEL, {
       messages,
       max_tokens: 500,
       temperature: 0.7,
