@@ -189,7 +189,7 @@ export default function Speaking() {
                     return (
                       <div key={i} className={`flex gap-2 sm:gap-3 ${isUser ? 'justify-end' : ''}`}>
                         {!isUser && (
-                          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shrink-0 mt-1 shadow-sm">
+                          <div className="w-8 h-8 rounded-xl bg-primary-500 flex items-center justify-center shrink-0 mt-1 shadow-sm">
                             <Robot className="w-4 h-4 text-white" weight="fill" />
                           </div>
                         )}
