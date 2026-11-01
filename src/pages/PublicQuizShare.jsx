@@ -157,7 +157,7 @@ export default function PublicQuizShare() {
         aria-live="polite"
         aria-label={t('share.public.loadingAria')}
       >
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary-100/70 via-page-light to-secondary-100/70 dark:from-primary-950/30 dark:via-page-dark dark:to-secondary-950/30" />
+        <div className="pointer-events-none absolute inset-0 bg-primary-100/60 dark:bg-primary-950/30" />
         <div className="relative grid w-full max-w-4xl items-center gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,360px)]">
           <div className="space-y-4">
             <Skeleton className="h-7 w-36 rounded-full" />
@@ -176,7 +176,7 @@ export default function PublicQuizShare() {
   if (status === 'not-found') {
     return (
       <section className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden px-4 pb-16 pt-28 text-center sm:pt-32" aria-labelledby="share-not-found-title">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary-100/60 via-page-light to-lavender-100/60 dark:from-primary-950/20 dark:via-page-dark dark:to-lavender-900/20" />
+        <div className="pointer-events-none absolute inset-0 bg-lavender-100/50 dark:bg-lavender-900/20" />
         <div className="relative w-full max-w-lg rounded-3xl bg-white/80 p-1.5 shadow-clay-xl ring-1 ring-black/5 backdrop-blur-xl dark:bg-gray-800/80 dark:ring-white/5">
           <div className="rounded-[1.125rem] bg-white px-6 py-10 dark:bg-gray-800 sm:px-10">
             <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-100 text-primary-700 shadow-clay dark:bg-primary-900/30 dark:text-primary-200">
@@ -204,7 +204,7 @@ export default function PublicQuizShare() {
   if (status === 'error') {
     return (
       <section className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden px-4 pb-16 pt-28 text-center sm:pt-32" aria-labelledby="share-error-title" role="alert">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-secondary-100/60 via-page-light to-primary-100/60 dark:from-secondary-950/20 dark:via-page-dark dark:to-primary-950/20" />
+        <div className="pointer-events-none absolute inset-0 bg-secondary-100/60 dark:bg-secondary-950/20" />
         <div className="relative w-full max-w-lg rounded-3xl bg-white/80 p-1.5 shadow-clay-xl ring-1 ring-black/5 backdrop-blur-xl dark:bg-gray-800/80 dark:ring-white/5">
           <div className="rounded-[1.125rem] bg-white px-6 py-10 dark:bg-gray-800 sm:px-10">
             <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-secondary-100 text-secondary-800 shadow-clay dark:bg-secondary-900/30 dark:text-secondary-200">
@@ -262,7 +262,7 @@ export default function PublicQuizShare() {
 
   return (
     <div className="relative min-h-[100dvh] overflow-hidden px-4 pb-16 pt-28 sm:px-6 sm:pb-20 sm:pt-32 lg:pt-36">
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary-100/80 via-page-light to-secondary-100/80 dark:from-primary-950/30 dark:via-page-dark dark:to-secondary-950/30" />
+      <div className="pointer-events-none absolute inset-0 bg-primary-100/70 dark:bg-primary-950/30" />
       <div className="pointer-events-none absolute -left-24 top-40 h-64 w-64 rounded-full bg-primary-300/30 blur-3xl dark:bg-primary-800/20" />
       <div className="pointer-events-none absolute -right-24 top-20 h-80 w-80 rounded-full bg-secondary-300/30 blur-3xl dark:bg-secondary-800/20" />
       <div className="pointer-events-none absolute bottom-0 left-1/3 h-56 w-56 rounded-full bg-lavender-300/20 blur-3xl dark:bg-lavender-800/10" />
