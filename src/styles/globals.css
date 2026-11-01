@@ -23,6 +23,10 @@
 
     /* Shadow */
     --color-shadow: 0 0 0 0 rgb(0 0 0 / 0.05);
+
+    /* Toast (react-hot-toast, dipakai App.jsx) */
+    --toast-bg: #FFFFFF;
+    --toast-color: #111827;
   }
 
   .dark {
@@ -40,6 +44,10 @@
     --color-border-subtle: rgba(255, 255, 255, 0.06);
 
     --color-shadow: 0 0 0 0 rgb(0 0 0 / 0.3);
+
+    /* Toast (react-hot-toast, dipakai App.jsx) */
+    --toast-bg: #1E293B;
+    --toast-color: #F3F4F6;
   }
 
   html {
