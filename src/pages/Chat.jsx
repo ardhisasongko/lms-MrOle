@@ -1,11 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   PaperPlaneTilt, Robot, User, Sparkle, BookOpen,
   WarningCircle, ArrowsClockwise, Clock, Copy, Check,
+  Microphone, Stop, SpeakerHigh,
 } from '@phosphor-icons/react';
+import toast from 'react-hot-toast';
 import { sendChatMessage } from '../services/chat';
 import { sanitize } from '../utils/sanitize';
 import { createRateLimit } from '../utils/rateLimit';
+import {
+  createSpeechRecognition, isSpeechRecognitionSupported, isSpeechSynthesisSupported,
+  mergeTranscript, speakText,
+} from '../utils/speech';
 import Card, { CardContent } from '../components/common/Card';
 import Button from '../components/common/Button';
 
@@ -20,7 +27,9 @@ function formatTime(date) {
   return new Date(date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 }
 
-function MessageBubble({ msg }) {
+const synthesisSupported = isSpeechSynthesisSupported();
+
+function MessageBubble({ msg, listenLabel }) {
   const [copied, setCopied] = useState(false);
   const isUser = msg.role === 'user';
   const bubbleWidth = isUser
@@ -55,6 +64,16 @@ function MessageBubble({ msg }) {
             <Clock className="w-3 h-3" />
             {formatTime(msg.timestamp)}
           </span>
+          {!isUser && synthesisSupported && (
+            <button
+              onClick={() => speakText(msg.content)}
+              className="w-11 h-11 -my-3 flex items-center justify-center rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              title={listenLabel}
+              aria-label={listenLabel}
+            >
+              <SpeakerHigh className="w-3 h-3" />
+            </button>
+          )}
           {!isUser && (
             <button
               onClick={handleCopy}
@@ -77,6 +96,8 @@ function MessageBubble({ msg }) {
 }
 
 export default function Chat() {
+  const { t } = useTranslation();
+  const recognitionSupported = isSpeechRecognitionSupported();
   const [mode, setMode] = useState('chat');
   const [messages, setMessages] = useState([
     {
@@ -91,14 +112,67 @@ export default function Chat() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [failedMessage, setFailedMessage] = useState(null);
+  const [listening, setListening] = useState(false);
   const bottomRef = useRef(null);
+  const recognitionRef = useRef(null);
+  const voiceBaseRef = useRef('');
+  const voiceRestoreRef = useRef(true);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Hentikan sesi rekaman bila halaman ditinggalkan.
+  useEffect(() => () => {
+    voiceRestoreRef.current = false;
+    try { recognitionRef.current?.stop(); } catch { /* sesi sudah selesai */ }
+    recognitionRef.current = null;
+  }, []);
+
+  const stopListening = () => {
+    try { recognitionRef.current?.stop(); } catch { /* sesi sudah selesai */ }
+    recognitionRef.current = null;
+    setListening(false);
+  };
+
+  const startListening = () => {
+    if (!recognitionSupported || listening || loading) return;
+    voiceBaseRef.current = input;
+    voiceRestoreRef.current = true;
+    const recognition = createSpeechRecognition({
+      lang: 'en-US',
+      onResult: (transcript) => {
+        voiceBaseRef.current = mergeTranscript(voiceBaseRef.current, transcript);
+        setInput(voiceBaseRef.current);
+      },
+      onInterim: (transcript) => {
+        setInput(mergeTranscript(voiceBaseRef.current, transcript));
+      },
+      onError: () => {
+        toast.error(t('chat.voice.micError'));
+        setListening(false);
+      },
+      onEnd: () => {
+        recognitionRef.current = null;
+        setListening(false);
+        // Buang sisa transkrip sementara; teks final tetap dipertahankan.
+        if (voiceRestoreRef.current) setInput(voiceBaseRef.current);
+      },
+    });
+    if (!recognition) return;
+    recognitionRef.current = recognition;
+    setListening(true);
+    try {
+      recognition.start();
+    } catch {
+      recognitionRef.current = null;
+      setListening(false);
+    }
+  };
+
   const switchMode = (newMode) => {
     if (newMode === mode) return;
+    stopListening();
     setMode(newMode);
     setMessages([
       {
@@ -123,6 +197,12 @@ export default function Chat() {
   };
 
   const handleSend = async (retryText) => {
+    if (listening) {
+      // Berhenti merekam dulu; teks tidak dipulihkan ke kolom input
+      // karena pesan ini langsung dikirim.
+      voiceRestoreRef.current = false;
+      stopListening();
+    }
     const text = retryText || input.trim();
     if (!text || loading) return;
     if (!chatRateLimit()) {
@@ -217,7 +297,7 @@ export default function Chat() {
               aria-label="Percakapan dengan Mr Ole"
             >
               {messages.map((msg, i) => (
-                <MessageBubble key={i} msg={msg} />
+                <MessageBubble key={i} msg={msg} listenLabel={t('chat.voice.listen')} />
               ))}
 
               {loading && (
@@ -267,6 +347,22 @@ export default function Chat() {
                   disabled={loading}
                   className="flex-1 min-w-0 min-h-[48px] px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-primary-400 focus:ring-2 focus:ring-primary-200/50 disabled:opacity-50 transition-all duration-200"
                 />
+                {recognitionSupported && (
+                  <Button
+                    variant={listening ? 'danger' : 'outline'}
+                    onClick={() => (listening ? stopListening() : startListening())}
+                    disabled={loading}
+                    className="!p-0 w-12 h-12 rounded-xl shrink-0 relative"
+                    aria-label={listening ? t('chat.voice.stop') : t('chat.voice.speak')}
+                    aria-pressed={listening}
+                    title={listening ? t('chat.voice.stop') : t('chat.voice.speak')}
+                  >
+                    {listening ? <Stop className="w-4 h-4" weight="fill" /> : <Microphone className="w-4 h-4" />}
+                    {listening && (
+                      <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-white animate-pulse" aria-hidden="true" />
+                    )}
+                  </Button>
+                )}
                 <Button
                   onClick={handleSendClick}
                   disabled={loading || !input.trim()}
@@ -276,9 +372,16 @@ export default function Chat() {
                   <PaperPlaneTilt className="w-4 h-4" weight="fill" />
                 </Button>
               </div>
-              <p className="mt-2 text-[0.6875rem] text-gray-400 dark:text-gray-500 text-center">
-                Tekan Enter untuk mengirim
-              </p>
+              {listening ? (
+                <p className="mt-2 text-[0.6875rem] text-red-500 dark:text-red-400 text-center flex items-center justify-center gap-1.5" role="status">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" aria-hidden="true" />
+                  {t('chat.voice.listening')}
+                </p>
+              ) : (
+                <p className="mt-2 text-[0.6875rem] text-gray-400 dark:text-gray-500 text-center">
+                  {recognitionSupported ? 'Tekan Enter untuk mengirim' : t('chat.voice.unsupported')}
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
