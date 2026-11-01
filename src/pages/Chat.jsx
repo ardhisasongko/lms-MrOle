@@ -36,7 +36,7 @@ function MessageBubble({ msg }) {
   return (
     <div className={`flex gap-2 sm:gap-3 ${isUser ? 'justify-end' : ''}`}>
       {!isUser && (
-        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shrink-0 mt-1 shadow-sm">
+        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-primary-500 flex items-center justify-center shrink-0 mt-1 shadow-sm">
           <Robot className="w-4.5 h-4.5 text-white" weight="fill" />
         </div>
       )}
@@ -222,7 +222,7 @@ export default function Chat() {
 
               {loading && (
                 <div className="flex gap-2 sm:gap-3">
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shrink-0 shadow-sm">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-primary-500 flex items-center justify-center shrink-0 shadow-sm">
                     <Robot className="w-4.5 h-4.5 text-white" weight="fill" />
                   </div>
                   <div className="bg-gray-100 dark:bg-gray-700/80 rounded-2xl rounded-bl-md px-4 py-3">
