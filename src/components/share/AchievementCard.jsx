@@ -53,7 +53,7 @@ const AchievementCard = forwardRef(function AchievementCard(
       <article
         ref={ref}
         data-share-format="story"
-        className={`relative aspect-[9/16] w-full overflow-hidden bg-gradient-to-br from-primary-100 via-secondary-100 to-lavender-100 font-sans text-gray-900 ${className}`}
+        className={`relative aspect-[9/16] w-full overflow-hidden bg-primary-50 font-sans text-gray-900 ${className}`}
         aria-label={t('share.card.ariaLabel', { score })}
       >
         <div className="absolute -left-20 top-40 h-64 w-64 rounded-full bg-primary-300/55 blur-3xl" />
@@ -160,7 +160,7 @@ const AchievementCard = forwardRef(function AchievementCard(
     <article
       ref={ref}
       data-share-format="feed"
-      className={`relative aspect-[4/5] w-full overflow-hidden bg-gradient-to-br from-primary-100 via-secondary-100 to-lavender-100 font-sans text-gray-900 ${className}`}
+      className={`relative aspect-[4/5] w-full overflow-hidden bg-primary-50 font-sans text-gray-900 ${className}`}
       aria-label={t('share.card.ariaLabel', { score })}
     >
       <div className="absolute -left-16 top-24 h-48 w-48 rounded-full bg-primary-300/50 blur-3xl" />
