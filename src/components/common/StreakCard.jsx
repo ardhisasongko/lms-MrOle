@@ -16,7 +16,7 @@ const StreakCard = memo(function StreakCard({ streakData, loading }) {
         <div className="flex items-center gap-4 mb-4">
           <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
             currentStreak > 0
-              ? 'bg-gradient-to-br from-orange-400 to-red-500 text-white shadow-lg shadow-orange-200 dark:shadow-orange-900/30 animate-pulse-soft'
+              ? 'bg-orange-500 text-white shadow-md animate-pulse-soft'
               : 'bg-gray-100 dark:bg-gray-700 text-gray-400'
           }`}>
             <Flame className="w-7 h-7" weight={currentStreak > 0 ? 'fill' : 'regular'} />
